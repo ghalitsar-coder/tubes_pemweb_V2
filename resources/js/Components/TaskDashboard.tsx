@@ -35,6 +35,9 @@ interface Task {
 }
 
 interface TasksIndexProps {
+    auth: {
+        user: User;
+    };
     tasks: {
         data: Task[];
         meta: {
@@ -51,7 +54,7 @@ interface TasksIndexProps {
     };
 }
 
-const TasksIndex: React.FC<TasksIndexProps> = ({ tasks, filters }) => {
+const TasksIndex: React.FC<TasksIndexProps> = ({ auth, tasks, filters }) => {
     const [activeFilter, setActiveFilter] = useState(filters?.status || "all");
 
     // Provide default values if tasks.meta is undefined
@@ -74,9 +77,8 @@ const TasksIndex: React.FC<TasksIndexProps> = ({ tasks, filters }) => {
             .length,
         templates: tasksData.filter((task) => task.is_template).length,
     };
-
     return (
-        <AuthenticatedLayout>
+        <AuthenticatedLayout user={auth.user}>
             <Head title="Tasks" />
 
             <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">

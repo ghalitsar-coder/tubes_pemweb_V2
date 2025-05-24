@@ -9,15 +9,18 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Task extends Model
 {
-    use HasFactory;
-
-    protected $fillable = [
+    use HasFactory;    protected $fillable = [
         'title',
         'description',
         'project_id',
+        'task_type',
+        'priority',
         'assigned_to',
         'status',
         'due_date',
+        'start_date',
+        'time_estimate',
+        'tags',
     ];
 
     protected $casts = [

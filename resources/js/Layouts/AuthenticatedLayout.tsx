@@ -26,7 +26,11 @@ interface Props {
     header?: React.ReactNode;
 }
 
-export default function AuthenticatedLayout({ children }: PropsWithChildren) {
+export default function AuthenticatedLayout({
+    children,
+    user,
+    header,
+}: PropsWithChildren<Props>) {
     return (
         <SidebarProvider>
             <AppSidebar />

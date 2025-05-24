@@ -65,6 +65,7 @@ interface DashboardProps extends PageProps {
 }
 
 export default function Dashboard({
+    auth,
     stats,
     projectProgress,
     recentTasks,
@@ -79,7 +80,7 @@ export default function Dashboard({
     }));
 
     return (
-        <AuthenticatedLayout>
+        <AuthenticatedLayout user={auth.user}>
             <div className="flex justify-between items-center mb-8">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">

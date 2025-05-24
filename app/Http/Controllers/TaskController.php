@@ -41,7 +41,7 @@ class TaskController extends Controller
                 'status' => $task->status,
                 'priority' => $task->priority ?? 'medium',
                 'progress' => $this->calculateTaskProgress($task),
-                'start_date' => $task->created_at->format('Y-m-d'),
+                'start_date' => $task->start_date,
                 'due_date' => $task->due_date,
                 'is_template' => $task->project->is_template ?? false,
                 'assignees' => $task->assignee ? [
@@ -75,10 +75,8 @@ class TaskController extends Controller
         switch ($task->status) {
             case 'completed':
                 return 100;
-            case 'in-progress':
             case 'in_progress':
                 return 50;
-            case 'on-hold':
             case 'on_hold':
                 return 25;
             case 'todo':
@@ -96,9 +94,45 @@ class TaskController extends Controller
             $project = Project::findOrFail($projectId);
         }
 
+        // Get recent tasks for the current user
+        $recentTasks = Task::with(['project', 'assignee'])
+            ->latest()
+            ->take(5)
+            ->get()
+            ->map(function ($task) {
+                return [
+                    'id' => $task->id,
+                    'title' => $task->title,
+                    'description' => $task->description,
+                    'status' => $task->status,
+                    'priority' => $task->priority ?? 'medium',
+                    'progress' => $this->calculateTaskProgress($task),
+                    'start_date' => $task->created_at->format('Y-m-d'),
+                    'due_date' => $task->due_date,
+                    'time_estimate' => 0, // Add default for now
+                    'assignees' => $task->assignee ? [
+                        [
+                            'id' => $task->assignee->id,
+                            'name' => $task->assignee->name,
+                            'email' => $task->assignee->email,
+                        ]
+                    ] : [],
+                    'tags' => [], // Add empty array for now
+                    'project' => [
+                        'id' => $task->project->id,
+                        'name' => $task->project->name,
+                    ],
+                    'created_at' => $task->created_at->format('Y-m-d H:i:s'),
+                ];
+            });
+
         return Inertia::render('Tasks/Create', [
-            'users' => User::select('id', 'name')->get(),
+            'auth' => [
+                'user' => auth()->user()
+            ],
+            'users' => User::select('id', 'name', 'email')->get(),
             'projects' => Project::select('id', 'name')->get(),
+            'recentTasks' => $recentTasks,
             'selectedProject' => $project ? [
                 'id' => $project->id,
                 'name' => $project->name,
@@ -108,16 +142,44 @@ class TaskController extends Controller
 
     public function store(Request $request)
     {
+        // Debug: Log incoming request data
+        \Log::info('Task store request data:', $request->all());
+        
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'project_id' => 'required|exists:projects,id',
+            'task_type' => 'nullable|string|in:feature,bug,enhancement,documentation,testing',
+            'priority' => 'nullable|string|in:low,medium,high,urgent',
             'assigned_to' => 'nullable|exists:users,id',
-            'status' => 'required|in:todo,in_progress,completed',
             'due_date' => 'required|date',
+            'start_date' => 'nullable|date',
+            'time_estimate' => 'nullable|numeric|min:0',
+            'tags' => 'nullable|string',
+            'status' => 'required|in:todo,in_progress,completed',
+            'dependencies' => 'nullable|array',
+            'dependencies.*' => 'integer|exists:tasks,id',
+            'attachments' => 'nullable|array',
+            'attachments.*' => 'file|max:10240', // 10MB max per file
         ]);
 
+        // Remove attachments from main data since we'll handle them separately
+        $attachments = $validated['attachments'] ?? [];
+        unset($validated['attachments'], $validated['dependencies']);
+
+        // Debug: Log validated data before creating task
+        \Log::info('Validated task data before create:', $validated);
+
         $task = Task::create($validated);
+
+        // Handle file attachments if any
+        if (!empty($attachments)) {
+            foreach ($attachments as $file) {
+                $filename = $file->getClientOriginalName();
+                $path = $file->store('task-attachments', 'public');
+                $task->addAttachment($filename, $path, $file->getClientMimeType());
+            }
+        }
 
         return redirect()->route('tasks.show', $task)
             ->with('success', 'Task created successfully.');
@@ -126,7 +188,7 @@ class TaskController extends Controller
     public function show(Task $task)
     {
         $task->load(['project', 'assignee', 'comments.user', 'attachments.comments.user']);
-        return Inertia::render('Tasks/Show', [
+        return Inertia::render('Tasks/ShowNew', [
             'task' => $task,
             'auth' => [
                 'user' => auth()->user()
@@ -149,19 +211,60 @@ class TaskController extends Controller
 
     public function update(Request $request, Task $task)
     {
+        // Debug: Log incoming request data
+        \Log::info('Task update request data:', $request->all());
+        \Log::info('Task being updated:', ['id' => $task->id, 'title' => $task->title]);
+        
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'project_id' => 'required|exists:projects,id',
-            'assigned_to' => 'required|exists:users,id',
+            'task_type' => 'nullable|string|in:feature,bug,enhancement,documentation,testing,improvement',
+            'priority' => 'nullable|string|in:low,medium,high,urgent',
+            'assigned_to' => 'nullable|exists:users,id',
             'status' => 'required|in:todo,in_progress,completed',
-            'due_date' => 'required|date',
+            'due_date' => 'nullable|date',
+            'start_date' => 'nullable|date',
+            'time_estimate' => 'nullable|numeric|min:0',
+            'tags' => 'nullable|string',
+            'attachments' => 'nullable|array',
+            'attachments.*' => 'file|max:10240', // 10MB max per file
         ]);
+
+        // Remove attachments from main data since we'll handle them separately
+        $attachments = $validated['attachments'] ?? [];
+        unset($validated['attachments']);
+
+        // Debug: Log validated data before updating task
+        \Log::info('Validated task data before update:', $validated);
 
         $task->update($validated);
 
+        // Handle file attachments if any
+        if (!empty($attachments)) {
+            foreach ($attachments as $file) {
+                $filename = $file->getClientOriginalName();
+                $path = $file->store('task-attachments', 'public');
+                $task->addAttachment($filename, $path, $file->getMimeType());
+            }
+        }
+
         return redirect()->route('tasks.index')
             ->with('success', 'Task updated successfully.');
+    }
+
+    public function addComment(Request $request, Task $task)
+    {
+        $validated = $request->validate([
+            'content' => 'required|string'
+        ]);
+
+        $task->comments()->create([
+            'content' => $validated['content'],
+            'user_id' => auth()->id()
+        ]);
+
+        return back()->with('success', 'Comment added successfully.');
     }
 
     public function destroy(Task $task)

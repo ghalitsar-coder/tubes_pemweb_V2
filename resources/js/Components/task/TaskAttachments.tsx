@@ -29,7 +29,7 @@ interface TaskAttachment {
     path: string;
     type: string;
     uploaded_at: string;
-    created_at: string;
+    created_at?: string; // Make optional since we might only have uploaded_at
     comments: TaskComment[];
 }
 
@@ -297,7 +297,7 @@ export function TaskAttachments({
                                                   minute: "2-digit",
                                               })
                                             : new Date(
-                                                  attachment.created_at
+                                                  attachment.uploaded_at
                                               ).toLocaleDateString("en-US", {
                                                   year: "numeric",
                                                   month: "long",

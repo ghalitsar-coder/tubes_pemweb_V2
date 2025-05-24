@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar - Team Member Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-item.active {
+            background-color: #e0e7ff;
+            color: #4f46e5;
+            border-right: 3px solid #4f46e5;
+        }
+        .sidebar-item.active:hover {
+            background-color: #e0e7ff;
+        }
+        .event-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .calendar-day:hover {
+            background-color: #f5f6fa;
+        }
+        .calendar-day.today {
+            border: 2px solid #4f46e5;
+        }
+        .calendar-day.has-events:after {
+            content: '';
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #4f46e5;
+        }
+        .fc-event-main {
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Main Layout -->
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="hidden md:flex md:flex-shrink-0">
+            <div class="flex flex-col w-64 border-r border-gray-200 bg-white">
+                <div class="flex items-center h-16 px-4 border-b border-gray-200">
+                    <div class="flex items-center">
+                        <i class="fas fa-tasks text-indigo-600 text-xl mr-2"></i>
+                        <span class="text-lg font-semibold">FlowBoard</span>
+                    </div>
+                </div>
+                <div class="flex flex-col flex-grow px-4 py-4 overflow-y-auto">
+                    <nav class="flex-1 space-y-1">
+                        <div>
+                            <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Main</h3>
+                            <a href="#" class="sidebar-item mt-1 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100">
+                                <i class="fas fa-home text-gray-500 group-hover:text-indigo-600 mr-3 flex-shrink-0"></i>
+                                Dashboard
+                            </a>
+                            <a href="#" class="sidebar-item mt-1 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100">
+                                <i class="fas fa-project-diagram text-gray-500 group-hover:text-indigo-600 mr-3 flex-shrink-0"></i>
+                                My Projects
+                            </a>
+                            <a href="#" class="sidebar-item mt-1 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100">
+                                <i class="fas fa-tasks text-gray-500 group-hover:text-indigo-600 mr-3 flex-shrink-0"></i>
+                                My Tasks
+                                <span class="ml-auto inline-block py-0.5 px-2 text-xs rounded-full bg-indigo-100 text-indigo-800">5</span>
+                            </a>
+                        </div>
+                        <div>
+                            <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-4">Teams</h3>
+                            <a href="#" class="sidebar-item mt-1 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100">
+                                <i class="fas fa-users text-gray-500 group-hover:text-indigo-600 mr-3 flex-shrink-0"></i>
+                                Team Dashboard
+                            </a>
+                            <a href="#" class="sidebar-item mt-1 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100">
+                                <i class="fas fa-comments text-gray-500 group-hover:text-indigo-600 mr-3 flex-shrink-0"></i>
+                                Discussions
+                            </a>
+                            <a href="#" class="sidebar-item active mt-1 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100">
+                                <i class="fas fa-calendar text-gray-500 group-hover:text-indigo-600 mr-3 flex-shrink-0"></i>
+                                Calendar
+                            </a>
+                        </div>
+                    </nav>
+                </div>
+                <div class="p-4 border-t border-gray-200">
+                    <div class="flex items-center">
+                        <img src="https://randomuser.me/api/portraits/men/42.jpg" class="w-10 h-10 rounded-full mr-3" alt="User avatar">
+                        <div>
+                            <p class="text-sm font-medium">Team Member</p>
+                            <p class="text-xs text-gray-500">member@example.com</p>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <a href="#" class="text-sm text-gray-600 hover:text-indigo-600 flex items-center">
+                            <i class="fas fa-cog mr-2"></i> Settings
+                        </a>
+                        <a href="#" class="text-sm text-gray-600 hover:text-indigo-600 flex items-center mt-2">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Sign out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex flex-col flex-1 overflow-hidden">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow-sm z-10">
+                <div class="flex items-center justify-between px-4 py-3">
+                    <div class="flex items-center">
+                        <button class="md:hidden mr-2 p-2 rounded-md text-gray-500 hover:text-gray-600 hover:bg-gray-100 focus:outline-none">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h1 class="text-xl font-semibold text-gray-900">Calendar</h1>
+                        <div class="ml-6 flex items-center">
+                            <button id="prev-month" class="p-2 text-gray-500 hover:text-indigo-600">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <h2 id="current-month" class="text-lg font-medium mx-2">June 2025</h2>
+                            <button id="next-month" class="p-2 text-gray-500 hover:text-indigo-600">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                            <button id="today-btn" class="ml-4 px-3 py-1 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                                Today
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <button id="view-toggle" class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md hover:bg-gray-50">
+                                <i class="fas fa-calendar-alt mr-2"></i>
+                                Month View
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <button class="p-2 text-gray-500 hover:text-gray-600">
+                                <i class="fas fa-bell text-xl"></i>
+                            </button>
+                        </div>
+                        <div class="hidden md:block">
+                            <div class="ml-4 flex items-center md:ml-6">
+                                <div class="relative">
+                                    <button class="flex items-center space-x-2 p-1 rounded-full hover:bg-gray-100">
+                                        <span class="text-sm font-medium text-gray-700">Team Member</span>
+                                        <img src="https://randomuser.me/api/portraits/men/42.jpg" class="h-8 w-8 rounded-full" alt="User avatar">
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 overflow-y-auto p-4 bg-gray-50">
+                <div class="max-w-7xl mx-auto">
+                    <!-- Calendar View -->
+                    <div class="bg-white rounded-lg shadow">
+                        <!-- Calendar Header -->
+                        <div class="grid grid-cols-7 gap-px bg-gray-200 border-b border-gray-200">
+                            <div class="bg-white py-2 text-center text-sm font-medium text-gray-500">Sun</div>
+                            <div class="bg-white py-2 text-center text-sm font-medium text-gray-500">Mon</div>
+                            <div class="bg-white py-2 text-center text-sm font-medium text-gray-500">Tue</div>
+                            <div class="bg-white py-2 text-center text-sm font-medium text-gray-500">Wed</div>
+                            <div class="bg-white py-2 text-center text-sm font-medium text-gray-500">Thu</div>
+                            <div class="bg-white py-2 text-center text-sm font-medium text-gray-500">Fri</div>
+                            <div class="bg-white py-2 text-center text-sm font-medium text-gray-500">Sat</div>
+                        </div>
+                        
+                        <!-- Calendar Body -->
+                        <div class="grid grid-cols-7 gap-px bg-gray-200">
+                            <!-- Empty days before first of month (June 2025 starts on Sunday) -->
+                            
+                            <!-- Calendar days -->
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">1</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto">
+                                    <!-- Event items would go here -->
+                                </div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">2</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto">
+                                    <div class="fc-event-main mb-1 bg-blue-100 text-blue-800">
+                                        <i class="fas fa-users mr-1 text-xs"></i>
+                                        <span>Team Meeting</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">3</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto">
+                                    <div class="fc-event-main mb-1 bg-purple-100 text-purple-800">
+                                        <i class="fas fa-tasks mr-1 text-xs"></i>
+                                        <span>Deadline: Dashboard</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">4</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto"></div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">5</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto"></div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">6</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto">
+                                    <div class="fc-event-main mb-1 bg-green-100 text-green-800">
+                                        <i class="fas fa-check mr-1 text-xs"></i>
+                                        <span>Review PR</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">7</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto"></div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">8</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto"></div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">9</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto"></div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">10</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto">
+                                    <div class="fc-event-main mb-1 bg-indigo-100 text-indigo-800">
+                                        <i class="fas fa-code mr-1 text-xs"></i>
+                                        <span>Sprint Planning</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">11</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto"></div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">12</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto"></div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">13</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto"></div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">14</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto">
+                                    <div class="fc-event-main mb-1 bg-yellow-100 text-yellow-800">
+                                        <i class="fas fa-birthday-cake mr-1 text-xs"></i>
+                                        <span>Team Member Bday</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">15</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto">
+                                    <div class="fc-event-main mb-1 bg-red-100 text-red-800">
+                                        <i class="fas fa-exclamation mr-1 text-xs"></i>
+                                        <span>Project Deadline</span>
+                                    </div>
+                                    <div class="fc-event-main mb-1 bg-blue-100 text-blue-800">
+                                        <i class="fas fa-users mr-1 text-xs"></i>
+                                        <span>Client Call</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">16</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto"></div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">17</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto"></div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">18</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto"></div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">19</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto"></div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">20</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto">
+                                    <div class="fc-event-main mb-1 bg-green-100 text-green-800">
+                                        <i class="fas fa-check mr-1 text-xs"></i>
+                                        <span>Demo Day</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">21</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto"></div>
+                            </div>
+                            <div class="calendar-day has-events bg-white h-32 p-1 overflow-hidden relative today">
+                                <div class="text-right text-sm">22</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto">
+                                    <div class="fc-event-main mb-1 bg-purple-100 text-purple-800">
+                                        <i class="fas fa-tasks mr-1 text-xs"></i>
+                                        <span>Task Review</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">23</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto"></div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">24</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto"></div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">25</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto"></div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">26</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto">
+                                    <div class="fc-event-main mb-1 bg-indigo-100 text-indigo-800">
+                                        <i class="fas fa-code mr-1 text-xs"></i>
+                                        <span>Sprint Review</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">27</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto"></div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">28</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto"></div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">29</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto"></div>
+                            </div>
+                            <div class="calendar-day bg-white h-32 p-1 overflow-hidden relative">
+                                <div class="text-right text-sm">30</div>
+                                <div class="absolute inset-0 pt-6 overflow-y-auto">
+                                    <div class="fc-event-main mb-1 bg-red-100 text-red-800">
+                                        <i class="fas fa-exclamation mr-1 text-xs"></i>
+                                        <span>Final Deadline</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upcoming Events Section -->
+                    <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Today's Events -->
+                        <div class="bg-white shadow rounded-lg overflow-hidden">
+                            <div class="px-5 py-4 border-b border-gray-200">
+                                <h3 class="text-lg font-medium text-gray-900">Today's Events</h3>
+                                <p class="mt-1 text-sm text-indigo-600">June 22</p>
+                            </div>
+                            <div class="divide-y divide-gray-200">
+                                <div class="p-4 hover:bg-gray-50 cursor-pointer event-card transition duration-150">
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0 bg-purple-100 rounded-md p-2">
+                                            <i class="fas fa-tasks text-purple-600"></i>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900">Task Review</p>
+                                            <p class="mt-1 text-sm text-gray-500">Review all pending tasks with the team</p>
+                                            <div class="mt-2 flex items-center text-sm text-gray-500">
+                                                <i class="far fa-clock mr-1"></i>
+                                                <span>2:00 PM - 3:30 PM</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-4 hover:bg-gray-50 cursor-pointer event-card transition duration-150">
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0 bg-blue-100 rounded-md p-2">
+                                            <i class="fas fa-users text-blue-600"></i>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900">Weekly Sync</p>
+                                            <p class="mt-1 text-sm text-gray-500">Weekly team synchronization meeting</p>
+                                            <div class="mt-2 flex items-center text-sm text-gray-500">
+                                                <i class="far fa-clock mr-1"></i>
+                                                <span>4:00 PM - 5:00 PM</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Upcoming Events -->
+                        <div class="bg-white shadow rounded-lg overflow-hidden">
+                            <div class="px-5 py-4 border-b border-gray-200">
+                                <h3 class="text-lg font-medium text-gray-900">Upcoming Events</h3>
+                                <p class="mt-1 text-sm text-gray-500">Next 7 days</p>
+                            </div>
+                            <div class="divide-y divide-gray-200">
+                                <div class="p-4 hover:bg-gray-50 cursor-pointer event-card transition duration-150">
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0 bg-indigo-100 rounded-md p-2">
+                                            <i class="fas fa-code text-indigo-600"></i>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900">Sprint Review</p>
+                                            <p class="mt-1 text-sm text-gray-500">End of sprint demo and review</p>
+                                            <div class="mt-2 flex items-center text-sm text-gray-500">
+                                                <i class="far fa-clock mr-1"></i>
+                                                <span>June 26, 10:00 AM - 12:00 PM</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-4 hover:bg-gray-50 cursor-pointer event-card transition duration-150">
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0 bg-red-100 rounded-md p-2">
+                                            <i class="fas fa-exclamation text-red-600"></i>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900">Final Deadline</p>
+                                            <p class="mt-1 text-sm text-gray-500">Project submission deadline</p>
+                                            <div class="mt-2 flex items-center text-sm text-gray-500">
+                                                <i class="far fa-clock mr-1"></i>
+                                                <span>June 30, 11:59 PM</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-4 hover:bg-gray-50 cursor-pointer event-card transition duration-150">
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0 bg-green-100 rounded-md p-2">
+                                            <i class="fas fa-check text-green-600"></i>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900">Quarterly Review</p>
+                                            <p class="mt-1 text-sm text-gray-500">Quarterly performance reviews</p>
+                                            <div class="mt-2 flex items-center text-sm text-gray-500">
+                                                <i class="far fa-clock mr-1"></i>
+                                                <span>July 1, 9:00 AM - 5:00 PM</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Add Event Form -->
+                        <div class="bg-white shadow rounded-lg overflow-hidden">
+                            <div class="px-5 py-4 border-b border-gray-200">
+                                <h3 class="text-lg font-medium text-gray-900">Add New Event</h3>
+                                <p class="mt-1 text-sm text-gray-500">Schedule meetings and reminders</p>
+                            </div>
+                            <div class="p-5">
+                                <form>
+                                    <div class="mb-4">
+                                        <label for="event-title" class="block text-sm font-medium text-gray-700 mb-1">Event Title</label>
+                                        <input type="text" id="event-title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="event-date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                                        <input type="date" id="event-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border">
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <label for="start-time" class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+                                            <input type="time" id="start-time" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border">
+                                        </div>
+                                        <div>
+                                            <label for="end-time" class="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+                                            <input type="time" id="end-time" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border">
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="event-description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                        <textarea id="event-description" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"></textarea>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Event Type</label>
+                                        <div class="flex flex-wrap gap-2">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                <input type="radio" name="event-type" id="meeting" class="mr-1">
+                                                Meeting
+                                            </span>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                <input type="radio" name="event-type" id="task" class="mr-1">
+                                                Task
+                                            </span>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                <input type="radio" name="event-type" id="deadline" class="mr-1">
+                                                Deadline
+                                            </span>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                <input type="radio" name="event-type" id="reminder" class="mr-1">
+                                                Reminder
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                        Add Event
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile sidebar toggle
+            const mobileMenuButton = document.querySelector('button.md\\:hidden');
+            const mobileMenu = document.querySelector('.md\\:hidden.fixed.inset-0.z-40');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.style.display = mobileMenu.style.display === 'block' ? 'none' : 'block';
+                });
+            }
+
+            // Calendar navigation
+            const monthNames = ["January", "February", "March", "April", "May", "June", 
+                                "July", "August", "September", "October", "November", "December"];
+            let currentMonth = new Date().getMonth();
+            let currentYear = new Date().getFullYear();
+            
+            function updateMonthDisplay() {
+                document.getElementById('current-month').textContent = monthNames[currentMonth] + ' ' + currentYear;
+            }
+            
+            document.getElementById('prev-month').addEventListener('click', function() {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                updateMonthDisplay();
+            });
+            
+            document.getElementById('next-month').addEventListener('click', function() {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                updateMonthDisplay();
+            });
+            
+            document.getElementById('today-btn').addEventListener('click', function() {
+                const now = new Date();
+                currentMonth = now.getMonth();
+                currentYear = now.getFullYear();
+                updateMonthDisplay();
+                
+                // Add highlight to today's date
+                document.querySelectorAll('.calendar-day').forEach(day => {
+                    day.classList.remove('today');
+                    const dayNum = parseInt(day.querySelector('div:first-child').textContent);
+                    if (dayNum === now.getDate() && currentMonth === now.getMonth() && currentYear === now.getFullYear()) {
+                        day.classList.add('today');
+                    }
+                });
+            });
+
+            // View toggle
+            const viewToggle = document.getElementById('view-toggle');
+            if (viewToggle) {
+                viewToggle.addEventListener('click', function() {
+                    const currentView = viewToggle.textContent.trim();
+                    viewToggle.innerHTML = currentView.includes('Month') 
+                        ? '<i class="fas fa-calendar-week mr-2"></i> Week View' 
+                        : '<i class="fas fa-calendar-alt mr-2"></i> Month View';
+                });
+            }
+
+            // Event card click handler
+            document.querySelectorAll('.event-card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    // In a real app, this would show event details
+                    console.log('Showing event details');
+                });
+            });
+
+            // Initialize with current date
+            updateMonthDisplay();
+        });
+    </script>
+</body>
+</html>

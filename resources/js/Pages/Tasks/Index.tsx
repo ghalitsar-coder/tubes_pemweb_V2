@@ -63,5 +63,5 @@ interface Props {
 }
 
 export default function Index({ auth, tasks, filters }: Props) {
-    return <TasksIndex tasks={tasks} filters={filters || {}} />;
+    return <TasksIndex auth={auth} tasks={tasks} filters={filters || {}} />;
 }

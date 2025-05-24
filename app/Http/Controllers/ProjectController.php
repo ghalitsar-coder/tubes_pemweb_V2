@@ -17,12 +17,66 @@ class ProjectController extends Controller
     public function __construct()
     {
         // Middleware is now handled in routes/web.php
-    }
-
-    public function index()
+    }    public function index()
     {
-        $projects = Project::with('tasks')->get();
-        return Inertia::render('Projects/Index', [
+        $projects = Project::with(['tasks.assignee'])
+            ->get()
+            ->map(function ($project) {
+                // Calculate members count (unique assignees)
+                $membersCount = $project->tasks
+                    ->pluck('assignee.id')
+                    ->filter()
+                    ->unique()
+                    ->count();
+
+                // Calculate completed tasks count
+                $completedTasksCount = $project->tasks
+                    ->where('status', 'completed')
+                    ->count();
+
+                // Get recent tasks for preview (max 3)
+                $recentTasks = $project->tasks
+                    ->sortByDesc('created_at')
+                    ->take(3)
+                    ->map(function ($task) {
+                        return [
+                            'id' => $task->id,
+                            'title' => $task->title,
+                            'description' => $task->description,
+                            'status' => $task->status,
+                            'priority' => $task->priority ?? 'medium',
+                            'due_date' => $task->due_date,
+                            'assignee' => $task->assignee ? [
+                                'id' => $task->assignee->id,
+                                'name' => $task->assignee->name,
+                                'email' => $task->assignee->email,
+                                'avatar' => $task->assignee->avatar ?? null,
+                            ] : null,
+                        ];
+                    })
+                    ->values();
+
+                return [
+                    'id' => $project->id,
+                    'name' => $project->name,
+                    'description' => $project->description,
+                    'start_date' => $project->start_date,
+                    'end_date' => $project->end_date,
+                    'progress' => $project->progress,
+                    'status' => $project->status,
+                    'budget' => $project->budget,
+                    'spent_budget' => $project->spent_budget,
+                    'category' => $project->category,
+                    'tags' => $project->tags,
+                    'members_count' => $membersCount,
+                    'completed_tasks_count' => $completedTasksCount,
+                    'total_tasks_count' => $project->tasks->count(),
+                    'tasks' => $recentTasks,
+                ];
+            });        return Inertia::render('Projects/Index', [
+            'auth' => [
+                'user' => Auth::user()
+            ],
             'projects' => $projects,
         ]);
     }
@@ -75,12 +129,14 @@ class ProjectController extends Controller
         return Inertia::render('Projects/Show', [
             'project' => $project,
         ]);
-    }
-
-    public function edit(Project $project)
+    }    public function edit(Project $project)
     {
         return Inertia::render('Projects/Edit', [
             'project' => $project,
+            'users' => User::select('id', 'name', 'email')->get(),
+            'auth' => [
+                'user' => Auth::user()
+            ]
         ]);
     }
 
@@ -248,11 +304,9 @@ class ProjectController extends Controller
 
         $project->updateSpentBudget($request->amount);
         return back()->with('success', 'Budget updated successfully.');
-    }
-
-    public function calculateProgress(Project $project)
+    }    public function calculateProgress(Project $project)
     {
         $project->calculateProgress();
         return back()->with('success', 'Project progress updated successfully.');
     }
-} 
+}

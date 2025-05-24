@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Detail | Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-item.active {
+            background-color: #e0e7ff;
+            color: #4f46e5;
+            border-right: 3px solid #4f46e5;
+        }
+        .priority-high {
+            border-left: 4px solid #ef4444;
+        }
+        .priority-medium {
+            border-left: 4px solid #f59e0b;
+        }
+        .priority-low {
+            border-left: 4px solid #10b981;
+        }
+        .comment-box:before {
+            content: "";
+            position: absolute;
+            top: 11px;
+            left: -16px;
+            border-width: 8px 16px 8px 0;
+            border-color: transparent #f3f4f6 transparent transparent;
+        }
+        .tab-active {
+            border-bottom: 2px solid #4f46e5;
+            color: #4f46e5;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Main Layout -->
+    <div class="flex h-screen overflow-hidden">
+      
+
+        <!-- Main Content -->
+        <div class="flex flex-col flex-1 overflow-hidden">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow-sm z-10">
+                <div class="flex items-center justify-between px-4 py-3">
+                    <div class="flex items-center">
+                        <button class="md:hidden mr-2 p-2 rounded-md text-gray-500 hover:text-gray-600 hover:bg-gray-100 focus:outline-none">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <div class="flex items-center">
+                            <a href="#" class="text-gray-500 hover:text-indigo-600">
+                                <i class="fas fa-arrow-left mr-2"></i>
+                            </a>
+                            <h1 class="text-xl font-semibold text-gray-900">Task Detail</h1>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <button class="text-gray-500 hover:text-gray-600">
+                                <i class="fas fa-print text-xl"></i>
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <button class="text-gray-500 hover:text-gray-600">
+                                <i class="fas fa-ellipsis-v text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
+                <div class="max-w-6xl mx-auto">
+                    <!-- Task Header -->
+                    <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+                        <div class="px-6 py-5 border-b border-gray-200">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <div class="flex items-center">
+                                        <span class="px-2 py-1 text-xs font-semibold bg-indigo-100 text-indigo-800 rounded">Task</span>
+                                        <span class="ml-2 text-sm font-medium text-gray-500">#TASK-7891</span>
+                                        <button class="ml-2 text-gray-400 hover:text-gray-500">
+                                            <i class="fas fa-copy text-xs"></i>
+                                        </button>
+                                    </div>
+                                    <h2 class="mt-2 text-2xl font-semibold text-gray-900">Implement user authentication flow with OAuth2</h2>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="px-3 py-1.5 text-sm font-medium text-indigo-600 border border-indigo-300 rounded-md hover:bg-indigo-50">
+                                        <i class="fas fa-pencil-alt mr-1"></i> Edit
+                                    </button>
+                                    <button class="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">
+                                        <i class="fas fa-check mr-1"></i> Complete Task
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Task Meta -->
+                        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                            <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                                <div>
+                                    <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wider">Status</h3>
+                                    <div class="mt-1 flex items-center">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            In Progress
+                                        </span>
+                                        <span class="ml-3 text-sm text-gray-500">Started 2 days ago</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</h3>
+                                    <div class="mt-1 flex items-center">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            <i class="fas fa-exclamation-circle mr-1"></i> High
+                                        </span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</h3>
+                                    <div class="mt-1 flex items-center">
+                                        <i class="fas fa-calendar-alt text-gray-400 mr-2"></i>
+                                        <span class="text-sm font-medium text-gray-900">Jun 30, 2025</span>
+                                        <span class="ml-2 text-sm text-gray-500">(3 days left)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Task Details -->
+                        <div class="px-6 py-5">
+                            <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                                <!-- Main Content -->
+                                <div class="lg:col-span-2">
+                                    <!-- Tabs -->
+                                    <div class="border-b border-gray-200">
+                                        <nav class="flex -mb-px space-x-8">
+                                            <a href="#" class="tab-active whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                                                Details
+                                            </a>
+                                            <a href="#" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                                Activity
+                                            </a>
+                                            <a href="#" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                                Files (3)
+                                            </a>
+                                        </nav>
+                                    </div>
+
+                                    <!-- Description -->
+                                    <div class="mt-6">
+                                        <h3 class="text-lg font-medium text-gray-900">Description</h3>
+                                        <div class="mt-2 prose prose-sm max-w-none text-gray-500">
+                                            <p>Implement OAuth2 authentication flow for the mobile application including:</p>
+                                            <ul>
+                                                <li>Google sign-in integration</li>
+                                                <li>Facebook sign-in integration</li>
+                                                <li>Custom token refresh functionality</li>
+                                                <li>Error handling for all scenarios</li>
+                                            </ul>
+                                            <p>The implementation must follow security best practices and be tested thoroughly before deployment.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Subtasks -->
+                                    <div class="mt-8">
+                                        <div class="flex items-center justify-between">
+                                            <h3 class="text-lg font-medium text-gray-900">Subtasks (3/5 completed)</h3>
+                                            <button class="text-sm text-indigo-600 hover:text-indigo-500">
+                                                <i class="fas fa-plus mr-1"></i> Add Subtask
+                                            </button>
+                                        </div>
+                                        <div class="mt-4 space-y-2">
+                                            <!-- Subtask 1 -->
+                                            <div class="bg-gray-50 p-3 rounded-md flex items-start">
+                                                <input type="checkbox" id="subtask-1" class="h-4 w-4 text-indigo-600 rounded mt-1" checked>
+                                                <label for="subtask-1" class="ml-2 block flex-1 select-none">
+                                                    <span class="text-sm font-medium text-gray-700 line-through">Set up OAuth2 client in Firebase</span>
+                                                    <span class="block text-xs text-gray-500">Completed 3 days ago by John Smith</span>
+                                                </label>
+                                                <button class="text-gray-400 hover:text-gray-500">
+                                                    <i class="fas fa-ellipsis-v text-sm"></i>
+                                                </button>
+                                            </div>
+                                            <!-- Subtask 2 -->
+                                            <div class="bg-gray-50 p-3 rounded-md flex items-start">
+                                                <input type="checkbox" id="subtask-2" class="h-4 w-4 text-indigo-600 rounded mt-1" checked>
+                                                <label for="subtask-2" class="ml-2 block flex-1 select-none">
+                                                    <span class="text-sm font-medium text-gray-700 line-through">Implement Google sign-in flow</span>
+                                                    <span class="block text-xs text-gray-500">Completed 2 days ago by John Smith</span>
+                                                </label>
+                                                <button class="text-gray-400 hover:text-gray-500">
+                                                    <i class="fas fa-ellipsis-v text-sm"></i>
+                                                </button>
+                                            </div>
+                                            <!-- Subtask 3 -->
+                                            <div class="bg-gray-50 p-3 rounded-md flex items-start">
+                                                <input type="checkbox" id="subtask-3" class="h-4 w-4 text-indigo-600 rounded mt-1" checked>
+                                                <label for="subtask-3" class="ml-2 block flex-1 select-none">
+                                                    <span class="text-sm font-medium text-gray-700 line-through">Implement Facebook sign-in flow</span>
+                                                    <span class="block text-xs text-gray-500">Completed yesterday by John Smith</span>
+                                                </label>
+                                                <button class="text-gray-400 hover:text-gray-500">
+                                                    <i class="fas fa-ellipsis-v text-sm"></i>
+                                                </button>
+                                            </div>
+                                            <!-- Subtask 4 -->
+                                            <div class="bg-gray-50 p-3 rounded-md flex items-start">
+                                                <input type="checkbox" id="subtask-4" class="h-4 w-4 text-indigo-600 rounded mt-1">
+                                                <label for="subtask-4" class="ml-2 block flex-1 select-none">
+                                                    <span class="text-sm font-medium text-gray-700">Implement token refresh functionality</span>
+                                                    <span class="block text-xs text-gray-500">Due tomorrow</span>
+                                                </label>
+                                                <button class="text-gray-400 hover:text-gray-500">
+                                                    <i class="fas fa-ellipsis-v text-sm"></i>
+                                                </button>
+                                            </div>
+                                            <!-- Subtask 5 -->
+                                            <div class="bg-gray-50 p-3 rounded-md flex items-start">
+                                                <input type="checkbox" id="subtask-5" class="h-4 w-4 text-indigo-600 rounded mt-1">
+                                                <label for="subtask-5" class="ml-2 block flex-1 select-none">
+                                                    <span class="text-sm font-medium text-gray-700">Write tests for authentication flows</span>
+                                                    <span class="block text-xs text-gray-500">Due in 3 days</span>
+                                                </label>
+                                                <button class="text-gray-400 hover:text-gray-500">
+                                                    <i class="fas fa-ellipsis-v text-sm"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Comments -->
+                                    <div class="mt-8">
+                                        <h3 class="text-lg font-medium text-gray-900">Comments (3)</h3>
+                                        <div class="mt-4 space-y-4">
+                                            <!-- Comment 1 -->
+                                            <div class="flex items-start space-x-3">
+                                                <img src="https://randomuser.me/api/portraits/men/32.jpg" class="h-10 w-10 rounded-full">
+                                                <div class="flex-1">
+                                                    <div class="bg-gray-50 rounded-lg p-4 relative comment-box">
+                                                        <div class="flex items-center justify-between">
+                                                            <h4 class="text-sm font-medium text-gray-900">John Smith</h4>
+                                                            <span class="text-xs text-gray#### 5
+
+Here's the continuation from where we left off:
+
+```html
+                                                            500">2 days ago</span>
+                                                        </div>
+                                                        <p class="mt-1 text-sm text-gray-700">I've completed the Google and Facebook sign-in implementations. Still need to work on the token refresh functionality.</p>
+                                                        <div class="mt-2 flex space-x-4">
+                                                            <button class="text-xs text-gray-500 hover:text-gray-700">
+                                                                <i class="fas fa-reply mr-1"></i> Reply
+                                                            </button>
+                                                            <button class="text-xs text-gray-500 hover:text-gray-700">
+                                                                <i class="fas fa-flag mr-1"></i> Flag
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Comment 2 -->
+                                            <div class="flex items-start space-x-3">
+                                                <img src="https://randomuser.me/api/portraits/women/44.jpg" class="h-10 w-10 rounded-full">
+                                                <div class="flex-1">
+                                                    <div class="bg-gray-50 rounded-lg p-4 relative comment-box">
+                                                        <div class="flex items-center justify-between">
+                                                            <h4 class="text-sm font-medium text-gray-900">Admin User</h4>
+                                                            <span class="text-xs text-gray-500">1 day ago</span>
+                                                        </div>
+                                                        <p class="mt-1 text-sm text-gray-700">@JohnSmith Great progress! Please make sure to include test cases for all scenarios before finalizing.</p>
+                                                        <div class="mt-2 flex space-x-4">
+                                                            <button class="text-xs text-gray-500 hover:text-gray-700">
+                                                                <i class="fas fa-reply mr-1"></i> Reply
+                                                            </button>
+                                                            <button class="text-xs text-gray-500 hover:text-gray-700">
+                                                                <i class="fas fa-flag mr-1"></i> Flag
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Comment 3 -->
+                                            <div class="flex items-start space-x-3">
+                                                <img src="https://randomuser.me/api/portraits/men/32.jpg" class="h-10 w-10 rounded-full">
+                                                <div class="flex-1">
+                                                    <div class="bg-gray-50 rounded-lg p-4 relative comment-box">
+                                                        <div class="flex items-center justify-between">
+                                                            <h4 class="text-sm font-medium text-gray-900">John Smith</h4>
+                                                            <span class="text-xs text-gray-500">5 hours ago</span>
+                                                        </div>
+                                                        <p class="mt-1 text-sm text-gray-700">@AdminUser Will do. I've started working on the test cases already and should have them ready by tomorrow.</p>
+                                                        <div class="mt-2 flex space-x-4">
+                                                            <button class="text-xs text-gray-500 hover:text-gray-700">
+                                                                <i class="fas fa-reply mr-1"></i> Reply
+                                                            </button>
+                                                            <button class="text-xs text-gray-500 hover:text-gray-700">
+                                                                <i class="fas fa-flag mr-1"></i> Flag
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- New Comment -->
+                                            <div class="mt-6 flex items-start space-x-3">
+                                                <img src="https://randomuser.me/api/portraits/women/44.jpg" class="h-10 w-10 rounded-full">
+                                                <div class="flex-1">
+                                                    <div class="border border-gray-300 rounded-lg shadow-sm overflow-hidden">
+                                                        <textarea rows="3" class="block w-full p-3 border-0 resize-none focus:ring-0 sm:text-sm" placeholder="Add a comment..."></textarea>
+                                                        <div class="bg-gray-50 px-3 py-2 sm:px-6 flex justify-end space-x-3">
+                                                            <button type="button" class="px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                                                                Cancel
+                                                            </button>
+                                                            <button type="submit" class="px-3 py-1.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                                                                Comment
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Sidebar -->
+                                <div class="space-y-6">
+                                    <!-- Task Status -->
+                                    <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                                        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                                            <h3 class="text-base font-medium text-gray-900">Task Status</h3>
+                                        </div>
+                                        <div class="px-4 py-5 sm:p-6">
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                                    <select class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                                        <option>To Do</option>
+                                                        <option selected>In Progress</option>
+                                                        <option>In Review</option>
+                                                        <option>Done</option>
+                                                        <option>Blocked</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-1">Progress</label>
+                                                    <div class="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                                                        <div class="h-full bg-indigo-600 rounded-full" style="width: 60%"></div>
+                                                    </div>
+                                                    <p class="mt-1 text-sm text-gray-500">60% completed</p>
+                                                </div>
+                                                <div>
+                                                    <button class="w-full px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                                        Update Status
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Task Details -->
+                                    <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                                        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                                            <h3 class="text-base font-medium text-gray-900">Details</h3>
+                                        </div>
+                                        <div class="px-4 py-5 sm:p-6">
+                                            <div class="space-y-5">
+                                                <!-- Project -->
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-1">Project</label>
+                                                    <div class="flex items-center">
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                            Website Redesign
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Assignee -->
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-1">Assignee</label>
+                                                    <div class="flex items-center">
+                                                        <img src="https://randomuser.me/api/portraits/men/32.jpg" class="h-6 w-6 rounded-full mr-2">
+                                                        <span>John Smith</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Reporter -->
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-1">Reporter</label>
+                                                    <div class="flex items-center">
+                                                        <img src="https://randomuser.me/api/portraits/women/44.jpg" class="h-6 w-6 rounded-full mr-2">
+                                                        <span>Admin User</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Created Date -->
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-1">Created</label>
+                                                    <div class="flex items-center text-sm text-gray-500">
+                                                        <i class="fas fa-calendar-alt mr-2"></i>
+                                                        Jun 15, 2025
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Time Tracking -->
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-1">Time Tracking</label>
+                                                    <div class="mt-1">
+                                                        <div class="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                                                            <div class="h-full bg-green-500 rounded-full" style="width: 45%"></div>
+                                                        </div>
+                                                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                                            <span>8h logged</span>
+                                                            <span>10h estimated</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Related Tasks -->
+                                    <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                                        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                                            <div class="flex justify-between items-center">
+                                                <h3 class="text-base font-medium text-gray-900">Related Tasks</h3>
+                                                <button class="text-indigo-600 hover:text-indigo-500 text-sm font-medium">
+                                                    + Add
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="px-4 py-5 sm:p-6">
+                                            <div class="space-y-3">
+                                                <div class="flex items-start">
+                                                    <input type="checkbox" id="related-task-1" class="h-4 w-4 text-indigo-600 rounded mt-1" checked>
+                                                    <label for="related-task-1" class="ml-2 block">
+                                                        <span class="text-sm font-medium text-gray-700">#TASK-7885 - Design auth screens</span>
+                                                        <span class="block text-xs text-gray-500">Completed by Sarah Johnson</span>
+                                                    </label>
+                                                </div>
+                                                <div class="flex items-start">
+                                                    <input type="checkbox" id="related-task-2" class="h-4 w-4 text-indigo-600 rounded mt-1">
+                                                    <label for="related-task-2" class="ml-2 block">
+                                                        <span class="text-sm font-medium text-gray-700">#TASK-7895 - Test auth flows</span>
+                                                        <span class="block text-xs text-gray-500">Assigned to QA team</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Labels -->
+                                    <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                                        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                                            <div class="flex justify-between items-center">
+                                                <h3 class="text-base font-medium text-gray-900">Labels</h3>
+                                                <button class="text-indigo-600 hover:text-indigo-500 text-sm font-medium">
+                                                    + Add
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="px-4 py-5 sm:p-6">
+                                            <div class="flex flex-wrap gap-2">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Authentication</span>
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Security</span>
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Backend</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Listen for checkbox changes in subtasks
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const label = this.nextElementSibling.querySelector('span:first-child');
+                    if(this.checked) {
+                        label.classList.add('line-through');
+                    } else {
+                        label.classList.remove('line-through');
+                    }
+                    
+                    // Update progress (in a real app this would make an API call)
+                    updateTaskProgress();
+                });
+            });
+
+            function updateTaskProgress() {
+                const totalSubtasks = document.querySelectorAll('.bg-gray-50.p-3.rounded-md').length;
+                const completedSubtasks = document.querySelectorAll('.bg-gray-50.p-3.rounded-md input[type="checkbox"]:checked').length;
+                const progress = Math.round((completedSubtasks / totalSubtasks) * 100);
+                
+                // Update progress bar
+                const progressBar = document.querySelector('.h-2.w-full.bg-gray-200.rounded-full.overflow-hidden div');
+                if(progressBar) {
+                    progressBar.style.width = `${progress}%`;
+                    progressBar.previousElementSibling.textContent = `${progress}% completed`;
+                }
+                
+                // Update progress text in sidebar
+                const progressText = document.querySelectorAll('.text-sm.text-gray-500');
+                progressText.forEach(el => {
+                    if(el.textContent.includes('% completed')) {
+                        el.textContent = `${progress}% completed`;
+                    }
+                });
+                
+                // Update progress bar in sidebar
+                const sidebarProgressBar = document.querySelectorAll('.h-2.w-full.bg-gray-200.rounded-full.overflow-hidden div')[1];
+                if(sidebarProgressBar) {
+                    sidebarProgressBar.style.width = `${progress}%`;
+                }
+            }
+
+            // Comment form submission
+            const commentForm = document.querySelector('.border.border-gray-300.rounded-lg.shadow-sm');
+            if(commentForm) {
+                commentForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const textarea = this.querySelector('textarea');
+                    if(textarea.value.trim() === '') return;
+                    
+                    // In a real app, this would send the comment to the server
+                    alert('Comment added!');
+                    textarea.value = '';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

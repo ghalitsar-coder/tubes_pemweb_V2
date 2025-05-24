@@ -1,4 +1,4 @@
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,12 +12,6 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { User } from "@/types";
 import { formatDate } from "@/lib/utils";
 import {
@@ -36,8 +30,6 @@ import {
     ChevronDown,
     ChevronRight,
     MoreVertical,
-    Edit,
-    Trash2,
 } from "lucide-react";
 
 interface Task {
@@ -115,7 +107,7 @@ const progressColors: Record<number, string> = {
     3: "bg-red-600",
 };
 
-export default function Index({ auth, projects }: Props) {
+export default function Overview({ auth, projects }: Props) {
     const getTaskStatusIcon = (status: string) => {
         switch (status) {
             case "completed":
@@ -219,11 +211,7 @@ export default function Index({ auth, projects }: Props) {
                                             </div>
                                             <div>
                                                 <CardTitle className="text-lg font-semibold text-gray-900">
-                                                    <Link
-                                                        href={`/projects/${project.id}`}
-                                                    >
-                                                        {project.name}
-                                                    </Link>
+                                                    {project.name}
                                                 </CardTitle>
                                                 <div className="flex items-center text-sm text-gray-500 mt-1">
                                                     <span>
@@ -245,56 +233,10 @@ export default function Index({ auth, projects }: Props) {
                                                     </span>
                                                 </div>
                                             </div>
-                                        </div>{" "}
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                >
-                                                    <MoreVertical className="h-4 w-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuItem asChild>
-                                                    <Link
-                                                        href={`/projects/${project.id}/edit`}
-                                                    >
-                                                        <Edit className="h-4 w-4 mr-2" />
-                                                        Edit Project
-                                                    </Link>
-                                                </DropdownMenuItem>{" "}
-                                                <DropdownMenuItem
-                                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                                    onClick={() => {
-                                                        if (
-                                                            confirm(
-                                                                "Are you sure you want to delete this project? This action cannot be undone."
-                                                            )
-                                                        ) {
-                                                            router.delete(
-                                                                `/projects/${project.id}`,
-                                                                {
-                                                                    onSuccess:
-                                                                        () => {
-                                                                            // The page will automatically reload with the updated projects list
-                                                                        },
-                                                                    onError:
-                                                                        () => {
-                                                                            alert(
-                                                                                "An error occurred while deleting the project."
-                                                                            );
-                                                                        },
-                                                                }
-                                                            );
-                                                        }
-                                                    }}
-                                                >
-                                                    <Trash2 className="h-4 w-4 mr-2" />
-                                                    Delete Project
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                                        </div>
+                                        <Button variant="ghost" size="sm">
+                                            <MoreVertical className="h-4 w-4" />
+                                        </Button>
                                     </div>
                                 </CardHeader>
 

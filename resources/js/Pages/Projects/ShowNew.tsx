@@ -12,14 +12,13 @@ import {
     Filter,
     MoreVertical,
 } from "lucide-react";
-import { Project, User, ProjectAttachment, Task } from "@/types";
+import { Project, Task, User } from "@/types";
 
 interface Props {
     project: Project & {
         tasks: Task[];
         user: User;
         members?: User[];
-        attachments?: ProjectAttachment[];
         activity?: Array<{
             id: number;
             user: User;
@@ -33,7 +32,7 @@ interface Props {
     };
 }
 
-export default function Show({ project, auth }: Props) {
+export default function ShowNew({ project, auth }: Props) {
     const getStatusColor = (status: string) => {
         switch (status) {
             case "not_started":
@@ -186,28 +185,27 @@ export default function Show({ project, auth }: Props) {
 
                     {/* Project Stats Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                        {/* Progress Card */}{" "}
+                        {/* Progress Card */}
                         <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
                             <div className="flex justify-between items-center mb-2">
                                 <h3 className="text-sm font-medium text-gray-500">
                                     Project Progress
                                 </h3>
                                 <span className="text-sm font-bold">
-                                    {project.progress || 0}%
+                                    {project.progress}%
                                 </span>
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
                                 <div
                                     className="bg-indigo-600 h-2 rounded-full transition-all duration-500"
-                                    style={{
-                                        width: `${project.progress || 0}%`,
-                                    }}
+                                    style={{ width: `${project.progress}%` }}
                                 ></div>
                             </div>
                             <p className="text-xs text-gray-500">
                                 {completedTasks} of {totalTasks} tasks completed
                             </p>
                         </div>
+
                         {/* Overdue Tasks Card */}
                         <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
                             <div className="flex items-start">
@@ -224,6 +222,7 @@ export default function Show({ project, auth }: Props) {
                                 </div>
                             </div>
                         </div>
+
                         {/* Team Members Card */}
                         <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
                             <h3 className="text-sm font-medium text-gray-500 mb-3">
@@ -244,7 +243,7 @@ export default function Show({ project, auth }: Props) {
                                         </div>
                                     )) || (
                                     <div className="w-8 h-8 rounded-full border-2 border-white bg-indigo-100 flex items-center justify-center text-xs font-medium text-indigo-600">
-                                        {project?.user?.name
+                                        {project.user.name
                                             .charAt(0)
                                             .toUpperCase()}
                                     </div>
@@ -257,6 +256,7 @@ export default function Show({ project, auth }: Props) {
                                     )}
                             </div>
                         </div>
+
                         {/* Timeline Card */}
                         <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
                             <h3 className="text-sm font-medium text-gray-500 mb-1">
@@ -478,70 +478,61 @@ export default function Show({ project, auth }: Props) {
                                     <h3 className="text-lg font-semibold text-gray-900">
                                         Project Resources
                                     </h3>
-                                </div>{" "}
+                                </div>
                                 <div className="p-5">
                                     <div className="space-y-4">
-                                        {Array.isArray(project.attachments) &&
-                                        project.attachments.length > 0 ? (
-                                            project.attachments.map(
-                                                (
-                                                    attachment: ProjectAttachment,
-                                                    index: number
-                                                ) => (
-                                                    <div
-                                                        key={
-                                                            attachment.id ||
-                                                            index
-                                                        }
-                                                        className="flex items-center"
-                                                    >
-                                                        <div className="p-3 bg-blue-100 rounded-lg text-blue-600 mr-4">
-                                                            {attachment.type.includes(
-                                                                "pdf"
-                                                            ) ? (
-                                                                <FileText className="w-5 h-5" />
-                                                            ) : attachment.type.includes(
-                                                                  "image"
-                                                              ) ? (
-                                                                <img
-                                                                    src={
-                                                                        attachment.path
-                                                                    }
-                                                                    alt={
-                                                                        attachment.filename
-                                                                    }
-                                                                    className="w-5 h-5 object-cover"
-                                                                />
-                                                            ) : (
-                                                                <Folder className="w-5 h-5" />
-                                                            )}
-                                                        </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="text-sm font-medium text-gray-900 truncate">
-                                                                {
+                                        {project.attachments?.map(
+                                            (attachment, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="flex items-center"
+                                                >
+                                                    <div className="p-3 bg-blue-100 rounded-lg text-blue-600 mr-4">
+                                                        {attachment.type.includes(
+                                                            "pdf"
+                                                        ) ? (
+                                                            <FileText className="w-5 h-5" />
+                                                        ) : attachment.type.includes(
+                                                              "image"
+                                                          ) ? (
+                                                            <img
+                                                                src={
+                                                                    attachment.path
+                                                                }
+                                                                alt={
                                                                     attachment.filename
                                                                 }
-                                                            </p>
-                                                            <p className="text-xs text-gray-500">
-                                                                Uploaded{" "}
-                                                                {new Date(
-                                                                    attachment.uploaded_at
-                                                                ).toLocaleDateString(
-                                                                    "en-US",
-                                                                    {
-                                                                        month: "short",
-                                                                        day: "numeric",
-                                                                    }
-                                                                )}
-                                                            </p>
-                                                        </div>
-                                                        <button className="text-gray-400 hover:text-gray-600">
-                                                            <ExternalLink className="w-4 h-4" />
-                                                        </button>
+                                                                className="w-5 h-5 object-cover"
+                                                            />
+                                                        ) : (
+                                                            <Folder className="w-5 h-5" />
+                                                        )}
                                                     </div>
-                                                )
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-sm font-medium text-gray-900 truncate">
+                                                            {
+                                                                attachment.filename
+                                                            }
+                                                        </p>
+                                                        <p className="text-xs text-gray-500">
+                                                            Uploaded{" "}
+                                                            {new Date(
+                                                                attachment.uploaded_at
+                                                            ).toLocaleDateString(
+                                                                "en-US",
+                                                                {
+                                                                    month: "short",
+                                                                    day: "numeric",
+                                                                }
+                                                            )}
+                                                        </p>
+                                                    </div>
+                                                    <button className="text-gray-400 hover:text-gray-600">
+                                                        <ExternalLink className="w-4 h-4" />
+                                                    </button>
+                                                </div>
                                             )
-                                        ) : (
+                                        ) || (
                                             <p className="text-sm text-gray-500">
                                                 No resources uploaded yet.
                                             </p>
@@ -610,16 +601,13 @@ export default function Show({ project, auth }: Props) {
                                         </h3>
                                     </div>
                                     <div className="p-5">
-                                        {" "}
                                         <div className="flex justify-between items-center mb-3">
                                             <span className="text-sm text-gray-500">
                                                 Total Budget:
                                             </span>
                                             <span className="font-medium">
                                                 $
-                                                {(
-                                                    project.budget || 0
-                                                ).toLocaleString()}
+                                                {project.budget.toLocaleString()}
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center mb-3">
@@ -628,9 +616,7 @@ export default function Show({ project, auth }: Props) {
                                             </span>
                                             <span className="font-medium">
                                                 $
-                                                {(
-                                                    project.spent_budget || 0
-                                                ).toLocaleString()}
+                                                {project.spent_budget.toLocaleString()}
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center mb-3">
@@ -640,8 +626,8 @@ export default function Show({ project, auth }: Props) {
                                             <span className="font-medium">
                                                 $
                                                 {(
-                                                    (project.budget || 0) -
-                                                    (project.spent_budget || 0)
+                                                    project.budget -
+                                                    project.spent_budget
                                                 ).toLocaleString()}
                                             </span>
                                         </div>
@@ -651,10 +637,8 @@ export default function Show({ project, auth }: Props) {
                                                 style={{
                                                     width: `${Math.min(
                                                         100,
-                                                        ((project.spent_budget ||
-                                                            0) /
-                                                            (project.budget ||
-                                                                1)) *
+                                                        (project.spent_budget /
+                                                            project.budget) *
                                                             100
                                                     )}%`,
                                                 }}
@@ -662,8 +646,8 @@ export default function Show({ project, auth }: Props) {
                                         </div>
                                         <p className="text-xs text-gray-500 mt-2">
                                             {(
-                                                ((project.spent_budget || 0) /
-                                                    (project.budget || 1)) *
+                                                (project.spent_budget /
+                                                    project.budget) *
                                                 100
                                             ).toFixed(1)}
                                             % of budget used

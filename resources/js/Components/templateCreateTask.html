@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Task Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-item.active {
+            background-color: #e0e7ff;
+            color: #4f46e5;
+            border-right: 3px solid #4f46e5;
+        }
+        .sidebar-item.active:hover {
+            background-color: #e0e7ff;
+        }
+        .user-select [type="checkbox"]:checked + label {
+            background-color: #e0e7ff;
+            border-color: #4f46e5;
+        }
+        .task-select:hover .task-actions {
+            opacity: 1;
+        }
+        .tab-active {
+            border-bottom: 2px solid #4f46e5;
+            color: #4f46e5;
+        }
+        .priority-high {
+            border-left: 3px solid #ef4444;
+        }
+        .priority-medium {
+            border-left: 3px solid #f59e0b;
+        }
+        .priority-low {
+            border-left: 3px solid #10b981;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Main Layout -->
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="hidden md:flex md:flex-shrink-0">
+            <div class="flex flex-col w-64 border-r border-gray-200 bg-white">
+                <div class="flex items-center h-16 px-4 border-b border-gray-200">
+                    <div class="flex items-center">
+                        <i class="fas fa-tasks text-indigo-600 text-xl mr-2"></i>
+                        <span class="text-lg font-semibold">TaskFlow Admin</span>
+                    </div>
+                </div>
+                <div class="flex flex-col flex-grow px-4 py-4 overflow-y-auto">
+                    <nav class="flex-1 space-y-1">
+                        <div>
+                            <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Management</h3>
+                            <a href="#" class="sidebar-item mt-1 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100">
+                                <i class="fas fa-home text-gray-500 group-hover:text-indigo-600 mr-3 flex-shrink-0"></i>
+                                Dashboard
+                            </a>
+                            <a href="#" class="sidebar-item active mt-1 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100">
+                                <i class="fas fa-tasks text-gray-500 group-hover:text-indigo-600 mr-3 flex-shrink-0"></i>
+                                Task Management
+                            </a>
+                            <a href="#" class="sidebar-item mt-1 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100">
+                                <i class="fas fa-users text-gray-500 group-hover:text-indigo-600 mr-3 flex-shrink-0"></i>
+                                User Management
+                            </a>
+                        </div>
+                        <div>
+                            <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-4">Projects</h3>
+                            <a href="#" class="sidebar-item mt-1 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100">
+                                <i class="fas fa-project-diagram text-gray-500 group-hover:text-indigo-600 mr-3 flex-shrink-0"></i>
+                                Project Overview
+                            </a>
+                            <a href="#" class="sidebar-item mt-1 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100">
+                                <i class="fas fa-chart-line text-gray-500 group-hover:text-indigo-600 mr-3 flex-shrink-0"></i>
+                                Reports & Analytics
+                            </a>
+                        </div>
+                    </nav>
+                </div>
+                <div class="p-4 border-t border-gray-200">
+                    <div class="flex items-center">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" class="w-10 h-10 rounded-full mr-3" alt="Admin avatar">
+                        <div>
+                            <p class="text-sm font-medium">Admin User</p>
+                            <p class="text-xs text-gray-500">admin@example.com</p>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <a href="#" class="text-sm text-gray-600 hover:text-indigo-600 flex items-center">
+                            <i class="fas fa-cog mr-2"></i> Admin Settings
+                        </a>
+                        <a href="#" class="text-sm text-gray-600 hover:text-indigo-600 flex items-center mt-2">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex flex-col flex-1 overflow-hidden">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow-sm z-10">
+                <div class="flex items-center justify-between px-4 py-3">
+                    <div class="flex items-center">
+                        <button class="md:hidden mr-2 p-2 rounded-md text-gray-500 hover:text-gray-600 hover:bg-gray-100 focus:outline-none">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h1 class="text-xl font-semibold text-gray-900">Task Management</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <button class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">
+                                <i class="fas fa-plus mr-2"></i> Create Task
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <button class="p-2 text-gray-500 hover:text-gray-600">
+                                <i class="fas fa-bell text-xl"></i>
+                            </button>
+                        </div>
+                        <div class="hidden md:block">
+                            <div class="ml-4 flex items-center md:ml-6">
+                                <div class="relative">
+                                    <button class="flex items-center space-x-2 p-1 rounded-full hover:bg-gray-100">
+                                        <span class="text-sm font-medium text-gray-700">Admin User</span>
+                                        <img src="https://randomuser.me/api/portraits/women/44.jpg" class="h-8 w-8 rounded-full" alt="Admin avatar">
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
+                <!-- Task Creation Section -->
+                <div class="max-w-6xl mx-auto bg-white rounded-lg shadow overflow-hidden">
+                    <!-- Task Tabs -->
+                    <div class="border-b border-gray-200">
+                        <nav class="flex -mb-px">
+                            <a href="#" class="tab-active whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm">
+                                Task Creation
+                            </a>
+                            <a href="#" class="whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                Bulk Import
+                            </a>
+                            <a href="#" class="whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                Task Templates
+                            </a>
+                        </nav>
+                    </div>
+
+                    <!-- Task Form -->
+                    <div class="px-6 py-5">
+                        <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                            <!-- Main Task Details -->
+                            <div class="lg:col-span-2">
+                                <h2 class="text-lg font-medium text-gray-900 mb-6">Create New Task</h2>
+                                
+                                <!-- Title -->
+                                <div class="mb-6">
+                                    <label for="task-title" class="block text-sm font-medium text-gray-700 mb-1">Task Title *</label>
+                                    <input type="text" id="task-title" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="Enter task title">
+                                </div>
+
+                                <!-- Description -->
+                                <div class="mb-6">
+                                    <label for="task-description" class="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                                    <textarea id="task-description" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="Provide detailed task description"></textarea>
+                                </div>
+
+                                <!-- Task Dependencies -->
+                                <div class="mb-6">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Dependencies</label>
+                                    <div class="mt-1 space-y-2">
+                                        <div class="flex items-center">
+                                            <input id="has-dependencies" name="has-dependencies" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                            <label for="has-dependencies" class="ml-2 block text-sm text-gray-700">This task depends on other tasks</label>
+                                        </div>
+                                        <div id="dependencies-container" class="hidden mt-2">
+                                            <select multiple class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                                <option>UI Redesign - #TASK-3421</option>
+                                                <option>API Integration - #TASK-4567</option>
+                                                <option>Database Migration - #TASK-7890</option>
+                                            </select>
+                                            <p class="mt-1 text-sm text-gray-500">Hold Ctrl/Cmd to select multiple tasks</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Attachments -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Attachments</label>
+                                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                                        <div class="space-y-1 text-center">
+                                            <div class="flex text-sm text-gray-600">
+                                                <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                                    <span>Upload files</span>
+                                                    <input id="file-upload" name="file-upload" type="file" class="sr-only" multiple>
+                                                </label>
+                                                <p class="pl-1">or drag and drop</p>
+                                            </div>
+                                            <p class="text-xs text-gray-500">
+                                                PNG, JPG, PDF up to 10MB
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Task Metadata -->
+                            <div class="space-y-6">
+                                <!-- Project Selection -->
+                                <div>
+                                    <label for="project" class="block text-sm font-medium text-gray-700 mb-1">Project *</label>
+                                    <select id="project" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                        <option>Select a project</option>
+                                        <option>Website Redesign</option>
+                                        <option>Mobile App Development</option>
+                                        <option>Marketing Campaign</option>
+                                        <option>Internal Tools</option>
+                                    </select>
+                                </div>
+
+                                <!-- Task Type -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Task Type</label>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <input type="radio" id="task-type-feature" name="task-type" class="hidden peer">
+                                        <label for="task-type-feature" class="peer-checked:bg-blue-50 peer-checked:border-blue-400 border rounded-md p-2 text-center cursor-pointer">
+                                            <i class="fas fa-star text-blue-500"></i>
+                                            <p class="text-sm mt-1">Feature</p>
+                                        </label>
+                                        <input type="radio" id="task-type-bug" name="task-type" class="hidden peer" checked>
+                                        <label for="task-type-bug" class="peer-checked:bg-red-50 peer-checked:border-red-400 border rounded-md p-2 text-center cursor-pointer">
+                                            <i class="fas fa-bug text-red-500"></i>
+                                            <p class="text-sm mt-1">Bug</p>
+                                        </label>
+                                        <input type="radio" id="task-type-improvement" name="task-type" class="hidden peer">
+                                        <label for="task-type-improvement" class="peer-checked:bg-purple-50 peer-checked:border-purple-400 border rounded-md p-2 text-center cursor-pointer">
+                                            <i class="fas fa-magic text-purple-500"></i>
+                                            <p class="text-sm mt-1">Improvement</p>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Priority -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <input type="radio" id="priority-high" name="priority" class="hidden peer" checked>
+                                        <label for="priority-high" class="peer-checked:bg-red-50 peer-checked:border-red-400 border rounded-md p-2 text-center cursor-pointer">
+                                            <i class="fas fa-exclamation-circle text-red-500"></i>
+                                            <p class="text-sm mt-1">High</p>
+                                        </label>
+                                        <input type="radio" id="priority-medium" name="priority" class="hidden peer">
+                                        <label for="priority-medium" class="peer-checked:bg-yellow-50 peer-checked:border-yellow-400 border rounded-md p-2 text-center cursor-pointer">
+                                            <i class="fas fa-exclamation text-yellow-500"></i>
+                                            <p class="text-sm mt-1">Medium</p>
+                                        </label>
+                                        <input type="radio" id="priority-low" name="priority" class="hidden peer">
+                                        <label for="priority-low" class="peer-checked:bg-green-50 peer-checked:border-green-400 border rounded-md p-2 text-center cursor-pointer">
+                                            <i class="fas fa-arrow-down text-green-500"></i>
+                                            <p class="text-sm mt-1">Low</p>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Assignee -->
+                                <div>
+                                    <label for="assignee" class="block text-sm font-medium text-gray-700 mb-1">Assignee</label>
+                                    <select id="assignee" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                        <option>Unassigned</option>
+                                        <option>John Smith (Developer)</option>
+                                        <option>Sarah Johnson (Designer)</option>
+                                        <option>Michael Chen (QA)</option>
+                                        <option>Emily Wilson (Marketing)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Due Date -->
+                                <div>
+                                    <label for="due-date" class="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+                                    <input type="date" id="due-date" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+
+                                <!-- Time Estimate -->
+                                <div>
+                                    <label for="time-estimate" class="block text-sm font-medium text-gray-700 mb-1">Time Estimate (hours)</label>
+                                    <input type="number" id="time-estimate" min="0" step="0.5" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g. 3.5">
+                                </div>
+
+                                <!-- Labels -->
+                                <div>
+                                    <label for="labels" class="block text-sm font-medium text-gray-700 mb-1">Labels</label>
+                                    <input type="text" id="labels" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="Add labels separated by commas">
+                                    <div class="mt-2 flex flex-wrap gap-2">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Frontend</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Backend</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Design</span>
+                                    </div>
+                                </div>
+
+                                <!-- Status -->
+                                <div>
+                                    <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                    <select id="status" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                        <option>To Do</option>
+                                        <option>In Progress</option>
+                                        <option>In Review</option>
+                                        <option>Done</option>
+                                        <option>Blocked</option>
+                                    </select>
+                                </div>
+
+                                <!-- Form Actions -->
+                                <div class="pt-4">
+                                    <div class="flex justify-end space-x-3">
+                                        <button type="button" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                            Cancel
+                                        </button>
+                                        <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                            Create Task
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Tasks Preview -->
+                <div class="mt-8">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Recently Created Tasks</h2>
+                    <div class="bg-white shadow overflow-hidden sm:rounded-md">
+                        <ul class="divide-y divide-gray-200">
+                            <!-- Task 1 -->
+                            <li class="priority-high">
+                                <div class="task-select px-4 py-4 sm:px-6 flex items-center justify-between hover:bg-gray-50">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded">
+                                        <div class="ml-3 min-w-0 flex-1">
+                                            <div class="flex items-center">
+                                                <p class="text-sm font-medium text-indigo-600 truncate">
+                                                    Implement user authentication flow
+                                                </p>
+                                                <p class="ml-2 flex-shrink-0 text-xs text-gray-500">#TASK-7891</p>
+                                            </div>
+                                            <div class="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:space-x-6">
+                                                <div class="flex items-center text-xs text-gray-500">
+                                                    <i class="fas fa-user-circle mr-1.5 text-gray-400 flex-shrink-0"></i>
+                                                    John Smith
+                                                </div>
+                                                <div class="flex items-center text-xs text-gray-500">
+                                                    <i class="fas fa-calendar-alt mr-1.5 text-gray-400 flex-shrink-0"></i>
+                                                    Due Jun 30, 2025
+                                                </div>
+                                                <div class="flex items-center text-xs text-gray-500">
+                                                    <i class="fas fa-clock mr-1.5 text-gray-400 flex-shrink-0"></i>
+                                                    8 hours estimated
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Backend</span>
+                                        <div class="task-actions opacity-0 transition-opacity duration-150">
+                                            <button class="text-gray-400 hover:text-gray-500">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            
+                            <!-- Task 2 -->
+                            <li class="priority-medium">
+                                <div class="task-select px-4 py-4 sm:px-6 flex items-center justify-between hover:bg-gray-50">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded" checked>
+                                        <div class="ml-3 min-w-0 flex-1">
+                                            <div class="flex items-center">
+                                                <p class="text-sm font-medium text-indigo-600 truncate">
+                                                    Redesign dashboard interface
+                                                </p>
+                                                <p class="ml-2 flex-shrink-0 text-xs text-gray-500">#TASK-7890</p>
+                                            </div>
+                                            <div class="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:space-x-6">
+                                                <div class="flex items-center text-xs text-gray-500">
+                                                    <i class="fas fa-user-circle mr-1.5 text-gray-400 flex-shrink-0"></i>
+                                                    Sarah Johnson
+                                                </div>
+                                                <div class="flex items-center text-xs text-gray-500">
+                                                    <i class="fas fa-calendar-alt mr-1.5 text-gray-400 flex-shrink-0"></i>
+                                                    Due Jun 28, 2025
+                                                </div>
+                                                <div class="flex items-center text-xs text-gray-500">
+                                                    <i class="fas fa-clock mr-1.5 text-gray-400 flex-shrink-0"></i>
+                                                    12 hours estimated
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">UI/UX</span>
+                                        <div class="task-actions opacity-0 transition-opacity duration-150">
+                                            <button class="text-gray-400 hover:text-gray-500">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            
+                            <!-- Task 3 -->
+                            <li class="priority-low">
+                                <div class="task-select px-4 py-4 sm:px-6 flex items-center justify-between hover:bg-gray-50">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded">
+                                        <div class="ml-3 min-w-0 flex-1">
+                                            <div class="flex items-center">
+                                                <p class="text-sm font-medium text-indigo-600 truncate">
+                                                    Document API endpoints
+                                                </p>
+                                                <p class="ml-2 flex-shrink-0 text-xs text-gray-500">#TASK-7889</p>
+                                            </div>
+                                            <div class="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:space-x-6">
+                                                <div class="flex items-center text-xs text-gray-500">
+                                                    <i class="fas fa-user-circle mr-1.5 text-gray-400 flex-shrink-0"></i>
+                                                    Michael Chen
+                                                </div>
+                                                <div class="flex items-center text-xs text-gray-500">
+                                                    <i class="fas fa-calendar-alt mr-1.5 text-gray-400 flex-shrink-0"></i>
+                                                    Due Jul 5, 2025
+                                                </div>
+                                                <div class="flex items-center text-xs text-gray-500">
+                                                    <i class="fas fa-clock mr-1.5 text-gray-400 flex-shrink-0"></i>
+                                                    6 hours estimated
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Documentation</span>
+                                        <div class="task-actions opacity-0 transition-opacity duration-150">
+                                            <button class="text-gray-400 hover:text-gray-500">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show/hide dependencies field
+            const hasDependencies = document.getElementById('has-dependencies');
+            const dependenciesContainer = document.getElementById('dependencies-container');
+            
+            hasDependencies.addEventListener('change', function() {
+                if (this.checked) {
+                    dependenciesContainer.classList.remove('hidden');
+                } else {
+                    dependenciesContainer.classList.add('hidden');
+                }
+            });
+
+            // Task type selection
+            document.querySelectorAll('[name="task-type"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    // Handle any specific logic when task type changes
+                    console.log('Task type changed to:', this.id);
+                });
+            });
+
+            // Priority selection
+            document.querySelectorAll('[name="priority"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    // Handle any specific logic when priority changes
+                    console.log('Priority changed to:', this.id);
+                });
+            });
+
+            // Datepicker initialization would go here
+            // In a real app, you would use a datepicker library
+            
+            // Form submission
+            const taskForm = document.querySelector('form');
+            if (taskForm) {
+                taskForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    // Form validation and submission logic would go here
+                    alert('Task created successfully!');
+                    // Reset form or redirect as needed
+                });
+            }
+        });
+    </script>
+</body>
+</html>
