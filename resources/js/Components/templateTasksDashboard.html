@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projects | ProjectFlow</title>
+    <title>tasks | taskFlow</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .project-card {
+        .task-card {
             transition: all 0.3s ease;
         }
-        .project-card:hover {
+        .task-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
@@ -39,14 +39,14 @@
                         <svg class="h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                         </svg>
-                        <span class="ml-2 text-xl font-bold text-gray-800">ProjectFlow</span>
+                        <span class="ml-2 text-xl font-bold text-gray-800">taskFlow</span>
                     </div>
                     <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
                         <a href="#" class="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             Dashboard
                         </a>
                         <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Projects
+                            tasks
                         </a>
                         <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             Team
@@ -91,11 +91,11 @@
 
     <!-- Main Content -->
     <main class="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <!-- Projects Header -->
+        <!-- tasks Header -->
         <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8">
             <div class="mb-4 md:mb-0">
-                <h1 class="text-2xl font-bold text-gray-900">All Projects</h1>
-                <p class="mt-1 text-sm text-gray-500">View, manage and track all your projects in one place</p>
+                <h1 class="text-2xl font-bold text-gray-900">All tasks</h1>
+                <p class="mt-1 text-sm text-gray-500">View, manage and track all your tasks in one place</p>
             </div>
             <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
                 <button class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
@@ -108,12 +108,12 @@
                     <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
-                    New Project
+                    New task
                 </button>
             </div>
         </div>
 
-        <!-- Project Status Filter -->
+        <!-- task Status Filter -->
         <div class="mb-6 flex flex-wrap gap-2">
             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
                 All (7)
@@ -135,10 +135,10 @@
             </button>
         </div>
 
-        <!-- Projects Grid -->
+        <!-- tasks Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Project Card 1 -->
-            <div class="project-card bg-white overflow-hidden shadow rounded-lg">
+            <!-- task Card 1 -->
+            <div class="task-card bg-white overflow-hidden shadow rounded-lg">
                 <div class="p-5">
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-medium text-gray-900 truncate">Basia Wade</h3>
@@ -192,8 +192,8 @@
                 </div>
             </div>
 
-            <!-- Project Card 2 -->
-            <div class="project-card bg-white overflow-hidden shadow rounded-lg">
+            <!-- task Card 2 -->
+            <div class="task-card bg-white overflow-hidden shadow rounded-lg">
                 <div class="p-5">
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-medium text-gray-900 truncate">Kyla Mitchell</h3>
@@ -246,8 +246,8 @@
                 </div>
             </div>
 
-            <!-- Project Card 3 -->
-            <div class="project-card bg-white overflow-hidden shadow rounded-lg">
+            <!-- task Card 3 -->
+            <div class="task-card bg-white overflow-hidden shadow rounded-lg">
                 <div class="p-5">
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-medium text-gray-900 truncate">Bethany Fletcher</h3>
@@ -298,8 +298,8 @@
                 </div>
             </div>
 
-            <!-- Project Card 4 (Template) -->
-            <div class="project-card bg-white overflow-hidden shadow rounded-lg border-2 border-purple-200">
+            <!-- task Card 4 (Template) -->
+            <div class="task-card bg-white overflow-hidden shadow rounded-lg border-2 border-purple-200">
                 <div class="p-5">
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-medium text-gray-900 truncate">Merrill Petty (Template)</h3>
@@ -352,8 +352,8 @@
                 </div>
             </div>
 
-            <!-- Project Card 5 (Template) -->
-            <div class="project-card bg-white overflow-hidden shadow rounded-lg border-2 border-purple-200">
+            <!-- task Card 5 (Template) -->
+            <div class="task-card bg-white overflow-hidden shadow rounded-lg border-2 border-purple-200">
                 <div class="p-5">
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-medium text-gray-900 truncate">Alfonso Whitley (Template)</h3>
@@ -407,8 +407,8 @@
                 </div>
             </div>
 
-            <!-- Project Card 6 (Template) -->
-            <div class="project-card bg-white overflow-hidden shadow rounded-lg border-2 border-purple-200">
+            <!-- task Card 6 (Template) -->
+            <div class="task-card bg-white overflow-hidden shadow rounded-lg border-2 border-purple-200">
                 <div class="p-5">
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-medium text-gray-900 truncate">Kaye Rodriguez (Template)</h3>

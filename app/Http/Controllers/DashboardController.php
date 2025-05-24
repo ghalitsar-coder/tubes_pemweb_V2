@@ -67,21 +67,75 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Get team members with their roles and status
-        $teamMembers = User::with('roles')
-            ->get()
+        // If no upcoming deadlines, add some dummy data
+        if ($upcomingDeadlines->isEmpty()) {
+            $upcomingDeadlines = collect([
+                [
+                    'id' => 1,
+                    'title' => 'Complete Project Documentation',
+                    'project' => 'Website Redesign',
+                    'dueDate' => now()->addDays(2)->format('M d, Y'),
+                    'priority' => 'high',
+                ],
+                [
+                    'id' => 2,
+                    'title' => 'Review User Interface',
+                    'project' => 'Mobile App Development',
+                    'dueDate' => now()->addDays(3)->format('M d, Y'),
+                    'priority' => 'medium',
+                ],
+                [
+                    'id' => 3,
+                    'title' => 'Client Meeting',
+                    'project' => 'E-commerce Platform',
+                    'dueDate' => now()->addDays(5)->format('M d, Y'),
+                    'priority' => 'low',
+                ],
+            ]);
+        }
+
+        // Get team members using the role column from users table
+        $teamMembers = User::get()
             ->map(function ($user) {
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
-                    // 'role' => $user->roles->first()?->name ?? 'Member',
-                    'role' =>  'Member',
-                    'avatar' => $user->profile_photo_url,
-                    // 'status' => $user->isOnline() ? 'online' : 'offline',
-                    'status' =>  'offline',
+                    'role' => ucfirst(str_replace('_', ' ', $user->role)), // Convert team_member to Team Member
+                    'avatar' => "https://ui-avatars.com/api/?name=" . urlencode($user->name),
+                    'status' => 'offline', // Static status for now
                 ];
             });
+
+        // If no team members, add some dummy data
+        if ($teamMembers->isEmpty()) {
+            $teamMembers = collect([
+                [
+                    'id' => 1,
+                    'name' => 'John Doe',
+                    'email' => 'john@example.com',
+                    'role' => 'Project Manager',
+                    'avatar' => 'https://ui-avatars.com/api/?name=John+Doe',
+                    'status' => 'online',
+                ],
+                [
+                    'id' => 2,
+                    'name' => 'Jane Smith',
+                    'email' => 'jane@example.com',
+                    'role' => 'Developer',
+                    'avatar' => 'https://ui-avatars.com/api/?name=Jane+Smith',
+                    'status' => 'away',
+                ],
+                [
+                    'id' => 3,
+                    'name' => 'Mike Johnson',
+                    'email' => 'mike@example.com',
+                    'role' => 'Designer',
+                    'avatar' => 'https://ui-avatars.com/api/?name=Mike+Johnson',
+                    'status' => 'offline',
+                ],
+            ]);
+        }
 
         return Inertia::render('Dashboard', [
             'stats' => $stats,

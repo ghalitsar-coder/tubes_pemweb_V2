@@ -102,3 +102,22 @@
         @apply bg-background text-foreground;
     }
 }
+
+
+@layer components {
+  .task-card {
+    @apply transition-all duration-300 ease-in-out;
+  }
+  .task-card:hover {
+    @apply transform -translate-y-1 shadow-lg;
+  }
+  .progress-bar {
+    @apply h-1.5 transition-all duration-300 ease-in-out;
+  }
+  .status-badge {
+    @apply text-xs;
+  }
+  .tag {
+    @apply text-xs;
+  }
+}
