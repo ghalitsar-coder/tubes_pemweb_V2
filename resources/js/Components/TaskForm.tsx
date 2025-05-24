@@ -101,22 +101,26 @@ const TaskForm: React.FC<TaskFormProps> = ({
         }
         console.log("No initial tags found");
         return [];
-    });    // Initialize date range state
+    }); // Initialize date range state
     const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
         console.log("Initializing date range with task:", task);
         console.log("start_date:", task?.start_date);
         console.log("due_date:", task?.due_date);
-        
+
         // Helper function to parse date safely from either YYYY-MM-DD or ISO format
         const parseDate = (dateString: string): Date | null => {
             if (!dateString) return null;
-            
+
             // Check if it's ISO format (contains 'T')
-            if (dateString.includes('T')) {
+            if (dateString.includes("T")) {
                 // ISO format: "2025-06-02T00:00:00.000000Z"
                 const date = new Date(dateString);
                 // Create a new date in local timezone to avoid timezone shifts
-                return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                return new Date(
+                    date.getFullYear(),
+                    date.getMonth(),
+                    date.getDate()
+                );
             } else {
                 // YYYY-MM-DD format: "2025-05-24"
                 const [year, month, day] = dateString.split("-").map(Number);
@@ -124,10 +128,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 return new Date(year, month - 1, day); // month is 0-indexed
             }
         };
-        
+
         const startDate = task?.start_date ? parseDate(task.start_date) : null;
         const endDate = task?.due_date ? parseDate(task.due_date) : null;
-        
+
         console.log("Parsed startDate:", startDate);
         console.log("Parsed endDate:", endDate);
 
@@ -138,17 +142,18 @@ const TaskForm: React.FC<TaskFormProps> = ({
         } else if (endDate) {
             return { from: undefined, to: endDate };
         }
-        return undefined;    });
-    
+        return undefined;
+    });
+
     // Helper function to normalize date format to YYYY-MM-DD
     const normalizeDateFormat = (dateString: string): string => {
         if (!dateString) return "";
-        
+
         // If it's already in YYYY-MM-DD format, return as is
-        if (!dateString.includes('T')) {
+        if (!dateString.includes("T")) {
             return dateString;
         }
-        
+
         // If it's ISO format, convert to YYYY-MM-DD
         const date = new Date(dateString);
         const year = date.getFullYear();
@@ -156,7 +161,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
         const day = String(date.getDate()).padStart(2, "0");
         return `${year}-${month}-${day}`;
     };
-    
+
     const { data, setData, post, put, processing, errors, reset } = useForm({
         title: task?.title || "",
         description: task?.description || "",
@@ -172,7 +177,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
         dependencies: [] as number[],
         attachments: [] as File[],
     });
-    console.log(`THIS IS  data:`, data)
+    console.log(`THIS IS  data:`, data);
     // console.log(`THIS IS  data:`, data);    // Sync selectedTags with form data when task changes
     useEffect(() => {
         if (task?.tags) {
