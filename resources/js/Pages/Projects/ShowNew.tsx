@@ -479,7 +479,8 @@ export default function ShowNew({ project, auth }: Props) {
                                         Project Resources
                                     </h3>
                                 </div>
-                                <div className="p-5">
+                                {/* // TODO: uncomment */}
+                                {/* <div className="p-5">
                                     <div className="space-y-4">
                                         {project.attachments?.map(
                                             (attachment, index) => (
@@ -542,7 +543,7 @@ export default function ShowNew({ project, auth }: Props) {
                                         <Plus className="w-4 h-4 mr-1" />
                                         Add Resource
                                     </button>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
 
@@ -591,9 +592,11 @@ export default function ShowNew({ project, auth }: Props) {
                                         )}
                                 </div>
                             </div>
+                            
+                                {/* // TODO: uncomment */}
 
                             {/* Budget Information */}
-                            {project.budget && (
+                            {/* {project.budget && (
                                 <div className="bg-white rounded-lg shadow overflow-hidden border border-gray-200 mb-6">
                                     <div className="px-5 py-4 border-b border-gray-200 bg-gray-50">
                                         <h3 className="text-lg font-semibold text-gray-900">
@@ -654,7 +657,7 @@ export default function ShowNew({ project, auth }: Props) {
                                         </p>
                                     </div>
                                 </div>
-                            )}
+                            )} */}
 
                             {/* Recent Activity */}
                             <div className="bg-white rounded-lg shadow overflow-hidden border border-gray-200">

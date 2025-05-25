@@ -19,7 +19,7 @@ interface Task {
     id: number;
     title: string;
     description: string;
-    status: "todo" | "in-progress" | "on-hold" | "completed";
+    status: "todo" | "in_progress" | "on_hold" | "completed";
     priority: "low" | "medium" | "high";
     progress: number;
     start_date: string;
@@ -39,26 +39,24 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
         switch (status) {
             case "todo":
                 return "bg-gray-100 text-gray-800";
-            case "in-progress":
+            case "in_progress":
                 return "bg-blue-100 text-blue-800";
-            case "on-hold":
+            case "on_hold":
                 return "bg-yellow-100 text-yellow-800";
             case "completed":
                 return "bg-green-100 text-green-800";
             default:
                 return "bg-gray-100 text-gray-800";
         }
-    };
-
-    // Helper function for progress bar styling
+    }; // Helper function for progress bar styling
     const getProgressBarColor = (status: string, isTemplate: boolean) => {
         if (isTemplate) return "bg-purple-600";
         switch (status) {
             case "todo":
                 return "bg-gray-400";
-            case "in-progress":
+            case "in_progress":
                 return "bg-blue-600";
-            case "on-hold":
+            case "on_hold":
                 return "bg-yellow-600";
             case "completed":
                 return "bg-green-600";
@@ -89,7 +87,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
         >
             <div className="p-5">
                 <div className="flex items-center justify-between">
-                    <Link href={`/tasks/${task.id}`} >
+                    <Link href={`/tasks/${task.id}`}>
                         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 truncate">
                             {task.title} {task.is_template && "(Template)"}
                         </h3>

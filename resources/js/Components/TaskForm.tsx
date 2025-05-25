@@ -65,7 +65,7 @@ interface Task {
     task_type: string;
     project_id: number;
     assigned_to: number | null;
-    status: "todo" | "in_progress" | "completed";
+    status: "todo" | "in_progress" | "on_hold" | "completed";
     due_date: string;
     tags?: string | null;
     time_estimate?: number | null;

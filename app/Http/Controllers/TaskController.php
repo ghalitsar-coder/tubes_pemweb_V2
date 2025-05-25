@@ -156,7 +156,7 @@ class TaskController extends Controller
             'start_date' => 'nullable|date',
             'time_estimate' => 'nullable|numeric|min:0',
             'tags' => 'nullable|string',
-            'status' => 'required|in:todo,in_progress,completed',
+            'status' => 'required|in:todo,in_progress,on_hold,completed',
             'dependencies' => 'nullable|array',
             'dependencies.*' => 'integer|exists:tasks,id',
             'attachments' => 'nullable|array',
@@ -228,7 +228,7 @@ class TaskController extends Controller
             'start_date' => 'nullable|date',
             'time_estimate' => 'nullable|integer',
             'tags' => 'nullable|string',
-            'status' => 'required|in:todo,in_progress,completed',
+            'status' => 'required|in:todo,in_progress,on_hold,completed',
             'dependencies' => 'nullable|array',
             'dependencies.*' => 'exists:tasks,id',
             'existing_attachments' => 'nullable|array',
@@ -306,4 +306,19 @@ class TaskController extends Controller
         return redirect()->route('tasks.index')
             ->with('success', 'Task deleted successfully.');
     }
-} 
+
+    public function updateStatus(Request $request, Task $task)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:todo,in_progress,on_hold,completed',
+        ]);
+
+        $task->update(['status' => $validated['status']]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Task status updated successfully',
+            'task' => $task->fresh()
+        ]);
+    }
+}

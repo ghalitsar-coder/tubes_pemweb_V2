@@ -8,10 +8,12 @@ interface Props {
         id: number;
         title: string;
         description: string;
-        status: string;
+        status: "todo" | "in_progress" | "completed" | "on_hold";
         due_date: string;
         project_id: number;
         assigned_to: number | null;
+        task_type: string;
+        priority: string;
         attachments: {
             id: number;
             filename: string;

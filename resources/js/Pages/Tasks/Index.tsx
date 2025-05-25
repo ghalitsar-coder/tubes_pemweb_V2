@@ -19,7 +19,7 @@ interface Task {
     id: number;
     title: string;
     description: string;
-    status: "todo" | "in-progress" | "completed" | "on-hold";
+    status: "todo" | "in_progress" | "completed" | "on_hold";
     priority: "low" | "medium" | "high";
     progress: number;
     start_date: string;

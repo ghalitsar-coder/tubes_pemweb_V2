@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Head, Link } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
-import { FilterIcon, PlusIcon } from "lucide-react";
+import { FilterIcon, PlusIcon, LayoutGrid, List } from "lucide-react";
 import Pagination from "./PaginationComp";
 import TaskStatusFilter from "./TaskStatusFilter";
 import TaskCard from "./TaskCard";
+import KanbanBoard from "./KanbanBoard";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 interface User {
     id: number;
@@ -24,7 +26,7 @@ interface Task {
     id: number;
     title: string;
     description: string;
-    status: "todo" | "in-progress" | "on-hold" | "completed";
+    status: "todo" | "in_progress" | "on_hold" | "completed";
     priority: "low" | "medium" | "high";
     progress: number;
     start_date: string;
@@ -32,6 +34,10 @@ interface Task {
     is_template: boolean;
     assignees: User[];
     tags: Tag[];
+    project?: {
+        id: number;
+        name: string;
+    };
 }
 
 interface TasksIndexProps {
@@ -56,9 +62,9 @@ interface TasksIndexProps {
 
 const TasksIndex: React.FC<TasksIndexProps> = ({ auth, tasks, filters }) => {
     const [activeFilter, setActiveFilter] = useState(filters?.status || "all");
-
-    // Provide default values if tasks.meta is undefined
-    const tasksData = tasks?.data || [];
+    const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
+    const [localTasks, setLocalTasks] = useState(tasks?.data || []); // Provide default values if tasks.meta is undefined
+    const tasksData = localTasks;
     const tasksMeta = tasks?.meta || {
         current_page: 1,
         from: 0,
@@ -66,16 +72,26 @@ const TasksIndex: React.FC<TasksIndexProps> = ({ auth, tasks, filters }) => {
         total: 0,
         last_page: 1,
     };
-
     const statusCounts = {
         all: tasksMeta.total,
         todo: tasksData.filter((task) => task.status === "todo").length,
-        "in-progress": tasksData.filter((task) => task.status === "in-progress")
+        in_progress: tasksData.filter((task) => task.status === "in_progress")
             .length,
-        "on-hold": tasksData.filter((task) => task.status === "on-hold").length,
+        on_hold: tasksData.filter((task) => task.status === "on_hold").length,
         completed: tasksData.filter((task) => task.status === "completed")
             .length,
         templates: tasksData.filter((task) => task.is_template).length,
+    };
+
+    // Handle optimistic updates for kanban
+    const handleTaskUpdate = (taskId: number, newStatus: string) => {
+        setLocalTasks((prevTasks) =>
+            prevTasks.map((task) =>
+                task.id === taskId
+                    ? { ...task, status: newStatus as any }
+                    : task
+            )
+        );
     };
     return (
         <AuthenticatedLayout user={auth.user}>
@@ -91,8 +107,29 @@ const TasksIndex: React.FC<TasksIndexProps> = ({ auth, tasks, filters }) => {
                         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                             View, manage and track all your tasks in one place
                         </p>
-                    </div>
+                    </div>{" "}
                     <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                        {" "}
+                        <ToggleGroup
+                            type="single"
+                            value={viewMode}
+                            onValueChange={(value: string | undefined) =>
+                                value && setViewMode(value as "list" | "kanban")
+                            }
+                        >
+                            <ToggleGroupItem
+                                value="list"
+                                aria-label="List view"
+                            >
+                                <List className="h-4 w-4" />
+                            </ToggleGroupItem>
+                            <ToggleGroupItem
+                                value="kanban"
+                                aria-label="Kanban view"
+                            >
+                                <LayoutGrid className="h-4 w-4" />
+                            </ToggleGroupItem>
+                        </ToggleGroup>
                         <Button variant="outline" size="sm">
                             <FilterIcon className="mr-2 h-4 w-4" />
                             Filter
@@ -104,26 +141,41 @@ const TasksIndex: React.FC<TasksIndexProps> = ({ auth, tasks, filters }) => {
                             </Button>
                         </Link>
                     </div>
-                </div>
-                {/* Task Status Filter */}
-                <TaskStatusFilter
-                    activeFilter={activeFilter}
-                    setActiveFilter={setActiveFilter}
-                    counts={statusCounts}
-                />{" "}
-                {/* Tasks Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {tasksData.map((task) => (
-                        <TaskCard key={task.id} task={task} />
-                    ))}
-                </div>
-                {/* Pagination */}
-                <Pagination
-                    links={tasksMeta}
-                    from={tasksMeta.from}
-                    to={tasksMeta.to}
-                    total={tasksMeta.total}
-                />
+                </div>{" "}
+                {/* Task Status Filter - only show in list view */}
+                {viewMode === "list" && (
+                    <TaskStatusFilter
+                        activeFilter={activeFilter}
+                        setActiveFilter={setActiveFilter}
+                        counts={statusCounts}
+                    />
+                )}
+                {/* Content - Toggle between List and Kanban */}
+                {viewMode === "list" ? (
+                    <>
+                        {/* Tasks Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {tasksData.map((task) => (
+                                <TaskCard key={task.id} task={task} />
+                            ))}
+                        </div>
+                        {/* Pagination */}
+                        <Pagination
+                            links={tasksMeta}
+                            from={tasksMeta.from}
+                            to={tasksMeta.to}
+                            total={tasksMeta.total}
+                        />
+                    </>
+                ) : (
+                    /* Kanban Board */
+                    <div className="mt-6">
+                        <KanbanBoard
+                            tasks={tasksData}
+                            onTaskUpdate={handleTaskUpdate}
+                        />
+                    </div>
+                )}
             </div>
         </AuthenticatedLayout>
     );
