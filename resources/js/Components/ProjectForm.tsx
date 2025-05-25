@@ -27,6 +27,8 @@ import {
     Paperclip,
     Settings,
 } from "lucide-react";
+import { DateRange } from "react-day-picker";
+import { DatePickerWithRange } from "./ui/date-picker-with-range";
 
 interface User {
     id: number;
@@ -47,6 +49,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
     project = null,
     isEdit = false,
 }) => {
+    console.log(`THIS IS  users:`, users);
     // Determine if we're editing based on whether project is provided
     const editMode = project !== null;
 
@@ -58,6 +61,51 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
     const [progress, setProgress] = useState<number[]>([
         initialData?.progress || 0,
     ]);
+
+    const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
+        console.log("Initializing date range with task:", project);
+        console.log("start_date:", project?.start_date);
+        console.log("end_date:", project?.end_date);
+
+        // Helper function to parse date safely from either YYYY-MM-DD or ISO format
+        const parseDate = (dateString: string): Date | null => {
+            if (!dateString) return null;
+
+            // Check if it's ISO format (contains 'T')
+            if (dateString.includes("T")) {
+                // ISO format: "2025-06-02T00:00:00.000000Z"
+                const date = new Date(dateString);
+                // Create a new date in local timezone to avoid timezone shifts
+                return new Date(
+                    date.getFullYear(),
+                    date.getMonth(),
+                    date.getDate()
+                );
+            } else {
+                // YYYY-MM-DD format: "2025-05-24"
+                const [year, month, day] = dateString.split("-").map(Number);
+                if (isNaN(year) || isNaN(month) || isNaN(day)) return null;
+                return new Date(year, month - 1, day); // month is 0-indexed
+            }
+        };
+
+        const startDate = project?.start_date
+            ? parseDate(project.start_date)
+            : null;
+        const endDate = project?.end_date ? parseDate(project.end_date) : null;
+
+        console.log("Parsed startDate:", startDate);
+        console.log("Parsed endDate:", endDate);
+
+        if (startDate && endDate) {
+            return { from: startDate, to: endDate };
+        } else if (startDate) {
+            return { from: startDate, to: undefined };
+        } else if (endDate) {
+            return { from: undefined, to: endDate };
+        }
+        return undefined;
+    });
 
     const { data, setData, post, put, processing, errors, reset } = useForm({
         name: initialData?.name || "",
@@ -127,7 +175,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
             "bg-gray-500"
         );
     };
-    console.log('HELO')
+    console.log("HELO");
 
     return (
         <form onSubmit={handleSubmit}>
@@ -398,15 +446,55 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
                             Project Dates *
                         </Label>
                         <div className="mt-1">
-                            <ProjectDateRangePicker
-                                startDate={data.start_date}
-                                endDate={data.end_date}
-                                onStartDateChange={(date: string) =>
-                                    setData("start_date", date)
-                                }
-                                onEndDateChange={(date: string) =>
-                                    setData("end_date", date)
-                                }
+                            <DatePickerWithRange
+                                date={dateRange}
+                                onDateChange={(
+                                    range: DateRange | undefined
+                                ) => {
+                                    console.log("DateRange changed:", range);
+                                    setDateRange(range);
+
+                                    // Update form data
+                                    if (range?.from) {
+                                        // Use local date formatting to avoid timezone issues
+                                        const year = range.from.getFullYear();
+                                        const month = String(
+                                            range.from.getMonth() + 1
+                                        ).padStart(2, "0");
+                                        const day = String(
+                                            range.from.getDate()
+                                        ).padStart(2, "0");
+                                        const startDate = `${year}-${month}-${day}`;
+                                        console.log(
+                                            "Setting start_date:",
+                                            startDate
+                                        );
+                                        setData("start_date", startDate);
+                                    } else {
+                                        console.log("Clearing start_date");
+                                        setData("start_date", "");
+                                    }
+
+                                    if (range?.to) {
+                                        // Use local date formatting to avoid timezone issues
+                                        const year = range.to.getFullYear();
+                                        const month = String(
+                                            range.to.getMonth() + 1
+                                        ).padStart(2, "0");
+                                        const day = String(
+                                            range.to.getDate()
+                                        ).padStart(2, "0");
+                                        const endDate = `${year}-${month}-${day}`;
+                                        console.log(
+                                            "Setting end_date:",
+                                            endDate
+                                        );
+                                        setData("end_date", endDate);
+                                    } else {
+                                        console.log("Clearing end_date");
+                                        setData("end_date", "");
+                                    }
+                                }}
                             />
                         </div>
                         {(errors.start_date || errors.end_date) && (

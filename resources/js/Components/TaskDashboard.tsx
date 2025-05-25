@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Head } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { FilterIcon, PlusIcon } from "lucide-react";
 import Pagination from "./PaginationComp";
@@ -97,10 +97,12 @@ const TasksIndex: React.FC<TasksIndexProps> = ({ auth, tasks, filters }) => {
                             <FilterIcon className="mr-2 h-4 w-4" />
                             Filter
                         </Button>
-                        <Button size="sm">
-                            <PlusIcon className="mr-2 h-4 w-4" />
-                            New Task
-                        </Button>
+                        <Link href="/tasks/create">
+                            <Button size="sm">
+                                <PlusIcon className="mr-2 h-4 w-4" />
+                                New Task
+                            </Button>
+                        </Link>
                     </div>
                 </div>
                 {/* Task Status Filter */}

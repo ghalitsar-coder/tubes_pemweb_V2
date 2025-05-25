@@ -84,7 +84,7 @@ class ProjectController extends Controller
     public function create()
     {
         return Inertia::render('Projects/Create', [
-            'users' => User::select('id', 'name')->get(),
+            'users' => User::select('id', 'name','email')->get(),
             'auth' => [
                 'user' => Auth::user()
             ]

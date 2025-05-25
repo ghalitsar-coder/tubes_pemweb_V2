@@ -21,7 +21,14 @@ import { CalendarDays } from "lucide-react";
 import ProjectDateRangePicker from "./ProjectDateRangePicker";
 import { DatePickerWithRange } from "./ui/date-picker-with-range";
 import { DateRange } from "react-day-picker";
-
+import {
+    formatDateToString,
+    getFullCloudinaryUrl,
+    getPreviewUrl,
+    parseDate,
+} from "@/lib/utils";
+import type { FormDataConvertible } from "@inertiajs/core";
+import { set } from "date-fns";
 interface User {
     id: number;
     name: string;
@@ -66,6 +73,7 @@ interface Task {
     priority: string;
     created_at?: string;
     updated_at?: string;
+
     attachments?: TaskAttachment[];
 }
 
@@ -82,6 +90,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
     task,
     isEdit = false,
 }) => {
+    console.log(`THIS IS  task:`, task);
     // console.log(`THIS IS  users:`, users);
     const [hasDependencies, setHasDependencies] = useState(false);
     // Initialize selectedTags from existing task tags
@@ -103,37 +112,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
         return [];
     }); // Initialize date range state
     const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
-        console.log("Initializing date range with task:", task);
-        console.log("start_date:", task?.start_date);
-        console.log("due_date:", task?.due_date);
-
         // Helper function to parse date safely from either YYYY-MM-DD or ISO format
-        const parseDate = (dateString: string): Date | null => {
-            if (!dateString) return null;
-
-            // Check if it's ISO format (contains 'T')
-            if (dateString.includes("T")) {
-                // ISO format: "2025-06-02T00:00:00.000000Z"
-                const date = new Date(dateString);
-                // Create a new date in local timezone to avoid timezone shifts
-                return new Date(
-                    date.getFullYear(),
-                    date.getMonth(),
-                    date.getDate()
-                );
-            } else {
-                // YYYY-MM-DD format: "2025-05-24"
-                const [year, month, day] = dateString.split("-").map(Number);
-                if (isNaN(year) || isNaN(month) || isNaN(day)) return null;
-                return new Date(year, month - 1, day); // month is 0-indexed
-            }
-        };
 
         const startDate = task?.start_date ? parseDate(task.start_date) : null;
         const endDate = task?.due_date ? parseDate(task.due_date) : null;
-
-        console.log("Parsed startDate:", startDate);
-        console.log("Parsed endDate:", endDate);
 
         if (startDate && endDate) {
             return { from: startDate, to: endDate };
@@ -144,24 +126,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
         }
         return undefined;
     });
-
-    // Helper function to normalize date format to YYYY-MM-DD
-    const normalizeDateFormat = (dateString: string): string => {
-        if (!dateString) return "";
-
-        // If it's already in YYYY-MM-DD format, return as is
-        if (!dateString.includes("T")) {
-            return dateString;
-        }
-
-        // If it's ISO format, convert to YYYY-MM-DD
-        const date = new Date(dateString);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
-        return `${year}-${month}-${day}`;
-    };
-
     const { data, setData, post, put, processing, errors, reset } = useForm({
         title: task?.title || "",
         description: task?.description || "",
@@ -169,38 +133,20 @@ const TaskForm: React.FC<TaskFormProps> = ({
         task_type: task?.task_type || "feature",
         priority: task?.priority || "medium",
         assigned_to: task?.assigned_to?.toString() || "",
-        due_date: normalizeDateFormat(task?.due_date || ""),
-        start_date: normalizeDateFormat(task?.start_date || ""),
+        due_date: task?.due_date || "",
+        start_date: task?.start_date || "",
         time_estimate: task?.time_estimate?.toString() || "",
         tags: task?.tags || "",
         status: task?.status || "todo",
-        dependencies: [] as number[],
-        attachments: [] as File[],
+        dependencies: [] as number[], // Inisialisasi dengan array kosong
+        existing_attachments:
+            task?.attachments?.map((att: TaskAttachment) => att.id) || [], // Ambil hanya ID
+        attachments: [] as File[], // File baru
     });
     console.log(`THIS IS  data:`, data);
     // console.log(`THIS IS  data:`, data);    // Sync selectedTags with form data when task changes
-    useEffect(() => {
-        if (task?.tags) {
-            const tagsArray = task.tags
-                .split(",")
-                .map((tag) => tag.trim())
-                .filter((tag) => tag.length > 0);
-            console.log("Task tags:", task.tags);
-            console.log("Parsed tags array:", tagsArray);
-            setSelectedTags(tagsArray);
-            setData("tags", task.tags);
-        } else {
-            // If task has no tags or tags is null, reset
-            setSelectedTags([]);
-            setData("tags", "");
-        }
-    }, [task?.id, task?.tags]); // Helper function to format date to YYYY-MM-DD without timezone issues
-    const formatDateToString = (date: Date): string => {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
-        return `${year}-${month}-${day}`;
-    };
+
+    // Helper function to format date to YYYY-MM-DD without timezone issues
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -215,67 +161,49 @@ const TaskForm: React.FC<TaskFormProps> = ({
             due_date: dateRange?.to ? formatDateToString(dateRange.to) : "",
         };
 
-        // Update form data with properly formatted values
-        Object.keys(submissionData).forEach((key) => {
-            setData(
-                key as any,
-                submissionData[key as keyof typeof submissionData]
-            );
-        });
+        // Update form data with all prepared values at once
+        // Debug: Log submission data
+        setData(submissionData);
+        // Submit the form after a brief delay to ensure setData completes
+        if (isEdit && task) {
+            console.log(`Updating data:`, data);
 
-        console.log("Form data before submit:", data);
-        console.log("Submission data:", submissionData);
-        console.log("Selected tags:", selectedTags);
-        console.log("Date range:", dateRange);
-        console.log("Tags as string:", selectedTags.join(","));
-        console.log(
-            "Start date formatted:",
-            dateRange?.from ? formatDateToString(dateRange.from) : ""
-        );
-        console.log(
-            "Due date formatted:",
-            dateRange?.to ? formatDateToString(dateRange.to) : ""
-        );
-
-        // Small delay to ensure setData is applied
-        setTimeout(() => {
-            if (isEdit && task) {
-                console.log(`Updating task:`, task);
-                put(route("tasks.update", task.id), {
-                    onSuccess: () => {
-                        console.log("Task updated successfully");
-                    },
-                    onError: (errors) => {
-                        console.log("Update errors:", errors);
-                    },
-                });
-            } else {
-                post(route("tasks.store"), {
-                    onSuccess: () => {
-                        console.log("Task created successfully");
-                        reset();
-                        setSelectedTags([]);
-                        setHasDependencies(false);
-                    },
-                    onError: (errors) => {
-                        console.log("Create errors:", errors);
-                    },
-                });
-            }
-        }, 100);
+            put(route("tasks.update", task.id), {
+                onSuccess: () => console.log("Task updated successfully"),
+                onError: (errors) => console.log("Update errors:", errors),
+            });
+        } else {
+            post(route("tasks.store"), {
+                onSuccess: () => {
+                    console.log("Task created successfully");
+                    reset();
+                    setSelectedTags([]);
+                    setHasDependencies(false);
+                },
+                onError: (errors) => {
+                    console.log("Create errors:", errors);
+                },
+            });
+        }
     };
     const handleTagsChange = (tags: string[]) => {
-        console.log("Tags changed:", tags);
         setSelectedTags(tags);
         const tagsString = tags.join(",");
-        console.log("Setting tags to form data:", tagsString);
         setData("tags", tagsString);
     };
 
     const handleFileUpload = (files: File[]) => {
-        setData("attachments", files);
+        console.log(`THIS IS  files:`, files);
+        console.log(
+            "Files type check:",
+            files.map((f) => ({
+                name: f.name,
+                instanceofFile: f instanceof File,
+            }))
+        );
+        setData("attachments", [...data.attachments, ...files]);
+        console.log("New files added:", files);
     };
-
     return (
         <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -396,9 +324,13 @@ const TaskForm: React.FC<TaskFormProps> = ({
                                                 ) ? (
                                                     <div className="space-y-2">
                                                         <img
-                                                            src={
-                                                                attachment.path
-                                                            }
+                                                            src={getPreviewUrl(
+                                                                attachment.path.slice(
+                                                                    attachment.path.indexOf(
+                                                                        "/"
+                                                                    )
+                                                                )
+                                                            )}
                                                             alt={
                                                                 attachment.filename
                                                             }
@@ -606,8 +538,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
                         <Input
                             id="time-estimate"
                             type="number"
-                            min="0"
-                            step="0.5"
                             value={data.time_estimate}
                             onChange={(e) =>
                                 setData("time_estimate", e.target.value)

@@ -33,7 +33,7 @@ class TaskController extends Controller
         }
 
         // Paginate the results
-        $tasks = $query->paginate(12)->through(function ($task) {
+        $tasks = $query->paginate(50)->through(function ($task) {
             return [
                 'id' => $task->id,
                 'title' => $task->title,
@@ -149,7 +149,7 @@ class TaskController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'project_id' => 'required|exists:projects,id',
-            'task_type' => 'nullable|string|in:feature,bug,enhancement,documentation,testing',
+            'task_type' => 'nullable|string|in:feature,bug,enhancement,documentation,testing,improvement',
             'priority' => 'nullable|string|in:low,medium,high,urgent',
             'assigned_to' => 'nullable|exists:users,id',
             'due_date' => 'required|date',
@@ -209,48 +209,80 @@ class TaskController extends Controller
         ]);
     }
 
-    public function update(Request $request, Task $task)
+  public function update(Request $request, Task $task)
     {
         // Debug: Log incoming request data
         \Log::info('Task update request data:', $request->all());
         \Log::info('Task being updated:', ['id' => $task->id, 'title' => $task->title]);
-        
+
+
+        // Validasi data
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'project_id' => 'required|exists:projects,id',
-            'task_type' => 'nullable|string|in:feature,bug,enhancement,documentation,testing,improvement',
-            'priority' => 'nullable|string|in:low,medium,high,urgent',
+            'task_type' => 'required|in:feature,bug,task',
+            'priority' => 'required|in:low,medium,high',
             'assigned_to' => 'nullable|exists:users,id',
-            'status' => 'required|in:todo,in_progress,completed',
             'due_date' => 'nullable|date',
             'start_date' => 'nullable|date',
-            'time_estimate' => 'nullable|numeric|min:0',
+            'time_estimate' => 'nullable|integer',
             'tags' => 'nullable|string',
-            'attachments' => 'nullable|array',
-            'attachments.*' => 'file|max:10240', // 10MB max per file
+            'status' => 'required|in:todo,in_progress,completed',
+            'dependencies' => 'nullable|array',
+            'dependencies.*' => 'exists:tasks,id',
+            'existing_attachments' => 'nullable|array',
+            'existing_attachments.*' => 'exists:task_attachments,id',
+            'attachments.*' => 'nullable|file|mimes:jpg,png,pdf|max:2048',
         ]);
 
-        // Remove attachments from main data since we'll handle them separately
-        $attachments = $validated['attachments'] ?? [];
-        unset($validated['attachments']);
+        // Update task
+        $task->update([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'project_id' => $validated['project_id'],
+            'task_type' => $validated['task_type'],
+            'priority' => $validated['priority'],
+            'assigned_to' => $validated['assigned_to'],
+            'due_date' => $validated['due_date'],
+            'start_date' => $validated['start_date'],
+        ]);
 
-        // Debug: Log validated data before updating task
         \Log::info('Validated task data before update:', $validated);
 
         $task->update($validated);
 
-        // Handle file attachments if any
-        if (!empty($attachments)) {
-            foreach ($attachments as $file) {
-                $filename = $file->getClientOriginalName();
-                $path = $file->store('task-attachments', 'public');
-                $task->addAttachment($filename, $path, $file->getMimeType());
+        // Menangani attachment baru
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                try {
+                    $uploadedFile = Cloudinary::upload($file->getRealPath(), [
+                        'folder' => 'task_attachments',
+                        'resource_type' => 'auto',
+                    ]);
+
+                    $task->attachments()->create([
+                        'task_id' => $task->id,
+                        'filename' => $file->getClientOriginalName(),
+                        'path' => $uploadedFile->getSecurePath(),
+                        'type' => $uploadedFile->getResourceType(),
+                        'public_id' => $uploadedFile->getPublicId(), // Simpan public_id
+                        'uploaded_at' => now(),
+                    ]);
+                } catch (\Exception $e) {
+                    \Log::error('Cloudinary upload failed: ' . $e->getMessage());
+                    return back()->withErrors(['attachments' => 'Failed to upload file to Cloudinary']);
+                }
             }
         }
 
-        return redirect()->route('tasks.index')
-            ->with('success', 'Task updated successfully.');
+        // Menangani existing_attachments
+        if ($request->has('existing_attachments')) {
+            $existingIds = $request->input('existing_attachments', []);
+            $task->attachments()->whereNotIn('id', $existingIds)->delete();
+        }
+
+        return redirect()->route('tasks.show', $task->id)->with('success', 'Task updated successfully');
     }
 
     public function addComment(Request $request, Task $task)
