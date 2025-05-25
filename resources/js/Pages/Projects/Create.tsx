@@ -14,16 +14,20 @@ interface Props {
 export default function Create({ users, auth }: Props) {
     return (
         <AuthenticatedLayout user={auth.user}>
-            <Head title="Create Projec
-            t" />
+            <Head
+                title="Create Projec
+            t"
+            />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    {" "}
                     <ProjectForm
                         users={users}
                         initialData={{
                             user_id: auth.user.id.toString(),
                         }}
+                        isEdit={false}
                     />
                 </div>
             </div>

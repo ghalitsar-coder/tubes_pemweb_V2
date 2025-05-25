@@ -665,9 +665,13 @@ export default function ShowNew({ auth, task }: Props) {
                                                 <label className="block text-sm font-medium text-muted-foreground mb-1">
                                                     Project
                                                 </label>
-                                                <Badge variant="secondary">
-                                                    {task.project.name}
-                                                </Badge>
+                                                <Link
+                                                    href={`/projects/${task.project.id}`}
+                                                >
+                                                    <Badge variant="secondary">
+                                                        {task.project.name}
+                                                    </Badge>
+                                                </Link>
                                             </div>
 
                                             {/* Assignee */}

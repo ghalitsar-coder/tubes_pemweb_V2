@@ -344,16 +344,18 @@ export default function Show({ project, auth }: Props) {
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex justify-between items-start mb-1">
-                                                        <h4
-                                                            className={`text-sm font-medium mb-1 ${
-                                                                task.status ===
-                                                                "completed"
-                                                                    ? "line-through text-gray-400"
-                                                                    : "text-gray-900"
-                                                            }`}
-                                                        >
-                                                            {task.title}
-                                                        </h4>
+                                                        <Link href={`/tasks/${task.id}`} >
+                                                            <h4
+                                                                className={`text-sm font-medium mb-1 ${
+                                                                    task.status ===
+                                                                    "completed"
+                                                                        ? "line-through text-gray-400"
+                                                                        : "text-gray-900"
+                                                                }`}
+                                                            >
+                                                                {task.title}
+                                                            </h4>
+                                                        </Link>
                                                         <span
                                                             className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getPriorityColor(
                                                                 task.priority ||

@@ -57,6 +57,10 @@ const data = {
                     url: "/projects",
                 },
                 {
+                    title: "Calendar View",
+                    url: "/projects/calendar",
+                },
+                {
                     title: "Create Project",
                     url: "/projects/create",
                 },
@@ -70,6 +74,10 @@ const data = {
                 {
                     title: "All Tasks",
                     url: "/tasks",
+                },
+                {
+                    title: "Calendar View",
+                    url: "/tasks/calendar",
                 },
                 {
                     title: "Create Task",

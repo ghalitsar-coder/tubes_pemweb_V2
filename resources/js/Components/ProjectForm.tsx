@@ -50,16 +50,30 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
     isEdit = false,
 }) => {
     console.log(`THIS IS  users:`, users);
-    // Determine if we're editing based on whether project is provided
-    const editMode = project !== null;
+    // Determine if we're editing - prefer isEdit prop, fallback to project existence
+    const editMode = isEdit ?? project !== null;
 
-    const [selectedTags, setSelectedTags] = useState<string[]>(
-        initialData?.tags
-            ? initialData.tags.split(",").filter((tag: string) => tag.trim())
-            : []
-    );
+    // Use project data if in edit mode, otherwise use initialData
+    const formData = editMode ? project : initialData;
+
+    const [selectedTags, setSelectedTags] = useState<string[]>(() => {
+        if (editMode && project?.tags) {
+            return Array.isArray(project.tags)
+                ? project.tags
+                : project.tags.split(",").filter((tag: string) => tag.trim());
+        }
+        if (initialData?.tags) {
+            return Array.isArray(initialData.tags)
+                ? initialData.tags
+                : initialData.tags
+                      .split(",")
+                      .filter((tag: string) => tag.trim());
+        }
+        return [];
+    });
+
     const [progress, setProgress] = useState<number[]>([
-        initialData?.progress || 0,
+        formData?.progress || 0,
     ]);
 
     const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
@@ -106,30 +120,51 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
         }
         return undefined;
     });
-
     const { data, setData, post, put, processing, errors, reset } = useForm({
-        name: initialData?.name || "",
-        description: initialData?.description || "",
-        user_id: initialData?.user_id?.toString() || "",
-        start_date: initialData?.start_date || "",
-        end_date: initialData?.end_date || "",
-        progress: initialData?.progress || 0,
-        status: initialData?.status || "not_started",
-        budget: initialData?.budget || "",
-        spent_budget: initialData?.spent_budget || "",
-        category: initialData?.category || "",
-        tags: initialData?.tags || [],
-        is_template: initialData?.is_template || false,
+        name: formData?.name || "",
+        description: formData?.description || "",
+        user_id: formData?.user_id?.toString() || "",
+        start_date: formData?.start_date || "",
+        end_date: formData?.end_date || "",
+        progress: formData?.progress || 0,
+        status: formData?.status || "not_started",
+        budget: formData?.budget?.toString() || "",
+        spent_budget: formData?.spent_budget?.toString() || "",
+        category: formData?.category || "",
+        tags: selectedTags,
+        is_template: formData?.is_template || false,
         attachments: [] as File[],
     });
-
+    console.log(`THIS IS  errors:`, errors)
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const formData = {
+
+        // Update the form data with current values
+        const updatedData = {
             ...data,
             progress: progress[0],
             tags: selectedTags,
+            start_date: dateRange?.from
+                ? `${dateRange.from.getFullYear()}-${String(
+                      dateRange.from.getMonth() + 1
+                  ).padStart(2, "0")}-${String(
+                      dateRange.from.getDate()
+                  ).padStart(2, "0")}`
+                : data.start_date,
+            end_date: dateRange?.to
+                ? `${dateRange.to.getFullYear()}-${String(
+                      dateRange.to.getMonth() + 1
+                  ).padStart(2, "0")}-${String(dateRange.to.getDate()).padStart(
+                      2,
+                      "0"
+                  )}`
+                : data.end_date,
         };
+
+        // Set all the updated data before submitting
+        Object.keys(updatedData).forEach((key) => {
+            setData(key as any, updatedData[key as keyof typeof updatedData]);
+        });
 
         if (editMode && project?.id) {
             put(route("projects.update", project.id), {
@@ -143,6 +178,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
                     reset();
                     setSelectedTags([]);
                     setProgress([0]);
+                    setDateRange(undefined);
                 },
             });
         }
@@ -183,12 +219,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
                 {/* Main Project Details */}
                 <div className="lg:col-span-2">
                     <div className="flex items-center gap-2 mb-6">
-                        <Target className="h-5 w-5 text-blue-600" />
+                        <Target className="h-5 w-5 text-blue-600" />{" "}
                         <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                            {isEdit ? "Edit Project" : "Create New Project"}
+                            {editMode ? "Edit Project" : "Create New Project"}
                         </h2>
                     </div>
-
                     {/* Project Name */}
                     <div className="mb-6">
                         <Label
@@ -213,7 +248,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
                             </p>
                         )}
                     </div>
-
                     {/* Description */}
                     <div className="mb-6">
                         <Label htmlFor="description">Description *</Label>
@@ -234,7 +268,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
                             </p>
                         )}
                     </div>
-
                     {/* Budget Section */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
@@ -262,9 +295,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
                                     {errors.budget}
                                 </p>
                             )}
-                        </div>
-
-                        {isEdit && (
+                        </div>{" "}
+                        {editMode && (
                             <div>
                                 <Label htmlFor="spent_budget">
                                     Spent Budget
@@ -288,10 +320,9 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
                                 )}
                             </div>
                         )}
-                    </div>
-
+                    </div>{" "}
                     {/* Progress Slider */}
-                    {isEdit && (
+                    {editMode && (
                         <div className="mb-6">
                             <Label className="flex items-center gap-2 mb-3">
                                 <Target className="h-4 w-4" />
@@ -313,7 +344,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
                             </div>
                         </div>
                     )}
-
                     {/* Category */}
                     <div className="mb-6">
                         <Label
@@ -339,7 +369,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
                             </p>
                         )}
                     </div>
-
                     {/* Tags */}
                     <div className="mb-6">
                         <Label className="flex items-center gap-2">
@@ -352,7 +381,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
                             placeholder="Add tags separated by commas"
                         />
                     </div>
-
                     {/* Attachments */}
                     <div>
                         <Label className="flex items-center gap-2">
@@ -529,9 +557,9 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
                                 Templates can be reused to create new projects
                             </p>
                         </div>
-                    </div>
+                    </div>{" "}
                     {/* Current Status Badge */}
-                    {isEdit && (
+                    {editMode && (
                         <div>
                             <Label>Current Status</Label>
                             <div className="mt-2">
@@ -559,13 +587,13 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
                                 onClick={() => window.history.back()}
                             >
                                 Cancel
-                            </Button>
+                            </Button>{" "}
                             <Button type="submit" disabled={processing}>
                                 {processing
-                                    ? isEdit
+                                    ? editMode
                                         ? "Updating..."
                                         : "Creating..."
-                                    : isEdit
+                                    : editMode
                                     ? "Update Project"
                                     : "Create Project"}
                             </Button>

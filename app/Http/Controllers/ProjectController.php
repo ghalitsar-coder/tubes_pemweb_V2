@@ -89,9 +89,7 @@ class ProjectController extends Controller
                 'user' => Auth::user()
             ]
         ]);
-    }
-
-    public function store(Request $request)
+    }    public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -99,12 +97,20 @@ class ProjectController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
             'budget' => 'nullable|numeric|min:0',
+            'spent_budget' => 'nullable|numeric|min:0',
+            'progress' => 'nullable|integer|min:0|max:100',
+            'status' => 'nullable|in:not_started,in_progress,on_hold,completed',
             'category' => 'nullable|string|max:255',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:255',
             'is_template' => 'boolean',
             'user_id' => 'required|exists:users,id',
         ]);
+
+        // Set default values for create
+        $validated['status'] = $validated['status'] ?? 'not_started';
+        $validated['progress'] = $validated['progress'] ?? 0;
+        $validated['spent_budget'] = $validated['spent_budget'] ?? 0;
 
         $project = Project::create($validated);
 
@@ -138,9 +144,7 @@ class ProjectController extends Controller
                 'user' => Auth::user()
             ]
         ]);
-    }
-
-    public function update(Request $request, Project $project)
+    }    public function update(Request $request, Project $project)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -149,10 +153,13 @@ class ProjectController extends Controller
             'end_date' => 'required|date|after:start_date',
             'status' => 'required|in:not_started,in_progress,on_hold,completed',
             'budget' => 'nullable|numeric|min:0',
+            'spent_budget' => 'nullable|numeric|min:0',
+            'progress' => 'nullable|integer|min:0|max:100',
             'category' => 'nullable|string|max:255',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:255',
             'is_template' => 'boolean',
+            'user_id' => 'required|exists:users,id',
         ]);
 
         // Update project with validated data

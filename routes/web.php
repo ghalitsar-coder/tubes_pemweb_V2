@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\ProjectsCalendarController;
+use App\Http\Controllers\TasksCalendarController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\TestCloudinaryController;
@@ -47,6 +49,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Project routes
+    Route::get('/projects/calendar', [ProjectsCalendarController::class, 'index'])->name('projects.calendar');
     Route::resource('projects', ProjectController::class);
     Route::post('projects/{project}/attachments', [ProjectController::class, 'addAttachment'])->name('projects.attachments.store');
     Route::delete('projects/{project}/attachments/{index}', [ProjectController::class, 'removeAttachment'])->name('projects.attachments.destroy');
@@ -57,6 +60,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('projects/{project}/calculate-progress', [ProjectController::class, 'calculateProgress'])->name('projects.calculate-progress');
     
     // Task routes
+    Route::get('/tasks/calendar', [TasksCalendarController::class, 'index'])->name('tasks.calendar');
     Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
     Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create');
     Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
