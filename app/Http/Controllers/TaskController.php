@@ -315,6 +315,13 @@ class TaskController extends Controller
 
         $task->update(['status' => $validated['status']]);
 
+        // // For Inertia requests (like from kanban board), return minimal response
+        // if ($request->header('X-Inertia')) {
+        //     return response('', 200, [
+        //         'X-Inertia' => true,
+        //     ]);
+        // }
+
         return back()->with('success', 'Task status updated successfully');
     }
 }

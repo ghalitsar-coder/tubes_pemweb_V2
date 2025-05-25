@@ -12,7 +12,7 @@ import {
     Filter,
     MoreVertical,
 } from "lucide-react";
-import { Project, Task, User } from "@/types";
+import { Project, ProjectAttachment, Task, User } from "@/types";
 
 interface Props {
     project: Project & {
@@ -480,10 +480,13 @@ export default function ShowNew({ project, auth }: Props) {
                                     </h3>
                                 </div>
                                 {/* // TODO: uncomment */}
-                                {/* <div className="p-5">
+                                <div className="p-5">
                                     <div className="space-y-4">
                                         {project.attachments?.map(
-                                            (attachment, index) => (
+                                            (
+                                                attachment: ProjectAttachment,
+                                                index: number
+                                            ) => (
                                                 <div
                                                     key={index}
                                                     className="flex items-center"
@@ -543,7 +546,7 @@ export default function ShowNew({ project, auth }: Props) {
                                         <Plus className="w-4 h-4 mr-1" />
                                         Add Resource
                                     </button>
-                                </div> */}
+                                </div>
                             </div>
                         </div>
 
@@ -596,7 +599,7 @@ export default function ShowNew({ project, auth }: Props) {
                                 {/* // TODO: uncomment */}
 
                             {/* Budget Information */}
-                            {/* {project.budget && (
+                            {project.budget && (
                                 <div className="bg-white rounded-lg shadow overflow-hidden border border-gray-200 mb-6">
                                     <div className="px-5 py-4 border-b border-gray-200 bg-gray-50">
                                         <h3 className="text-lg font-semibold text-gray-900">
@@ -619,7 +622,7 @@ export default function ShowNew({ project, auth }: Props) {
                                             </span>
                                             <span className="font-medium">
                                                 $
-                                                {project.spent_budget.toLocaleString()}
+                                                {(project.spent_budget ?? 0).toLocaleString()}
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center mb-3">
@@ -630,7 +633,7 @@ export default function ShowNew({ project, auth }: Props) {
                                                 $
                                                 {(
                                                     project.budget -
-                                                    project.spent_budget
+                                                    (project.spent_budget ?? 0)
                                                 ).toLocaleString()}
                                             </span>
                                         </div>
@@ -640,7 +643,7 @@ export default function ShowNew({ project, auth }: Props) {
                                                 style={{
                                                     width: `${Math.min(
                                                         100,
-                                                        (project.spent_budget /
+                                                        ((project.spent_budget ?? 0) /
                                                             project.budget) *
                                                             100
                                                     )}%`,
@@ -649,15 +652,15 @@ export default function ShowNew({ project, auth }: Props) {
                                         </div>
                                         <p className="text-xs text-gray-500 mt-2">
                                             {(
-                                                (project.spent_budget /
-                                                    project.budget) *
+                                                (project.spent_budget ?? 0) /
+                                                    (project.budget ?? 1) *
                                                 100
                                             ).toFixed(1)}
                                             % of budget used
                                         </p>
                                     </div>
                                 </div>
-                            )} */}
+                            )}
 
                             {/* Recent Activity */}
                             <div className="bg-white rounded-lg shadow overflow-hidden border border-gray-200">

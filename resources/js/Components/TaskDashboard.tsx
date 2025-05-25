@@ -62,7 +62,8 @@ interface TasksIndexProps {
 
 const TasksIndex: React.FC<TasksIndexProps> = ({ auth, tasks, filters }) => {
     const [activeFilter, setActiveFilter] = useState(filters?.status || "all");
-    const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
+    const [viewMode, setViewMode] = useState<"list" | "kanban">("kanban");
+    console.log(`THIS IS  viewMode:`, viewMode)
     const [localTasks, setLocalTasks] = useState(tasks?.data || []); // Provide default values if tasks.meta is undefined
     const tasksData = localTasks;
     const tasksMeta = tasks?.meta || {
@@ -102,10 +103,10 @@ const TasksIndex: React.FC<TasksIndexProps> = ({ auth, tasks, filters }) => {
                 <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8">
                     <div className="mb-4 md:mb-0">
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                            All Tasks
+                            All Tasks asdsad
                         </h1>
                         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                            View, manage and track all your tasks in one place
+                            View, manage and track all your tasks in one place asdasdsa
                         </p>
                     </div>{" "}
                     <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">

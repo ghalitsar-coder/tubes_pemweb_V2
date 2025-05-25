@@ -12,9 +12,9 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { router } from "@inertiajs/react";
-import KanbanColumn from "./KanbanColumn";
 import TaskCard from "./TaskCard";
 import { Card } from "@/components/ui/card";
+import KanbanColumn from "./KanbanColumn";
 
 interface User {
     id: number;
@@ -113,7 +113,8 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onTaskUpdate }) => {
     const columnsWithCounts = COLUMN_CONFIG.map((column) => ({
         ...column,
         count: tasksByStatus[column.status]?.length || 0,
-    }));    const handleDragStart = (event: DragStartEvent) => {
+    }));
+    const handleDragStart = (event: DragStartEvent) => {
         const task = tasks.find((t) => t.id.toString() === event.active.id);
         setActiveTask(task || null);
     };
@@ -132,20 +133,24 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onTaskUpdate }) => {
 
         const taskId = parseInt(active.id.toString());
         const task = tasks.find((t) => t.id === taskId);
-        
+
         if (!task) return;
 
         // Determine if we're dropping on a column or a task
         let newStatus = over.id.toString();
-        
+
         // If dropping on a task, get the task's column status
-        const droppedOnTask = tasks.find(t => t.id.toString() === over.id.toString());
+        const droppedOnTask = tasks.find(
+            (t) => t.id.toString() === over.id.toString()
+        );
         if (droppedOnTask) {
             newStatus = droppedOnTask.status;
         }
-        
+
         // Check if this is a valid status column
-        const isValidStatus = COLUMN_CONFIG.some(col => col.status === newStatus);
+        const isValidStatus = COLUMN_CONFIG.some(
+            (col) => col.status === newStatus
+        );
         if (!isValidStatus) return;
 
         // Handle same column reordering - for now, we'll just update status
@@ -158,18 +163,26 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onTaskUpdate }) => {
         // Optimistic update (update UI immediately)
         if (onTaskUpdate) {
             onTaskUpdate(taskId, newStatus);
-        }        // Update backend
+        }
+
+        // Update backend
         setIsUpdating(taskId);
         try {
-            await router.patch(
+            router.patch(
                 `/tasks/${taskId}/status`,
                 {
                     status: newStatus,
                 },
                 {
-                    preserveState: true, // Keep state to prevent page refresh
+                    preserveState: true,
                     preserveScroll: true,
-                    only: [], // Don't reload any props - we handle optimistic updates
+                    replace: true, // Use replace instead of push to prevent navigation
+                    onSuccess: () => {
+                        // Task status updated successfully
+                        console.log(
+                            `Task ${taskId} status updated to ${newStatus}`
+                        );
+                    },
                     onError: (errors) => {
                         console.error("Failed to update task status:", errors);
                         // Revert optimistic update on error
@@ -190,7 +203,8 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onTaskUpdate }) => {
             }
             setIsUpdating(null);
         }
-    };    return (
+    };
+    return (
         <div className="h-full">
             <DndContext
                 sensors={sensors}

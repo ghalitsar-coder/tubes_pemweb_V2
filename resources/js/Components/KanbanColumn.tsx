@@ -66,7 +66,8 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
         id: column.status,
     });
 
-    const taskIds = tasks.map((task) => task.id.toString());    return (
+    const taskIds = tasks.map((task) => task.id.toString());
+    return (
         <Card
             ref={setNodeRef}
             className={cn(
@@ -96,16 +97,24 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
                             isUpdating={isUpdating === task.id}
                         />
                     ))}
-                </SortableContext>                {tasks.length === 0 && (
-                    <div className={cn(
-                        "flex items-center justify-center h-32 text-gray-400 text-sm transition-colors duration-200",
-                        (isOver || isDragOver) && "text-blue-500 bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg"
-                    )}>
+                </SortableContext>{" "}
+                {tasks.length === 0 && (
+                    <div
+                        className={cn(
+                            "flex items-center justify-center h-32 text-gray-400 text-sm transition-colors duration-200",
+                            (isOver || isDragOver) &&
+                                "text-blue-500 bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg"
+                        )}
+                    >
                         <div className="text-center">
                             <div className="text-2xl mb-2">
-                                {(isOver || isDragOver) ? "📋" : "📝"}
+                                {isOver || isDragOver ? "📋" : "📝"}
                             </div>
-                            <p>{(isOver || isDragOver) ? "Drop task here" : "No tasks yet"}</p>
+                            <p>
+                                {isOver || isDragOver
+                                    ? "Drop task here"
+                                    : "No tasks yet"}
+                            </p>
                             <p className="text-xs">Drag tasks here</p>
                         </div>
                     </div>

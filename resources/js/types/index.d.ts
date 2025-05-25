@@ -44,7 +44,7 @@ export interface Project {
     tags: string[];
     is_template: boolean;
     user_id: number;
-    attachments?: ProjectAttachment[] | string;
+    attachments?: ProjectAttachment[] | string | any;
     created_at: string;
     updated_at: string;
 }

@@ -103,13 +103,12 @@ export default function ShowNew({ auth, task }: Props) {
     const [activeTab, setActiveTab] = useState("details");
     const [taskStatus, setTaskStatus] = useState(task.status);
     const [newComment, setNewComment] = useState("");
-
     const getStatusBadge = (status: string) => {
         const statusConfig = {
             todo: { variant: "secondary", label: "To Do" },
             in_progress: { variant: "default", label: "In Progress" },
+            on_hold: { variant: "warning", label: "On Hold" },
             completed: { variant: "success", label: "Completed" },
-            blocked: { variant: "destructive", label: "Blocked" },
         };
 
         const config =
@@ -140,10 +139,24 @@ export default function ShowNew({ auth, task }: Props) {
             </Badge>
         );
     };
-
     const handleStatusUpdate = (newStatus: string) => {
         setTaskStatus(newStatus);
-        router.patch(`/tasks/${task.id}`, { status: newStatus });
+        router.patch(
+            `/tasks/${task.id}/status`,
+            { status: newStatus },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                onSuccess: () => {
+                    console.log(`Task status updated to ${newStatus}`);
+                },
+                onError: (errors) => {
+                    console.error("Failed to update task status:", errors);
+                    // Revert status on error
+                    setTaskStatus(task.status);
+                },
+            }
+        );
     };
 
     const handleCommentSubmit = (e: React.FormEvent) => {
@@ -606,7 +619,7 @@ export default function ShowNew({ auth, task }: Props) {
                                                 >
                                                     <SelectTrigger>
                                                         <SelectValue />
-                                                    </SelectTrigger>
+                                                    </SelectTrigger>{" "}
                                                     <SelectContent>
                                                         <SelectItem value="todo">
                                                             To Do
@@ -614,15 +627,15 @@ export default function ShowNew({ auth, task }: Props) {
                                                         <SelectItem value="in_progress">
                                                             In Progress
                                                         </SelectItem>
-                                                        <SelectItem value="completed">
-                                                            Done
+                                                        <SelectItem value="on_hold">
+                                                            On Hold
                                                         </SelectItem>
-                                                        <SelectItem value="blocked">
-                                                            Blocked
+                                                        <SelectItem value="completed">
+                                                            Completed
                                                         </SelectItem>
                                                     </SelectContent>
                                                 </Select>
-                                            </div>
+                                            </div>{" "}
                                             <div>
                                                 <label className="block text-sm font-medium mb-1">
                                                     Progress
@@ -636,16 +649,6 @@ export default function ShowNew({ auth, task }: Props) {
                                                     completed
                                                 </p>
                                             </div>
-                                            <Button
-                                                className="w-full"
-                                                onClick={() =>
-                                                    handleStatusUpdate(
-                                                        "completed"
-                                                    )
-                                                }
-                                            >
-                                                Update Status
-                                            </Button>
                                         </CardContent>
                                     </Card>
 
