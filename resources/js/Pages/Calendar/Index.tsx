@@ -123,15 +123,15 @@ const eachDayOfInterval = ({
 const getCalendarDays = (date: Date): Date[] => {
     const monthStart = startOfMonth(date);
     const monthEnd = endOfMonth(date);
-    
+
     // Get the start of calendar week (Sunday before month start)
     const calendarStart = new Date(monthStart);
     calendarStart.setDate(monthStart.getDate() - monthStart.getDay());
-    
+
     // Get the end of calendar week (Saturday after month end)
     const calendarEnd = new Date(monthEnd);
     calendarEnd.setDate(monthEnd.getDate() + (6 - monthEnd.getDay()));
-    
+
     return eachDayOfInterval({ start: calendarStart, end: calendarEnd });
 };
 
@@ -244,8 +244,9 @@ export default function CalendarIndex({
         priority: "medium",
         project_id: "",
         reminder_minutes: 30,
-    });    const currentDate = new Date(currentYear, currentMonth - 1);
-    const calendarDays = getCalendarDays(currentDate);// Group events by date
+    });
+    const currentDate = new Date(currentYear, currentMonth - 1);
+    const calendarDays = getCalendarDays(currentDate); // Group events by date
     const eventsByDate = useMemo(() => {
         return events.reduce((acc, event) => {
             // Pastikan format tanggal konsisten (yyyy-MM-dd)
