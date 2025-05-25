@@ -4,9 +4,11 @@ import {
     DragEndEvent,
     DragOverlay,
     DragStartEvent,
+    DragOverEvent,
     PointerSensor,
     useSensor,
     useSensors,
+    closestCorners,
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { router } from "@inertiajs/react";
@@ -88,6 +90,7 @@ const COLUMN_CONFIG = [
 const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onTaskUpdate }) => {
     const [activeTask, setActiveTask] = useState<Task | null>(null);
     const [isUpdating, setIsUpdating] = useState<number | null>(null);
+    const [overId, setOverId] = useState<string | null>(null);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -110,24 +113,47 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onTaskUpdate }) => {
     const columnsWithCounts = COLUMN_CONFIG.map((column) => ({
         ...column,
         count: tasksByStatus[column.status]?.length || 0,
-    }));
-
-    const handleDragStart = (event: DragStartEvent) => {
+    }));    const handleDragStart = (event: DragStartEvent) => {
         const task = tasks.find((t) => t.id.toString() === event.active.id);
         setActiveTask(task || null);
+    };
+
+    const handleDragOver = (event: DragOverEvent) => {
+        const { over } = event;
+        setOverId(over ? over.id.toString() : null);
     };
 
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
         setActiveTask(null);
+        setOverId(null);
 
         if (!over) return;
 
         const taskId = parseInt(active.id.toString());
-        const newStatus = over.id.toString();
         const task = tasks.find((t) => t.id === taskId);
+        
+        if (!task) return;
 
-        if (!task || task.status === newStatus) return;
+        // Determine if we're dropping on a column or a task
+        let newStatus = over.id.toString();
+        
+        // If dropping on a task, get the task's column status
+        const droppedOnTask = tasks.find(t => t.id.toString() === over.id.toString());
+        if (droppedOnTask) {
+            newStatus = droppedOnTask.status;
+        }
+        
+        // Check if this is a valid status column
+        const isValidStatus = COLUMN_CONFIG.some(col => col.status === newStatus);
+        if (!isValidStatus) return;
+
+        // Handle same column reordering - for now, we'll just update status
+        // In the future, we can add position/order field to handle reordering
+        if (task.status === newStatus) {
+            // Same column - could implement reordering here
+            return;
+        }
 
         // Optimistic update (update UI immediately)
         if (onTaskUpdate) {
@@ -141,11 +167,15 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onTaskUpdate }) => {
                     status: newStatus,
                 },
                 {
-                    preserveState: true,
+                    preserveState: true, // Keep state to prevent page refresh
                     preserveScroll: true,
+                    only: [], // Don't reload any props - we handle optimistic updates
                     onError: (errors) => {
                         console.error("Failed to update task status:", errors);
-                        // Optionally revert the optimistic update here
+                        // Revert optimistic update on error
+                        if (onTaskUpdate) {
+                            onTaskUpdate(taskId, task.status);
+                        }
                     },
                     onFinish: () => {
                         setIsUpdating(null);
@@ -154,15 +184,19 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onTaskUpdate }) => {
             );
         } catch (error) {
             console.error("Error updating task status:", error);
+            // Revert optimistic update on error
+            if (onTaskUpdate) {
+                onTaskUpdate(taskId, task.status);
+            }
             setIsUpdating(null);
         }
-    };
-
-    return (
+    };    return (
         <div className="h-full">
             <DndContext
                 sensors={sensors}
+                collisionDetection={closestCorners}
                 onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
                 onDragEnd={handleDragEnd}
             >
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 h-full">
@@ -172,6 +206,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onTaskUpdate }) => {
                             column={column}
                             tasks={tasksByStatus[column.status] || []}
                             isUpdating={isUpdating}
+                            isDragOver={overId === column.status}
                         />
                     ))}
                 </div>

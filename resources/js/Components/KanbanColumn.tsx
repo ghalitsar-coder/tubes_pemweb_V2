@@ -6,8 +6,8 @@ import {
 } from "@dnd-kit/sortable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import KanbanTaskCard from "./KanbanTaskCard";
 import { cn } from "@/lib/utils";
+import KanbanTaskCard from "./KanbanTaskCard";
 
 interface User {
     id: number;
@@ -53,26 +53,26 @@ interface KanbanColumnProps {
     column: Column;
     tasks: Task[];
     isUpdating: number | null;
+    isDragOver?: boolean;
 }
 
 const KanbanColumn: React.FC<KanbanColumnProps> = ({
     column,
     tasks,
     isUpdating,
+    isDragOver = false,
 }) => {
     const { setNodeRef, isOver } = useDroppable({
         id: column.status,
     });
 
-    const taskIds = tasks.map((task) => task.id.toString());
-
-    return (
+    const taskIds = tasks.map((task) => task.id.toString());    return (
         <Card
             ref={setNodeRef}
             className={cn(
                 "flex flex-col h-fit min-h-[600px] transition-colors duration-200",
                 column.bgColor,
-                isOver && "ring-2 ring-blue-400 bg-blue-50"
+                (isOver || isDragOver) && "ring-2 ring-blue-400 bg-blue-50"
             )}
         >
             <CardHeader className={cn("pb-3", column.headerColor)}>
@@ -96,13 +96,16 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
                             isUpdating={isUpdating === task.id}
                         />
                     ))}
-                </SortableContext>
-
-                {tasks.length === 0 && (
-                    <div className="flex items-center justify-center h-32 text-gray-400 text-sm">
+                </SortableContext>                {tasks.length === 0 && (
+                    <div className={cn(
+                        "flex items-center justify-center h-32 text-gray-400 text-sm transition-colors duration-200",
+                        (isOver || isDragOver) && "text-blue-500 bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg"
+                    )}>
                         <div className="text-center">
-                            <div className="text-2xl mb-2">📝</div>
-                            <p>No tasks yet</p>
+                            <div className="text-2xl mb-2">
+                                {(isOver || isDragOver) ? "📋" : "📝"}
+                            </div>
+                            <p>{(isOver || isDragOver) ? "Drop task here" : "No tasks yet"}</p>
                             <p className="text-xs">Drag tasks here</p>
                         </div>
                     </div>
