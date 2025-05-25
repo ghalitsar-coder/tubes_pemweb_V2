@@ -103,7 +103,7 @@ const TasksIndex: React.FC<TasksIndexProps> = ({ auth, tasks, filters }) => {
                 <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8">
                     <div className="mb-4 md:mb-0">
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                            All Tasks asdsad
+                            All Tasks 
                         </h1>
                         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                             View, manage and track all your tasks in one place asdasdsa
