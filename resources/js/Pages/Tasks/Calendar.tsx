@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState } from "react";
+import { Head, Link, router } from "@inertiajs/react";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
     CalendarDays,
     ChevronLeft,
@@ -17,7 +17,7 @@ import {
     ListTodo,
     User,
     Building,
-} from 'lucide-react';
+} from "lucide-react";
 // No date-fns import for now, we'll use native Date
 
 interface Task {
@@ -33,7 +33,7 @@ interface CalendarEvent {
     id: string;
     title: string;
     date: string;
-    type: 'task_created' | 'task_due' | 'task_start' | 'task_updated';
+    type: "task_created" | "task_due" | "task_start" | "task_updated";
     color: string;
     description: string;
     is_overdue?: boolean;
@@ -55,10 +55,10 @@ interface Props {
 }
 
 const eventTypeLabels = {
-    task_created: 'Task Created',
-    task_due: 'Due Date',
-    task_start: 'Start Date',
-    task_updated: 'Updated',
+    task_created: "Task Created",
+    task_due: "Due Date",
+    task_start: "Start Date",
+    task_updated: "Updated",
 };
 
 const eventTypeIcons = {
@@ -70,17 +70,17 @@ const eventTypeIcons = {
 
 // Helper functions to replace date-fns
 const formatDate = (date: Date, format: string): string => {
-    if (format === 'yyyy-MM-dd') {
-        return date.toISOString().split('T')[0];
+    if (format === "yyyy-MM-dd") {
+        return date.toISOString().split("T")[0];
     }
-    if (format === 'd') {
+    if (format === "d") {
         return date.getDate().toString();
     }
-    if (format === 'MMM d, yyyy') {
-        return date.toLocaleDateString('en-US', { 
-            month: 'short', 
-            day: 'numeric', 
-            year: 'numeric' 
+    if (format === "MMM d, yyyy") {
+        return date.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
         });
     }
     return date.toISOString();
@@ -105,29 +105,33 @@ const eachDayOfInterval = (interval: { start: Date; end: Date }): Date[] => {
 };
 
 const isSameMonth = (date1: Date, date2: Date): boolean => {
-    return date1.getFullYear() === date2.getFullYear() && 
-           date1.getMonth() === date2.getMonth();
+    return (
+        date1.getFullYear() === date2.getFullYear() &&
+        date1.getMonth() === date2.getMonth()
+    );
 };
 
 const isToday = (date: Date): boolean => {
     const today = new Date();
-    return date.getFullYear() === today.getFullYear() &&
-           date.getMonth() === today.getMonth() &&
-           date.getDate() === today.getDate();
+    return (
+        date.getFullYear() === today.getFullYear() &&
+        date.getMonth() === today.getMonth() &&
+        date.getDate() === today.getDate()
+    );
 };
 
 const priorityColors: Record<string, string> = {
-    low: 'bg-green-100 text-green-800',
-    medium: 'bg-yellow-100 text-yellow-800',
-    high: 'bg-red-100 text-red-800',
-    urgent: 'bg-purple-100 text-purple-800',
+    low: "bg-green-100 text-green-800",
+    medium: "bg-yellow-100 text-yellow-800",
+    high: "bg-red-100 text-red-800",
+    urgent: "bg-purple-100 text-purple-800",
 };
 
 const statusColors: Record<string, string> = {
-    todo: 'bg-gray-100 text-gray-800',
-    in_progress: 'bg-blue-100 text-blue-800',
-    on_hold: 'bg-yellow-100 text-yellow-800',
-    completed: 'bg-green-100 text-green-800',
+    todo: "bg-gray-100 text-gray-800",
+    in_progress: "bg-blue-100 text-blue-800",
+    on_hold: "bg-yellow-100 text-yellow-800",
+    completed: "bg-green-100 text-green-800",
 };
 
 export default function TasksCalendar({
@@ -140,22 +144,33 @@ export default function TasksCalendar({
     completedTasks,
     overdueTasks,
 }: Props) {
-    const [selectedDate, setSelectedDate] = useState<string | null>(null);    const currentDate = new Date(currentYear, currentMonth - 1, 1);
+    const [selectedDate, setSelectedDate] = useState<string | null>(null);
+    const currentDate = new Date(currentYear, currentMonth - 1, 1);
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
     const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
-    const navigateMonth = (direction: 'prev' | 'next') => {
-        const newDate = new Date(currentYear, currentMonth - 1 + (direction === 'next' ? 1 : -1), 1);
-        router.visit(`/tasks/calendar?year=${newDate.getFullYear()}&month=${newDate.getMonth() + 1}`);
+    const navigateMonth = (direction: "prev" | "next") => {
+        const newDate = new Date(
+            currentYear,
+            currentMonth - 1 + (direction === "next" ? 1 : -1),
+            1
+        );
+        router.visit(
+            `/tasks/calendar?year=${newDate.getFullYear()}&month=${
+                newDate.getMonth() + 1
+            }`
+        );
     };
 
     const getEventsForDate = (date: Date) => {
-        const dateStr = formatDate(date, 'yyyy-MM-dd');
-        return events.filter(event => event.date === dateStr);
+        const dateStr = formatDate(date, "yyyy-MM-dd");
+        return events.filter((event) => event.date === dateStr);
     };
 
-    const selectedDateEvents = selectedDate ? events.filter(event => event.date === selectedDate) : [];
+    const selectedDateEvents = selectedDate
+        ? events.filter((event) => event.date === selectedDate)
+        : [];
 
     return (
         <AuthenticatedLayout user={auth.user}>
@@ -171,7 +186,8 @@ export default function TasksCalendar({
                                     Tasks Calendar
                                 </h1>
                                 <p className="text-gray-600 dark:text-gray-400 mt-2">
-                                    View all your tasks and their important dates in calendar format
+                                    View all your tasks and their important
+                                    dates in calendar format
                                 </p>
                             </div>
                             <div className="flex gap-3">
@@ -258,14 +274,18 @@ export default function TasksCalendar({
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                onClick={() => navigateMonth('prev')}
+                                                onClick={() =>
+                                                    navigateMonth("prev")
+                                                }
                                             >
                                                 <ChevronLeft className="h-4 w-4" />
                                             </Button>
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                onClick={() => navigateMonth('next')}
+                                                onClick={() =>
+                                                    navigateMonth("next")
+                                                }
                                             >
                                                 <ChevronRight className="h-4 w-4" />
                                             </Button>
@@ -275,7 +295,15 @@ export default function TasksCalendar({
                                 <CardContent>
                                     {/* Weekday headers */}
                                     <div className="grid grid-cols-7 gap-1 mb-2">
-                                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                                        {[
+                                            "Sun",
+                                            "Mon",
+                                            "Tue",
+                                            "Wed",
+                                            "Thu",
+                                            "Fri",
+                                            "Sat",
+                                        ].map((day) => (
                                             <div
                                                 key={day}
                                                 className="p-2 text-center text-sm font-medium text-gray-500 dark:text-gray-400"
@@ -288,9 +316,14 @@ export default function TasksCalendar({
                                     {/* Calendar grid */}
                                     <div className="grid grid-cols-7 gap-1">
                                         {days.map((day) => {
-                                            const dayEvents = getEventsForDate(day);
-                                            const dateStr = formatDate(day, 'yyyy-MM-dd');
-                                            const isSelectedDate = selectedDate === dateStr;
+                                            const dayEvents =
+                                                getEventsForDate(day);
+                                            const dateStr = formatDate(
+                                                day,
+                                                "yyyy-MM-dd"
+                                            );
+                                            const isSelectedDate =
+                                                selectedDate === dateStr;
                                             const isTodayDate = isToday(day);
 
                                             return (
@@ -298,33 +331,60 @@ export default function TasksCalendar({
                                                     key={day.toString()}
                                                     className={`min-h-[100px] p-2 border rounded-lg cursor-pointer transition-colors ${
                                                         isSelectedDate
-                                                            ? 'bg-blue-50 border-blue-300 dark:bg-blue-900/20'
+                                                            ? "bg-blue-50 border-blue-300 dark:bg-blue-900/20"
                                                             : isTodayDate
-                                                            ? 'bg-yellow-50 border-yellow-300 dark:bg-yellow-900/20'
-                                                            : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
+                                                            ? "bg-yellow-50 border-yellow-300 dark:bg-yellow-900/20"
+                                                            : "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
                                                     }`}
-                                                    onClick={() => setSelectedDate(dateStr)}
+                                                    onClick={() =>
+                                                        setSelectedDate(dateStr)
+                                                    }
                                                 >
-                                                    <div className={`text-sm font-medium mb-1 ${
-                                                        isTodayDate ? 'text-yellow-600 dark:text-yellow-400' :
-                                                        isSameMonth(day, currentDate) ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400'
-                                                    }`}>
-                                                        {formatDate(day, 'd')}
+                                                    <div
+                                                        className={`text-sm font-medium mb-1 ${
+                                                            isTodayDate
+                                                                ? "text-yellow-600 dark:text-yellow-400"
+                                                                : isSameMonth(
+                                                                      day,
+                                                                      currentDate
+                                                                  )
+                                                                ? "text-gray-900 dark:text-gray-100"
+                                                                : "text-gray-400"
+                                                        }`}
+                                                    >
+                                                        {formatDate(day, "d")}
                                                     </div>
                                                     <div className="space-y-1">
-                                                        {dayEvents.slice(0, 3).map((event) => (
-                                                            <div
-                                                                key={event.id}
-                                                                className="text-xs p-1 rounded truncate"
-                                                                style={{ backgroundColor: event.color + '20', color: event.color }}
-                                                                title={event.description}
-                                                            >
-                                                                {event.title}
-                                                            </div>
-                                                        ))}
-                                                        {dayEvents.length > 3 && (
+                                                        {dayEvents
+                                                            .slice(0, 3)
+                                                            .map((event) => (
+                                                                <div
+                                                                    key={
+                                                                        event.id
+                                                                    }
+                                                                    className="text-xs p-1 rounded truncate"
+                                                                    style={{
+                                                                        backgroundColor:
+                                                                            event.color +
+                                                                            "20",
+                                                                        color: event.color,
+                                                                    }}
+                                                                    title={
+                                                                        event.description
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        event.title
+                                                                    }
+                                                                </div>
+                                                            ))}
+                                                        {dayEvents.length >
+                                                            3 && (
                                                             <div className="text-xs text-gray-500 dark:text-gray-400">
-                                                                +{dayEvents.length - 3} more
+                                                                +
+                                                                {dayEvents.length -
+                                                                    3}{" "}
+                                                                more
                                                             </div>
                                                         )}
                                                     </div>
@@ -342,62 +402,125 @@ export default function TasksCalendar({
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
                                         <Clock className="h-5 w-5" />
-                                        {selectedDate ? `Events for ${formatDate(new Date(selectedDate), 'MMM d, yyyy')}` : 'Select a Date'}
+                                        {selectedDate
+                                            ? `Events for ${formatDate(
+                                                  new Date(selectedDate),
+                                                  "MMM d, yyyy"
+                                              )}`
+                                            : "Select a Date"}
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     {selectedDateEvents.length > 0 ? (
                                         <div className="space-y-4">
                                             {selectedDateEvents.map((event) => {
-                                                const IconComponent = eventTypeIcons[event.type];
+                                                const IconComponent =
+                                                    eventTypeIcons[event.type];
                                                 return (
                                                     <div
                                                         key={event.id}
                                                         className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                                                     >
                                                         <div className="flex items-start gap-3">
-                                                            <IconComponent 
+                                                            <IconComponent
                                                                 className="h-5 w-5 mt-0.5 flex-shrink-0"
-                                                                style={{ color: event.color }}
+                                                                style={{
+                                                                    color: event.color,
+                                                                }}
                                                             />
                                                             <div className="flex-1 min-w-0">
                                                                 <div className="flex items-center gap-2 mb-2">
-                                                                    <Badge variant="outline" className="text-xs">
-                                                                        {eventTypeLabels[event.type]}
+                                                                    <Badge
+                                                                        variant="outline"
+                                                                        className="text-xs"
+                                                                    >
+                                                                        {
+                                                                            eventTypeLabels[
+                                                                                event
+                                                                                    .type
+                                                                            ]
+                                                                        }
                                                                     </Badge>
                                                                     {event.is_overdue && (
-                                                                        <Badge variant="destructive" className="text-xs">
+                                                                        <Badge
+                                                                            variant="destructive"
+                                                                            className="text-xs"
+                                                                        >
                                                                             Overdue
                                                                         </Badge>
                                                                     )}
                                                                     {event.is_today && (
-                                                                        <Badge variant="default" className="text-xs bg-yellow-500">
+                                                                        <Badge
+                                                                            variant="default"
+                                                                            className="text-xs bg-yellow-500"
+                                                                        >
                                                                             Today
                                                                         </Badge>
                                                                     )}
                                                                 </div>
                                                                 <p className="font-medium text-gray-900 dark:text-gray-100 mb-2">
-                                                                    {event.task.title}
+                                                                    {
+                                                                        event
+                                                                            .task
+                                                                            .title
+                                                                    }
                                                                 </p>
                                                                 <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                                                                     <div className="flex items-center gap-2">
-                                                                        <Badge className={statusColors[event.task.status] || statusColors.todo}>
-                                                                            {event.task.status.replace('_', ' ').toUpperCase()}
+                                                                        <Badge
+                                                                            className={
+                                                                                statusColors[
+                                                                                    event
+                                                                                        .task
+                                                                                        .status
+                                                                                ] ||
+                                                                                statusColors.todo
+                                                                            }
+                                                                        >
+                                                                            {event.task.status
+                                                                                .replace(
+                                                                                    "_",
+                                                                                    " "
+                                                                                )
+                                                                                .toUpperCase()}
                                                                         </Badge>
-                                                                        <Badge className={priorityColors[event.task.priority] || priorityColors.medium}>
+                                                                        <Badge
+                                                                            className={
+                                                                                priorityColors[
+                                                                                    event
+                                                                                        .task
+                                                                                        .priority
+                                                                                ] ||
+                                                                                priorityColors.medium
+                                                                            }
+                                                                        >
                                                                             {event.task.priority.toUpperCase()}
                                                                         </Badge>
                                                                     </div>
-                                                                    {event.task.project && (
+                                                                    {event.task
+                                                                        .project && (
                                                                         <div className="flex items-center gap-2">
                                                                             <Building className="h-4 w-4" />
-                                                                            <span>{event.task.project}</span>
+                                                                            <span>
+                                                                                {
+                                                                                    event
+                                                                                        .task
+                                                                                        .project
+                                                                                }
+                                                                            </span>
                                                                         </div>
                                                                     )}
-                                                                    {event.task.assignee && (
+                                                                    {event.task
+                                                                        .assignee && (
                                                                         <div className="flex items-center gap-2">
                                                                             <User className="h-4 w-4" />
-                                                                            <span>{event.task.assignee}</span>
+                                                                            <span>
+                                                                                {
+                                                                                    event
+                                                                                        .task
+                                                                                        .assignee
+                                                                                }
+                                                                            </span>
                                                                         </div>
                                                                     )}
                                                                 </div>
@@ -406,7 +529,8 @@ export default function TasksCalendar({
                                                                         href={`/tasks/${event.task.id}`}
                                                                         className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
                                                                     >
-                                                                        View Task →
+                                                                        View
+                                                                        Task →
                                                                     </Link>
                                                                 </div>
                                                             </div>
@@ -430,25 +554,42 @@ export default function TasksCalendar({
                             {/* Legend */}
                             <Card className="mt-6">
                                 <CardHeader>
-                                    <CardTitle className="text-sm">Event Types</CardTitle>
+                                    <CardTitle className="text-sm">
+                                        Event Types
+                                    </CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="space-y-2">
-                                        {Object.entries(eventTypeLabels).map(([type, label]) => {
-                                            const IconComponent = eventTypeIcons[type as keyof typeof eventTypeIcons];
-                                            const color = type === 'task_created' ? '#10b981' :
-                                                         type === 'task_due' ? '#6366f1' :
-                                                         type === 'task_start' ? '#8b5cf6' : '#06b6d4';
-                                            return (
-                                                <div key={type} className="flex items-center gap-2 text-sm">
-                                                    <IconComponent 
-                                                        className="h-4 w-4"
-                                                        style={{ color }}
-                                                    />
-                                                    <span className="text-gray-600 dark:text-gray-400">{label}</span>
-                                                </div>
-                                            );
-                                        })}
+                                        {Object.entries(eventTypeLabels).map(
+                                            ([type, label]) => {
+                                                const IconComponent =
+                                                    eventTypeIcons[
+                                                        type as keyof typeof eventTypeIcons
+                                                    ];
+                                                const color =
+                                                    type === "task_created"
+                                                        ? "#10b981"
+                                                        : type === "task_due"
+                                                        ? "#6366f1"
+                                                        : type === "task_start"
+                                                        ? "#8b5cf6"
+                                                        : "#06b6d4";
+                                                return (
+                                                    <div
+                                                        key={type}
+                                                        className="flex items-center gap-2 text-sm"
+                                                    >
+                                                        <IconComponent
+                                                            className="h-4 w-4"
+                                                            style={{ color }}
+                                                        />
+                                                        <span className="text-gray-600 dark:text-gray-400">
+                                                            {label}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            }
+                                        )}
                                     </div>
                                 </CardContent>
                             </Card>
