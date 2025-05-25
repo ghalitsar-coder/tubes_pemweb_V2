@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\TestCloudinaryController;
@@ -71,6 +72,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/tasks/{task}/attachments', [TaskAttachmentController::class, 'store'])->name('tasks.attachments.store');
     Route::delete('/tasks/{task}/attachments/{attachment}', [TaskAttachmentController::class, 'destroy'])->name('tasks.attachments.destroy');
     Route::post('/tasks/{task}/attachments/{attachment}/comments', [TaskAttachmentController::class, 'storeComment'])->name('tasks.attachments.comments.store');
+
+    // Calendar routes
+    Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar.index');
+    Route::post('/calendar', [CalendarController::class, 'store'])->name('calendar.store');
+    Route::get('/calendar/{event}', [CalendarController::class, 'show'])->name('calendar.show');
+    Route::put('/calendar/{event}', [CalendarController::class, 'update'])->name('calendar.update');
+    Route::delete('/calendar/{event}', [CalendarController::class, 'destroy'])->name('calendar.destroy');
+    Route::patch('/calendar/{event}/complete', [CalendarController::class, 'markComplete'])->name('calendar.complete');
+    Route::patch('/calendar/{event}/cancel', [CalendarController::class, 'markCancelled'])->name('calendar.cancel');
 });
 
 Route::get('/test-cloudinary', [TestCloudinaryController::class, 'test']);

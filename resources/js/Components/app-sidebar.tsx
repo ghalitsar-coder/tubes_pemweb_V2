@@ -5,6 +5,7 @@ import {
     CheckSquare,
     Users,
     Settings2,
+    Calendar,
     Plus,
 } from "lucide-react";
 
@@ -75,6 +76,11 @@ const data = {
                     url: "/tasks/create",
                 },
             ],
+        },
+        {
+            title: "Calendar",
+            url: "/calendar",
+            icon: Calendar,
         },
         {
             title: "Team",
