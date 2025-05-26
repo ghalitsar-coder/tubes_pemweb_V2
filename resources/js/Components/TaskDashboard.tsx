@@ -8,6 +8,7 @@ import TaskCard from "./TaskCard";
 import KanbanBoard from "./KanbanBoard";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { canAssignTasks, UserWithPermissions } from "@/utils/permissions";
 
 interface User {
     id: number;
@@ -42,7 +43,7 @@ interface Task {
 
 interface TasksIndexProps {
     auth: {
-        user: User;
+        user: UserWithPermissions;
     };
     tasks: {
         data: Task[];
@@ -63,7 +64,7 @@ interface TasksIndexProps {
 const TasksIndex: React.FC<TasksIndexProps> = ({ auth, tasks, filters }) => {
     const [activeFilter, setActiveFilter] = useState(filters?.status || "all");
     const [viewMode, setViewMode] = useState<"list" | "kanban">("kanban");
-    console.log(`THIS IS  viewMode:`, viewMode)
+    console.log(`THIS IS  viewMode:`, viewMode);
     const [localTasks, setLocalTasks] = useState(tasks?.data || []); // Provide default values if tasks.meta is undefined
     const tasksData = localTasks;
     const tasksMeta = tasks?.meta || {
@@ -103,10 +104,11 @@ const TasksIndex: React.FC<TasksIndexProps> = ({ auth, tasks, filters }) => {
                 <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8">
                     <div className="mb-4 md:mb-0">
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                            All Tasks 
+                            All Tasks
                         </h1>
                         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                            View, manage and track all your tasks in one place asdasdsa
+                            View, manage and track all your tasks in one place
+                            asdasdsa
                         </p>
                     </div>{" "}
                     <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
@@ -130,17 +132,19 @@ const TasksIndex: React.FC<TasksIndexProps> = ({ auth, tasks, filters }) => {
                             >
                                 <LayoutGrid className="h-4 w-4" />
                             </ToggleGroupItem>
-                        </ToggleGroup>
+                        </ToggleGroup>{" "}
                         <Button variant="outline" size="sm">
                             <FilterIcon className="mr-2 h-4 w-4" />
                             Filter
                         </Button>
-                        <Link href="/tasks/create">
-                            <Button size="sm">
-                                <PlusIcon className="mr-2 h-4 w-4" />
-                                New Task
-                            </Button>
-                        </Link>
+                        {canAssignTasks(auth.user) && (
+                            <Link href="/tasks/create">
+                                <Button size="sm">
+                                    <PlusIcon className="mr-2 h-4 w-4" />
+                                    New Task
+                                </Button>
+                            </Link>
+                        )}
                     </div>
                 </div>{" "}
                 {/* Task Status Filter - only show in list view */}
@@ -154,10 +158,14 @@ const TasksIndex: React.FC<TasksIndexProps> = ({ auth, tasks, filters }) => {
                 {/* Content - Toggle between List and Kanban */}
                 {viewMode === "list" ? (
                     <>
-                        {/* Tasks Grid */}
+                        {/* Tasks Grid */}{" "}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {tasksData.map((task) => (
-                                <TaskCard key={task.id} task={task} />
+                                <TaskCard
+                                    key={task.id}
+                                    task={task}
+                                    user={auth.user}
+                                />
                             ))}
                         </div>
                         {/* Pagination */}
@@ -169,10 +177,10 @@ const TasksIndex: React.FC<TasksIndexProps> = ({ auth, tasks, filters }) => {
                         />
                     </>
                 ) : (
-                    /* Kanban Board */
-                    <div className="mt-6">
+                    /* Kanban Board */ <div className="mt-6">
                         <KanbanBoard
                             tasks={tasksData}
+                            user={auth.user}
                             onTaskUpdate={handleTaskUpdate}
                         />
                     </div>

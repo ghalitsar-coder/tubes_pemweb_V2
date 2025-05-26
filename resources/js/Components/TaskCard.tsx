@@ -1,6 +1,11 @@
 import React from "react";
 import { Link } from "@inertiajs/react";
 import { Edit, Trash2, MoreHorizontal, Copy } from "lucide-react";
+import {
+    canUpdateTasks,
+    canDeleteTasks,
+    UserWithPermissions,
+} from "@/utils/permissions";
 
 interface User {
     id: number;
@@ -31,9 +36,10 @@ interface Task {
 
 interface TaskCardProps {
     task: Task;
+    user: UserWithPermissions;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, user }) => {
     // Helper function to determine status badge styling
     const getStatusBadgeClass = (status: string) => {
         switch (status) {
@@ -163,8 +169,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
                         </span>
                     ))}
                 </div>
-            </div>
-
+            </div>{" "}
             <div className="bg-gray-50 dark:bg-gray-900 px-5 py-3 flex justify-end">
                 <div className="flex space-x-3">
                     {task.is_template && (
@@ -172,13 +177,15 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
                             <Copy className="h-4 w-4" />
                         </button>
                     )}
-                    <Link
-                        href={route("tasks.edit", task.id)}
-                        className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
-                    >
-                        <Edit className="h-4 w-4" />
-                    </Link>
-                    {!task.is_template && (
+                    {canUpdateTasks(user) && (
+                        <Link
+                            href={route("tasks.edit", task.id)}
+                            className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+                        >
+                            <Edit className="h-4 w-4" />
+                        </Link>
+                    )}
+                    {canDeleteTasks(user) && !task.is_template && (
                         <button className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
                             <Trash2 className="h-4 w-4" />
                         </button>

@@ -19,6 +19,8 @@ class ProjectController extends Controller
         // Middleware is now handled in routes/web.php
     }    public function index()
     {
+        $this->authorize('viewAny', Project::class);
+        
         $projects = Project::with(['tasks.assignee'])
             ->get()
             ->map(function ($project) {
@@ -83,14 +85,18 @@ class ProjectController extends Controller
 
     public function create()
     {
+        // $this->authorize('create', Project::class);
+        
         return Inertia::render('Projects/Create', [
             'users' => User::select('id', 'name','email')->get(),
             'auth' => [
                 'user' => Auth::user()
             ]
-        ]);
-    }    public function store(Request $request)
+        ]);    }
+
+    public function store(Request $request)
     {
+        $this->authorize('create', Project::class);
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
@@ -127,16 +133,20 @@ class ProjectController extends Controller
 
         return redirect()->route('projects.index')
             ->with('success', 'Project created successfully.');
-    }
-
-    public function show(Project $project)
+    }    public function show(Project $project)
     {
+        $this->authorize('view', $project);
+        
         $project->load('tasks');
         return Inertia::render('Projects/Show', [
             'project' => $project,
         ]);
-    }    public function edit(Project $project)
+    }
+
+    public function edit(Project $project)
     {
+        $this->authorize('update', $project);
+        
         return Inertia::render('Projects/Edit', [
             'project' => $project,
             'users' => User::select('id', 'name', 'email')->get(),
@@ -146,6 +156,8 @@ class ProjectController extends Controller
         ]);
     }    public function update(Request $request, Project $project)
     {
+        $this->authorize('update', $project);
+        
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
@@ -179,10 +191,10 @@ class ProjectController extends Controller
 
         return redirect()->route('projects.show', $project)
             ->with('success', 'Project updated successfully.');
-    }
-
-    public function destroy(Project $project)
+    }    public function destroy(Project $project)
     {
+        $this->authorize('delete', $project);
+        
         // Delete all attachments
         if ($project->attachments) {
             foreach ($project->attachments as $attachment) {

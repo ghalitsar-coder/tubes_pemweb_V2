@@ -15,7 +15,7 @@ class UserSeeder extends Seeder
             'name' => 'Admin User',
             'email' => 'admin@example.com',
             'password' => Hash::make('password'),
-            'role' => 'admin',
+            'role' => 'Admin',
         ]);
 
         // Create Project Manager
@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
             'name' => 'Project Manager',
             'email' => 'pm@example.com',
             'password' => Hash::make('password'),
-            'role' => 'project_manager',
+            'role' => 'Project Manager',
         ]);
 
         // Create Team Member
@@ -31,7 +31,7 @@ class UserSeeder extends Seeder
             'name' => 'Team Member',
             'email' => 'member@example.com',
             'password' => Hash::make('password'),
-            'role' => 'team_member',
+            'role' => 'Team Member',
         ]);
 
         // Create another Team Member
@@ -39,13 +39,15 @@ class UserSeeder extends Seeder
             'name' => 'Another Team Member',
             'email' => 'member2@example.com',
             'password' => Hash::make('password'),
-            'role' => 'team_member',
+            'role' => 'Team Member',
         ]);
 
         User::create([
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => Hash::make('password'),
+            'role' => 'Team Member',
+
         ]);
     }
 } 

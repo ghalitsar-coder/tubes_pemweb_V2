@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { User } from "@/types";
 import { formatDate } from "@/lib/utils";
+import { canAssignTasks, UserWithPermissions } from "@/utils/permissions";
 import {
     Users,
     Calendar,
@@ -67,7 +68,7 @@ interface Project {
 
 interface Props {
     auth: {
-        user: User;
+        user: UserWithPermissions;
     };
     projects: Project[];
 }
@@ -260,24 +261,26 @@ export default function Overview({ auth, projects }: Props) {
 
                                 {/* Tasks Section */}
                                 <CardContent className="p-5">
+                                    {" "}
                                     <div className="flex justify-between items-center mb-3">
                                         <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
                                             Tasks
                                         </h4>
-                                        <Link
-                                            href={`/tasks/create?project_id=${project.id}`}
-                                        >
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="text-xs text-indigo-600 hover:text-indigo-900"
+                                        {canAssignTasks(auth.user) && (
+                                            <Link
+                                                href={`/tasks/create?project_id=${project.id}`}
                                             >
-                                                <Plus className="h-3 w-3 mr-1" />
-                                                Add Task
-                                            </Button>
-                                        </Link>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-xs text-indigo-600 hover:text-indigo-900"
+                                                >
+                                                    <Plus className="h-3 w-3 mr-1" />
+                                                    Add Task
+                                                </Button>
+                                            </Link>
+                                        )}
                                     </div>
-
                                     {/* Task List */}
                                     <div className="space-y-3">
                                         {project.tasks
@@ -392,7 +395,6 @@ export default function Overview({ auth, projects }: Props) {
                                                 </Link>
                                             ))}
                                     </div>
-
                                     {/* View All Tasks Link */}
                                     {project.total_tasks_count > 3 && (
                                         <div className="mt-3 text-center">

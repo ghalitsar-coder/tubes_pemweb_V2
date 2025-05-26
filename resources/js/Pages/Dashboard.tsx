@@ -28,6 +28,11 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import {
+    canCreateProject,
+    canManageUsers,
+    UserWithPermissions,
+} from "@/utils/permissions";
 
 interface DashboardProps extends PageProps {
     stats: {
@@ -62,6 +67,9 @@ interface DashboardProps extends PageProps {
         avatar: string;
         status: "online" | "offline" | "away";
     }[];
+    auth: {
+        user: UserWithPermissions;
+    };
 }
 
 export default function Dashboard({
@@ -91,12 +99,14 @@ export default function Dashboard({
                         projects.
                     </p>
                 </div>
-                <Button asChild>
-                    <Link href={route("projects.create")}>
-                        <FolderKanban className="mr-2 h-4 w-4" />
-                        New Project
-                    </Link>
-                </Button>
+                {canCreateProject(auth.user) && (
+                    <Button asChild>
+                        <Link href={route("projects.create")}>
+                            <FolderKanban className="mr-2 h-4 w-4" />
+                            New Project
+                        </Link>
+                    </Button>
+                )}
             </div>
 
             {/* Quick Actions */}
@@ -282,10 +292,12 @@ export default function Dashboard({
             <Card className="mb-8">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Team Members</CardTitle>
-                    <Button variant="outline" size="sm">
-                        <UserPlus className="h-4 w-4 mr-2" />
-                        Add Member
-                    </Button>
+                    {canManageUsers(auth.user) && (
+                        <Button variant="outline" size="sm">
+                            <UserPlus className="h-4 w-4 mr-2" />
+                            Add Member
+                        </Button>
+                    )}
                 </CardHeader>
                 <CardContent>
                     <Table>

@@ -15,6 +15,7 @@ import { router } from "@inertiajs/react";
 import TaskCard from "./TaskCard";
 import { Card } from "@/components/ui/card";
 import KanbanColumn from "./KanbanColumn";
+import { UserWithPermissions } from "@/utils/permissions";
 
 interface User {
     id: number;
@@ -49,6 +50,7 @@ interface Task {
 
 interface KanbanBoardProps {
     tasks: Task[];
+    user: UserWithPermissions;
     onTaskUpdate?: (taskId: number, newStatus: string) => void;
 }
 
@@ -87,7 +89,11 @@ const COLUMN_CONFIG = [
     },
 ];
 
-const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onTaskUpdate }) => {
+const KanbanBoard: React.FC<KanbanBoardProps> = ({
+    tasks,
+    user,
+    onTaskUpdate,
+}) => {
     const [activeTask, setActiveTask] = useState<Task | null>(null);
     const [isUpdating, setIsUpdating] = useState<number | null>(null);
     const [overId, setOverId] = useState<string | null>(null);
@@ -223,12 +229,11 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onTaskUpdate }) => {
                             isDragOver={overId === column.status}
                         />
                     ))}
-                </div>
-
+                </div>{" "}
                 <DragOverlay>
                     {activeTask ? (
                         <Card className="rotate-5 shadow-lg opacity-90">
-                            <TaskCard task={activeTask} />
+                            <TaskCard task={activeTask} user={user} />
                         </Card>
                     ) : null}
                 </DragOverlay>

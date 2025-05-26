@@ -14,6 +14,7 @@ import { formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, User as UserIcon } from "lucide-react";
 import TasksIndex from "@/components/TaskDashboard";
+import { UserWithPermissions } from "@/utils/permissions";
 
 interface Task {
     id: number;
@@ -44,7 +45,7 @@ interface Task {
 
 interface Props {
     auth: {
-        user: User;
+        user: UserWithPermissions;
     };
     tasks: {
         data: Task[];

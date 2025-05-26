@@ -39,6 +39,13 @@ import {
     Edit,
     Trash2,
 } from "lucide-react";
+import {
+    canCreateProject,
+    canUpdateProject,
+    canDeleteProject,
+    canAssignTasks,
+    UserWithPermissions,
+} from "@/utils/permissions";
 
 interface Task {
     id: number;
@@ -75,7 +82,7 @@ interface Project {
 
 interface Props {
     auth: {
-        user: User;
+        user: UserWithPermissions;
     };
     projects: Project[];
 }
@@ -153,18 +160,20 @@ export default function Index({ auth, projects }: Props) {
                                 <h1 className="text-xl font-semibold text-gray-900">
                                     Projects
                                 </h1>
-                            </div>
+                            </div>{" "}
                             <div className="flex items-center space-x-4">
                                 <Button variant="outline" size="sm">
                                     <Filter className="h-4 w-4 mr-2" />
                                     Filter
                                 </Button>
-                                <Link href="/projects/create">
-                                    <Button size="sm">
-                                        <Plus className="h-4 w-4 mr-2" />
-                                        New Project
-                                    </Button>
-                                </Link>
+                                {canCreateProject(auth.user) && (
+                                    <Link href="/projects/create">
+                                        <Button size="sm">
+                                            <Plus className="h-4 w-4 mr-2" />
+                                            New Project
+                                        </Button>
+                                    </Link>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -256,43 +265,51 @@ export default function Index({ auth, projects }: Props) {
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
-                                                <DropdownMenuItem asChild>
-                                                    <Link
-                                                        href={`/projects/${project.id}/edit`}
+                                                {canUpdateProject(
+                                                    auth.user
+                                                ) && (
+                                                    <DropdownMenuItem asChild>
+                                                        <Link
+                                                            href={`/projects/${project.id}/edit`}
+                                                        >
+                                                            <Edit className="h-4 w-4 mr-2" />
+                                                            Edit Project
+                                                        </Link>
+                                                    </DropdownMenuItem>
+                                                )}
+                                                {canDeleteProject(
+                                                    auth.user
+                                                ) && (
+                                                    <DropdownMenuItem
+                                                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                        onClick={() => {
+                                                            if (
+                                                                confirm(
+                                                                    "Are you sure you want to delete this project? This action cannot be undone."
+                                                                )
+                                                            ) {
+                                                                router.delete(
+                                                                    `/projects/${project.id}`,
+                                                                    {
+                                                                        onSuccess:
+                                                                            () => {
+                                                                                // The page will automatically reload with the updated projects list
+                                                                            },
+                                                                        onError:
+                                                                            () => {
+                                                                                alert(
+                                                                                    "An error occurred while deleting the project."
+                                                                                );
+                                                                            },
+                                                                    }
+                                                                );
+                                                            }
+                                                        }}
                                                     >
-                                                        <Edit className="h-4 w-4 mr-2" />
-                                                        Edit Project
-                                                    </Link>
-                                                </DropdownMenuItem>{" "}
-                                                <DropdownMenuItem
-                                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                                    onClick={() => {
-                                                        if (
-                                                            confirm(
-                                                                "Are you sure you want to delete this project? This action cannot be undone."
-                                                            )
-                                                        ) {
-                                                            router.delete(
-                                                                `/projects/${project.id}`,
-                                                                {
-                                                                    onSuccess:
-                                                                        () => {
-                                                                            // The page will automatically reload with the updated projects list
-                                                                        },
-                                                                    onError:
-                                                                        () => {
-                                                                            alert(
-                                                                                "An error occurred while deleting the project."
-                                                                            );
-                                                                        },
-                                                                }
-                                                            );
-                                                        }
-                                                    }}
-                                                >
-                                                    <Trash2 className="h-4 w-4 mr-2" />
-                                                    Delete Project
-                                                </DropdownMenuItem>
+                                                        <Trash2 className="h-4 w-4 mr-2" />
+                                                        Delete Project
+                                                    </DropdownMenuItem>
+                                                )}
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </div>
@@ -318,24 +335,26 @@ export default function Index({ auth, projects }: Props) {
 
                                 {/* Tasks Section */}
                                 <CardContent className="p-5">
+                                    {" "}
                                     <div className="flex justify-between items-center mb-3">
                                         <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
                                             Tasks
                                         </h4>
-                                        <Link
-                                            href={`/tasks/create?project_id=${project.id}`}
-                                        >
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="text-xs text-indigo-600 hover:text-indigo-900"
+                                        {canAssignTasks(auth.user) && (
+                                            <Link
+                                                href={`/tasks/create?project_id=${project.id}`}
                                             >
-                                                <Plus className="h-3 w-3 mr-1" />
-                                                Add Task
-                                            </Button>
-                                        </Link>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-xs text-indigo-600 hover:text-indigo-900"
+                                                >
+                                                    <Plus className="h-3 w-3 mr-1" />
+                                                    Add Task
+                                                </Button>
+                                            </Link>
+                                        )}
                                     </div>
-
                                     {/* Task List */}
                                     <div className="space-y-3">
                                         {project.tasks
@@ -450,7 +469,6 @@ export default function Index({ auth, projects }: Props) {
                                                 </Link>
                                             ))}
                                     </div>
-
                                     {/* View All Tasks Link */}
                                     {project.total_tasks_count > 3 && (
                                         <div className="mt-3 text-center">

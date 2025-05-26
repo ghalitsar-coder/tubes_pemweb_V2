@@ -18,6 +18,7 @@ import {
     User,
     Building,
 } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 // No date-fns import for now, we'll use native Date
 
 interface Task {
@@ -411,143 +412,152 @@ export default function TasksCalendar({
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    {selectedDateEvents.length > 0 ? (
-                                        <div className="space-y-4">
-                                            {selectedDateEvents.map((event) => {
-                                                const IconComponent =
-                                                    eventTypeIcons[event.type];
-                                                return (
-                                                    <div
-                                                        key={event.id}
-                                                        className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                                                    >
-                                                        <div className="flex items-start gap-3">
-                                                            <IconComponent
-                                                                className="h-5 w-5 mt-0.5 flex-shrink-0"
-                                                                style={{
-                                                                    color: event.color,
-                                                                }}
-                                                            />
-                                                            <div className="flex-1 min-w-0">
-                                                                <div className="flex items-center gap-2 mb-2">
-                                                                    <Badge
-                                                                        variant="outline"
-                                                                        className="text-xs"
-                                                                    >
-                                                                        {
-                                                                            eventTypeLabels[
+                                    <ScrollArea className="h-72 p-1  rounded-md border">
+                                        {selectedDateEvents.length > 0 ? (
+                                            <div className="space-y-4">
+                                                {selectedDateEvents.map(
+                                                    (event) => {
+                                                        const IconComponent =
+                                                            eventTypeIcons[
+                                                                event.type
+                                                            ];
+                                                        return (
+                                                            <div
+                                                                key={event.id}
+                                                                className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                                                            >
+                                                                <div className="flex items-start gap-3">
+                                                                    <IconComponent
+                                                                        className="h-5 w-5 mt-0.5 flex-shrink-0"
+                                                                        style={{
+                                                                            color: event.color,
+                                                                        }}
+                                                                    />
+                                                                    <div className="flex-1 min-w-0">
+                                                                        <div className="flex items-center gap-2 mb-2">
+                                                                            <Badge
+                                                                                variant="outline"
+                                                                                className="text-xs"
+                                                                            >
+                                                                                {
+                                                                                    eventTypeLabels[
+                                                                                        event
+                                                                                            .type
+                                                                                    ]
+                                                                                }
+                                                                            </Badge>
+                                                                            {event.is_overdue && (
+                                                                                <Badge
+                                                                                    variant="destructive"
+                                                                                    className="text-xs"
+                                                                                >
+                                                                                    Overdue
+                                                                                </Badge>
+                                                                            )}
+                                                                            {event.is_today && (
+                                                                                <Badge
+                                                                                    variant="default"
+                                                                                    className="text-xs bg-yellow-500"
+                                                                                >
+                                                                                    Today
+                                                                                </Badge>
+                                                                            )}
+                                                                        </div>
+                                                                        <p className="font-medium text-gray-900 dark:text-gray-100 mb-2">
+                                                                            {
                                                                                 event
-                                                                                    .type
-                                                                            ]
-                                                                        }
-                                                                    </Badge>
-                                                                    {event.is_overdue && (
-                                                                        <Badge
-                                                                            variant="destructive"
-                                                                            className="text-xs"
-                                                                        >
-                                                                            Overdue
-                                                                        </Badge>
-                                                                    )}
-                                                                    {event.is_today && (
-                                                                        <Badge
-                                                                            variant="default"
-                                                                            className="text-xs bg-yellow-500"
-                                                                        >
-                                                                            Today
-                                                                        </Badge>
-                                                                    )}
-                                                                </div>
-                                                                <p className="font-medium text-gray-900 dark:text-gray-100 mb-2">
-                                                                    {
-                                                                        event
-                                                                            .task
-                                                                            .title
-                                                                    }
-                                                                </p>
-                                                                <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                                                                    <div className="flex items-center gap-2">
-                                                                        <Badge
-                                                                            className={
-                                                                                statusColors[
-                                                                                    event
-                                                                                        .task
-                                                                                        .status
-                                                                                ] ||
-                                                                                statusColors.todo
+                                                                                    .task
+                                                                                    .title
                                                                             }
-                                                                        >
-                                                                            {event.task.status
-                                                                                .replace(
-                                                                                    "_",
-                                                                                    " "
-                                                                                )
-                                                                                .toUpperCase()}
-                                                                        </Badge>
-                                                                        <Badge
-                                                                            className={
-                                                                                priorityColors[
-                                                                                    event
-                                                                                        .task
-                                                                                        .priority
-                                                                                ] ||
-                                                                                priorityColors.medium
-                                                                            }
-                                                                        >
-                                                                            {event.task.priority.toUpperCase()}
-                                                                        </Badge>
+                                                                        </p>
+                                                                        <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <Badge
+                                                                                    className={
+                                                                                        statusColors[
+                                                                                            event
+                                                                                                .task
+                                                                                                .status
+                                                                                        ] ||
+                                                                                        statusColors.todo
+                                                                                    }
+                                                                                >
+                                                                                    {event.task.status
+                                                                                        .replace(
+                                                                                            "_",
+                                                                                            " "
+                                                                                        )
+                                                                                        .toUpperCase()}
+                                                                                </Badge>
+                                                                                <Badge
+                                                                                    className={
+                                                                                        priorityColors[
+                                                                                            event
+                                                                                                .task
+                                                                                                .priority
+                                                                                        ] ||
+                                                                                        priorityColors.medium
+                                                                                    }
+                                                                                >
+                                                                                    {event.task.priority.toUpperCase()}
+                                                                                </Badge>
+                                                                            </div>
+                                                                            {event
+                                                                                .task
+                                                                                .project && (
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <Building className="h-4 w-4" />
+                                                                                    <span>
+                                                                                        {
+                                                                                            event
+                                                                                                .task
+                                                                                                .project
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
+                                                                            )}
+                                                                            {event
+                                                                                .task
+                                                                                .assignee && (
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <User className="h-4 w-4" />
+                                                                                    <span>
+                                                                                        {
+                                                                                            event
+                                                                                                .task
+                                                                                                .assignee
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                        <div className="mt-3">
+                                                                            <Link
+                                                                                href={`/tasks/${event.task.id}`}
+                                                                                className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                                                                            >
+                                                                                View
+                                                                                Task
+                                                                                →
+                                                                            </Link>
+                                                                        </div>
                                                                     </div>
-                                                                    {event.task
-                                                                        .project && (
-                                                                        <div className="flex items-center gap-2">
-                                                                            <Building className="h-4 w-4" />
-                                                                            <span>
-                                                                                {
-                                                                                    event
-                                                                                        .task
-                                                                                        .project
-                                                                                }
-                                                                            </span>
-                                                                        </div>
-                                                                    )}
-                                                                    {event.task
-                                                                        .assignee && (
-                                                                        <div className="flex items-center gap-2">
-                                                                            <User className="h-4 w-4" />
-                                                                            <span>
-                                                                                {
-                                                                                    event
-                                                                                        .task
-                                                                                        .assignee
-                                                                                }
-                                                                            </span>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                                <div className="mt-3">
-                                                                    <Link
-                                                                        href={`/tasks/${event.task.id}`}
-                                                                        className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
-                                                                    >
-                                                                        View
-                                                                        Task →
-                                                                    </Link>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    ) : selectedDate ? (
-                                        <p className="text-gray-500 dark:text-gray-400 text-center py-8">
-                                            No events on this date
-                                        </p>
-                                    ) : (
-                                        <p className="text-gray-500 dark:text-gray-400 text-center py-8">
-                                            Click on a date to view events
-                                        </p>
-                                    )}
+                                                        );
+                                                    }
+                                                )}
+                                            </div>
+                                        ) : selectedDate ? (
+                                            <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+                                                No events on this date
+                                            </p>
+                                        ) : (
+                                            <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+                                                Click on a date to view events
+                                            </p>
+                                        )}
+                                    </ScrollArea>
                                 </CardContent>
                             </Card>
 

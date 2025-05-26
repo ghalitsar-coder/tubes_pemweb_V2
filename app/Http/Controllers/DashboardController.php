@@ -7,11 +7,16 @@ use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class DashboardController extends Controller
 {
+    use AuthorizesRequests;
+    
     public function index()
     {
+        // Check if user has permission to view dashboard
+        $this->authorize('viewAny', Project::class); // Using project permission as dashboard access control
         $stats = [
             'activeProjects' => Project::where('status', 'active')->count(),
             'tasksDueSoon' => Task::where('due_date', '>=', now())

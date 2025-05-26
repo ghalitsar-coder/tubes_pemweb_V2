@@ -39,9 +39,16 @@ import {
     MessageSquare,
     Activity,
     Paperclip,
+    Trash2,
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { User } from "@/types";
+import {
+    canUpdateTasks,
+    canDeleteTasks,
+    canCommentTasks,
+    UserWithPermissions,
+} from "@/utils/permissions";
 
 interface Props {
     task: {
@@ -95,7 +102,7 @@ interface Props {
         }[];
     };
     auth: {
-        user: User;
+        user: UserWithPermissions;
     };
 }
 
@@ -252,24 +259,31 @@ export default function ShowNew({ auth, task }: Props) {
                                     <h1 className="text-2xl font-semibold text-gray-900">
                                         {task.title}
                                     </h1>
-                                </div>
+                                </div>{" "}
                                 <div className="flex space-x-2">
-                                    <Button variant="outline" asChild>
-                                        <Link href={`/tasks/${task.id}/edit`}>
-                                            <Edit className="h-4 w-4 mr-1" />
-                                            Edit
-                                        </Link>
-                                    </Button>
-                                    {taskStatus !== "completed" && (
-                                        <Button
-                                            onClick={() =>
-                                                handleStatusUpdate("completed")
-                                            }
-                                        >
-                                            <Check className="h-4 w-4 mr-1" />
-                                            Complete Task
+                                    {canUpdateTasks(auth.user) && (
+                                        <Button variant="outline" asChild>
+                                            <Link
+                                                href={`/tasks/${task.id}/edit`}
+                                            >
+                                                <Edit className="h-4 w-4 mr-1" />
+                                                Edit
+                                            </Link>
                                         </Button>
-                                    )}
+                                    )}{" "}
+                                    {canUpdateTasks(auth.user) &&
+                                        taskStatus !== "completed" && (
+                                            <Button
+                                                onClick={() =>
+                                                    handleStatusUpdate(
+                                                        "completed"
+                                                    )
+                                                }
+                                            >
+                                                <Check className="h-4 w-4 mr-1" />
+                                                Complete Task
+                                            </Button>
+                                        )}
                                 </div>
                             </div>
                         </CardHeader>
@@ -461,81 +475,87 @@ export default function ShowNew({ auth, task }: Props) {
                                                         )
                                                     )}{" "}
                                                     {/* New Comment Form */}
-                                                    <div className="mt-6 flex items-start space-x-3">
-                                                        <Avatar className="h-10 w-10">
-                                                            <AvatarImage
-                                                                src={
-                                                                    auth.user
-                                                                        .avatar ||
-                                                                    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                                    {canCommentTasks(
+                                                        auth.user
+                                                    ) && (
+                                                        <div className="mt-6 flex items-start space-x-3">
+                                                            <Avatar className="h-10 w-10">
+                                                                <AvatarImage
+                                                                    src={
+                                                                        auth
+                                                                            .user
+                                                                            .avatar ||
+                                                                        `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                                                            auth
+                                                                                .user
+                                                                                .name
+                                                                        )}&background=0ea5e9&color=fff`
+                                                                    }
+                                                                    alt={
                                                                         auth
                                                                             .user
                                                                             .name
-                                                                    )}&background=0ea5e9&color=fff`
-                                                                }
-                                                                alt={
-                                                                    auth.user
-                                                                        .name
-                                                                }
-                                                            />
-                                                            <AvatarFallback>
-                                                                {auth.user.name.charAt(
-                                                                    0
-                                                                )}
-                                                            </AvatarFallback>
-                                                        </Avatar>
-                                                        <div className="flex-1">
-                                                            <form
-                                                                onSubmit={
-                                                                    handleCommentSubmit
-                                                                }
-                                                            >
-                                                                <Card>
-                                                                    <CardContent className="p-0">
-                                                                        <Textarea
-                                                                            rows={
-                                                                                3
-                                                                            }
-                                                                            value={
-                                                                                newComment
-                                                                            }
-                                                                            onChange={(
-                                                                                e
-                                                                            ) =>
-                                                                                setNewComment(
+                                                                    }
+                                                                />
+                                                                <AvatarFallback>
+                                                                    {auth.user.name.charAt(
+                                                                        0
+                                                                    )}
+                                                                </AvatarFallback>
+                                                            </Avatar>
+                                                            <div className="flex-1">
+                                                                <form
+                                                                    onSubmit={
+                                                                        handleCommentSubmit
+                                                                    }
+                                                                >
+                                                                    <Card>
+                                                                        <CardContent className="p-0">
+                                                                            <Textarea
+                                                                                rows={
+                                                                                    3
+                                                                                }
+                                                                                value={
+                                                                                    newComment
+                                                                                }
+                                                                                onChange={(
                                                                                     e
-                                                                                        .target
-                                                                                        .value
-                                                                                )
-                                                                            }
-                                                                            placeholder="Add a comment..."
-                                                                            className="border-0 resize-none focus-visible:ring-0"
-                                                                        />
-                                                                        <div className="bg-muted/50 px-3 py-2 flex justify-end space-x-3 border-t">
-                                                                            <Button
-                                                                                type="button"
-                                                                                variant="outline"
-                                                                                size="sm"
-                                                                                onClick={() =>
+                                                                                ) =>
                                                                                     setNewComment(
-                                                                                        ""
+                                                                                        e
+                                                                                            .target
+                                                                                            .value
                                                                                     )
                                                                                 }
-                                                                            >
-                                                                                Cancel
-                                                                            </Button>
-                                                                            <Button
-                                                                                type="submit"
-                                                                                size="sm"
-                                                                            >
-                                                                                Comment
-                                                                            </Button>
-                                                                        </div>
-                                                                    </CardContent>
-                                                                </Card>
-                                                            </form>
+                                                                                placeholder="Add a comment..."
+                                                                                className="border-0 resize-none focus-visible:ring-0"
+                                                                            />
+                                                                            <div className="bg-muted/50 px-3 py-2 flex justify-end space-x-3 border-t">
+                                                                                <Button
+                                                                                    type="button"
+                                                                                    variant="outline"
+                                                                                    size="sm"
+                                                                                    onClick={() =>
+                                                                                        setNewComment(
+                                                                                            ""
+                                                                                        )
+                                                                                    }
+                                                                                >
+                                                                                    Cancel
+                                                                                </Button>
+                                                                                <Button
+                                                                                    type="submit"
+                                                                                    size="sm"
+                                                                                >
+                                                                                    Comment
+                                                                                </Button>
+                                                                            </div>
+                                                                        </CardContent>
+                                                                    </Card>
+                                                                </form>
+                                                            </div>
                                                         </div>
-                                                    </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -610,11 +630,20 @@ export default function ShowNew({ auth, task }: Props) {
                                             <div>
                                                 <label className="block text-sm font-medium mb-1">
                                                     Status
-                                                </label>
+                                                </label>{" "}
                                                 <Select
                                                     value={taskStatus}
                                                     onValueChange={
-                                                        handleStatusUpdate
+                                                        canUpdateTasks(
+                                                            auth.user
+                                                        )
+                                                            ? handleStatusUpdate
+                                                            : undefined
+                                                    }
+                                                    disabled={
+                                                        !canUpdateTasks(
+                                                            auth.user
+                                                        )
                                                     }
                                                 >
                                                     <SelectTrigger>

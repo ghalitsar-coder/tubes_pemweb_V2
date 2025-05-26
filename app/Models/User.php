@@ -73,9 +73,5 @@ class User extends Authenticatable implements JWTSubject
     return Cache::has('user-is-online-' . $this->id);
 }
 
- // app/Models/User.php
-public function roles()
-{
-    return $this->belongsToMany(Role::class);
-}
+
 }

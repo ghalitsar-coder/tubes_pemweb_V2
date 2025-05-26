@@ -7,11 +7,15 @@ use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class TaskController extends Controller
 {
+    use AuthorizesRequests;
+    
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Task::class);
         $query = Task::with(['project', 'assignee']);
 
         // Apply filters if provided
@@ -87,6 +91,8 @@ class TaskController extends Controller
 
     public function create(Request $request)
     {
+        $this->authorize('create', Task::class);
+        
         $projectId = $request->query('project_id');
         $project = null;
 
@@ -142,6 +148,8 @@ class TaskController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create', Task::class);
+        
         // Debug: Log incoming request data
         \Log::info('Task store request data:', $request->all());
         
@@ -187,6 +195,8 @@ class TaskController extends Controller
 
     public function show(Task $task)
     {
+        $this->authorize('view', $task);
+        
         $task->load(['project', 'assignee', 'comments.user', 'attachments.comments.user']);
         return Inertia::render('Tasks/ShowNew', [
             'task' => $task,
@@ -198,6 +208,8 @@ class TaskController extends Controller
 
     public function edit(Task $task)
     {
+        $this->authorize('update', $task);
+        
         $task->load(['project', 'assignee', 'comments.user', 'attachments.comments.user']);
         return Inertia::render('Tasks/Edit', [
             'task' => $task,
@@ -211,6 +223,8 @@ class TaskController extends Controller
 
   public function update(Request $request, Task $task)
     {
+        $this->authorize('update', $task);
+        
         // Debug: Log incoming request data
         \Log::info('Task update request data:', $request->all());
         \Log::info('Task being updated:', ['id' => $task->id, 'title' => $task->title]);
@@ -287,6 +301,8 @@ class TaskController extends Controller
 
     public function addComment(Request $request, Task $task)
     {
+        $this->authorize('comment', $task);
+        
         $validated = $request->validate([
             'content' => 'required|string'
         ]);
@@ -301,6 +317,8 @@ class TaskController extends Controller
 
     public function destroy(Task $task)
     {
+        $this->authorize('delete', $task);
+        
         $task->delete();
 
         return redirect()->route('tasks.index')
@@ -309,6 +327,8 @@ class TaskController extends Controller
 
     public function updateStatus(Request $request, Task $task)
     {
+        $this->authorize('update', $task);
+        
         $validated = $request->validate([
             'status' => 'required|in:todo,in_progress,on_hold,completed',
         ]);

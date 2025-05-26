@@ -11,8 +11,17 @@ import {
     Plus,
     Filter,
     MoreVertical,
+    Edit,
+    Trash2,
 } from "lucide-react";
 import { Project, User, ProjectAttachment, Task } from "@/types";
+import {
+    canUpdateProject,
+    canDeleteProject,
+    canAssignTasks,
+    canUpdateTasks,
+    UserWithPermissions,
+} from "@/utils/permissions";
 
 interface Props {
     project: Project & {
@@ -29,7 +38,7 @@ interface Props {
         }>;
     };
     auth: {
-        user: User;
+        user: UserWithPermissions;
     };
 }
 
@@ -120,18 +129,32 @@ export default function Show({ project, auth }: Props) {
                                 PRJ-{project.id}
                             </span>
                         </div>
-                    </div>
+                    </div>{" "}
                     <div className="flex items-center space-x-3">
-                        <button className="px-3 py-1.5 text-sm font-medium border border-gray-300 rounded-md hover:bg-gray-50">
-                            <MoreVertical className="w-4 h-4" />
-                        </button>
-                        <Link
-                            href={`/tasks/create?project_id=${project.id}`}
-                            className="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 inline-flex items-center"
-                        >
-                            <Plus className="w-4 h-4 mr-1" />
-                            New Task
-                        </Link>
+                        {canUpdateProject(auth.user) && (
+                            <Link
+                                href={`/projects/${project.id}/edit`}
+                                className="px-3 py-1.5 text-sm font-medium border border-gray-300 rounded-md hover:bg-gray-50 inline-flex items-center"
+                            >
+                                <Edit className="w-4 h-4 mr-1" />
+                                Edit
+                            </Link>
+                        )}
+                        {canDeleteProject(auth.user) && (
+                            <button className="px-3 py-1.5 text-sm font-medium border border-red-300 text-red-600 rounded-md hover:bg-red-50 inline-flex items-center">
+                                <Trash2 className="w-4 h-4 mr-1" />
+                                Delete
+                            </button>
+                        )}
+                        {canAssignTasks(auth.user) && (
+                            <Link
+                                href={`/tasks/create?project_id=${project.id}`}
+                                className="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 inline-flex items-center"
+                            >
+                                <Plus className="w-4 h-4 mr-1" />
+                                New Task
+                            </Link>
+                        )}
                     </div>
                 </div>
             }
@@ -308,15 +331,17 @@ export default function Show({ project, auth }: Props) {
                                 <div className="px-5 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
                                     <h3 className="text-lg font-semibold text-gray-900">
                                         Tasks
-                                    </h3>
+                                    </h3>{" "}
                                     <div className="flex items-center space-x-2">
-                                        <Link
-                                            href={`/tasks/create?project_id=${project.id}`}
-                                            className="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 inline-flex items-center"
-                                        >
-                                            <Plus className="w-4 h-4 mr-1" />
-                                            Add Task
-                                        </Link>
+                                        {canAssignTasks(auth.user) && (
+                                            <Link
+                                                href={`/tasks/create?project_id=${project.id}`}
+                                                className="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 inline-flex items-center"
+                                            >
+                                                <Plus className="w-4 h-4 mr-1" />
+                                                Add Task
+                                            </Link>
+                                        )}
                                         <button className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md">
                                             <Filter className="w-4 h-4" />
                                         </button>
@@ -344,7 +369,9 @@ export default function Show({ project, auth }: Props) {
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex justify-between items-start mb-1">
-                                                        <Link href={`/tasks/${task.id}`} >
+                                                        <Link
+                                                            href={`/tasks/${task.id}`}
+                                                        >
                                                             <h4
                                                                 className={`text-sm font-medium mb-1 ${
                                                                     task.status ===
