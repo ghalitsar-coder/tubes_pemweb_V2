@@ -6,6 +6,7 @@ use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -157,7 +158,7 @@ class TaskController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'project_id' => 'required|exists:projects,id',
-            'task_type' => 'nullable|string|in:feature,bug,enhancement,documentation,testing,improvement',
+            'task_type' => 'nullable|string|in:feature,bug,improvement',
             'priority' => 'nullable|string|in:low,medium,high,urgent',
             'assigned_to' => 'nullable|exists:users,id',
             'due_date' => 'required|date',

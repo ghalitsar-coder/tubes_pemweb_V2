@@ -52,12 +52,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Project routes with permission-based access
+    // Project routes with permission-based access (fixed order: specific routes before parameterized)
     Route::middleware('permission:view dashboard')->group(function () {
         Route::get('/projects/calendar', [ProjectsCalendarController::class, 'index'])->name('projects.calendar');
         Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
-        Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
         Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
+        Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
     });
     
     Route::middleware('permission:create project')->group(function () {
@@ -80,16 +80,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
     });
     
-    // Task routes with permission-based access
+    // Task routes with permission-based access (fixed order: specific routes before parameterized)
     Route::middleware('permission:view dashboard')->group(function () {
         Route::get('/tasks/calendar', [TasksCalendarController::class, 'index'])->name('tasks.calendar');
         Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
-        Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
     });
     
     Route::middleware('permission:assign tasks')->group(function () {
         Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create');
         Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
+    });
+    
+    Route::middleware('permission:view dashboard')->group(function () {
+        Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
     });
     
     Route::middleware('permission:update tasks')->group(function () {

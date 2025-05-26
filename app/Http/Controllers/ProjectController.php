@@ -17,7 +17,8 @@ class ProjectController extends Controller
     public function __construct()
     {
         // Middleware is now handled in routes/web.php
-    }    public function index()
+    }    
+    public function index()
     {
         $this->authorize('viewAny', Project::class);
         
@@ -75,26 +76,25 @@ class ProjectController extends Controller
                     'total_tasks_count' => $project->tasks->count(),
                     'tasks' => $recentTasks,
                 ];
-            });        return Inertia::render('Projects/Index', [
+            });        
+            return Inertia::render('Projects/Index', [
             'auth' => [
                 'user' => Auth::user()
             ],
             'projects' => $projects,
         ]);
-    }
-
-    public function create()
+    }    public function create()
     {
-        // $this->authorize('create', Project::class);
+        $this->authorize('create', Project::class);
         
         return Inertia::render('Projects/Create', [
             'users' => User::select('id', 'name','email')->get(),
             'auth' => [
                 'user' => Auth::user()
             ]
-        ]);    }
-
-    public function store(Request $request)
+        ]);
+    }
+      public function store(Request $request)
     {
         $this->authorize('create', Project::class);
         $validated = $request->validate([
