@@ -33,7 +33,14 @@ export function AppSidebar({
 }: React.ComponentProps<typeof Sidebar> & {
     user?: UserWithPermissions;
 }) {
-    console.log(`THIS IS  user -----`, user)
+    console.log(`THIS IS user -----`, user);
+    console.log("User permissions:", user?.permissions);
+    console.log("User can object:", user?.can);
+    console.log(
+        "canCreateProject result:",
+        user ? canCreateProject(user) : "no user"
+    );
+
     // Build navigation based on user permissions
     const buildNavigation = () => {
         const navMain = [

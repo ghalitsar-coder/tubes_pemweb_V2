@@ -134,9 +134,6 @@ class TaskController extends Controller
             });
 
         return Inertia::render('Tasks/Create', [
-            'auth' => [
-                'user' => auth()->user()
-            ],
             'users' => User::select('id', 'name', 'email')->get(),
             'projects' => Project::select('id', 'name')->get(),
             'recentTasks' => $recentTasks,
@@ -201,9 +198,6 @@ class TaskController extends Controller
         $task->load(['project', 'assignee', 'comments.user', 'attachments.comments.user']);
         return Inertia::render('Tasks/ShowNew', [
             'task' => $task,
-            'auth' => [
-                'user' => auth()->user()
-            ]
         ]);
     }
 
@@ -216,9 +210,6 @@ class TaskController extends Controller
             'task' => $task,
             'projects' => Project::all(),
             'users' => User::all(),
-            'auth' => [
-                'user' => auth()->user()
-            ]
         ]);
     }
 

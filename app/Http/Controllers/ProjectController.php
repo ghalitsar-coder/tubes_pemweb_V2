@@ -75,12 +75,8 @@ class ProjectController extends Controller
                     'completed_tasks_count' => $completedTasksCount,
                     'total_tasks_count' => $project->tasks->count(),
                     'tasks' => $recentTasks,
-                ];
-            });        
+                ];            });        
             return Inertia::render('Projects/Index', [
-            'auth' => [
-                'user' => Auth::user()
-            ],
             'projects' => $projects,
         ]);
     }    public function create()
@@ -89,9 +85,6 @@ class ProjectController extends Controller
         
         return Inertia::render('Projects/Create', [
             'users' => User::select('id', 'name','email')->get(),
-            'auth' => [
-                'user' => Auth::user()
-            ]
         ]);
     }
       public function store(Request $request)
@@ -144,15 +137,11 @@ class ProjectController extends Controller
     }
 
     public function edit(Project $project)
-    {
-        $this->authorize('update', $project);
+    {        $this->authorize('update', $project);
         
         return Inertia::render('Projects/Edit', [
             'project' => $project,
             'users' => User::select('id', 'name', 'email')->get(),
-            'auth' => [
-                'user' => Auth::user()
-            ]
         ]);
     }    public function update(Request $request, Project $project)
     {

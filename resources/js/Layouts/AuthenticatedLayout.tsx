@@ -31,7 +31,10 @@ export default function AuthenticatedLayout({
     user,
     header,
 }: PropsWithChildren<Props>) {
-    console.log(`THIS IS  user: 123`, user);
+    console.log(`THIS IS user in AuthenticatedLayout:`, user);
+    console.log("User permissions in AuthenticatedLayout:", user?.permissions);
+    console.log("User can object in AuthenticatedLayout:", user?.can);
+
     return (
         <SidebarProvider>
             <AppSidebar user={user} />
