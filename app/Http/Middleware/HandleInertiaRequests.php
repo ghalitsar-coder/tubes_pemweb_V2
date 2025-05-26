@@ -45,6 +45,7 @@ class HandleInertiaRequests extends Middleware
                         'create_project' => $user->can('create project'),
                         'update_project' => $user->can('update project'),
                         'delete_project' => $user->can('delete project'),
+                        'view_tasks' => $user->can('view tasks'),
                         'assign_tasks' => $user->can('assign tasks'),
                         'update_tasks' => $user->can('update tasks'),
                         'comment_tasks' => $user->can('comment tasks'),

@@ -12,14 +12,13 @@ class RoleAndPermissionSeeder extends Seeder
     public function run(): void
     {
         // Reset cached roles and permissions
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-
-        // Create permissions
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();        // Create permissions
         $permissions = [
             'manage users',
             'create project',
             'update project',
             'delete project',
+            'view tasks',
             'assign tasks',
             'update tasks',
             'comment tasks',
@@ -32,12 +31,11 @@ class RoleAndPermissionSeeder extends Seeder
 
         // Create roles and assign permissions
         $admin = Role::firstOrCreate(['name' => 'Admin']);
-        $admin->givePermissionTo(Permission::all());
-
-        $projectManager = Role::firstOrCreate(['name' => 'Project Manager']);
+        $admin->givePermissionTo(Permission::all());        $projectManager = Role::firstOrCreate(['name' => 'Project Manager']);
         $projectManager->givePermissionTo([
             'create project',
             'update project',
+            'view tasks',
             'assign tasks',
             'update tasks',
             'comment tasks',
@@ -46,6 +44,7 @@ class RoleAndPermissionSeeder extends Seeder
 
         $teamMember = Role::firstOrCreate(['name' => 'Team Member']);
         $teamMember->givePermissionTo([
+            'view tasks',
             'update tasks',
             'comment tasks',
             'view dashboard'

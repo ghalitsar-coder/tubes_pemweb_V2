@@ -7,13 +7,12 @@ use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
 class TaskPolicy
-{
-    /**
+{    /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view dashboard');
+        return $user->can('view tasks') || $user->can('assign tasks');
     }
 
     /**
@@ -21,10 +20,25 @@ class TaskPolicy
      */
     public function view(User $user, Task $task): bool
     {
-        return $user->can('view dashboard') && 
-               ($user->id === $task->assignee_id || 
-                $user->id === $task->project->user_id || 
-                $user->hasRole('Admin'));
+        // Admins can view all tasks
+        if ($user->hasRole('Admin')) {
+            return true;
+        }
+        
+        // Users with 'view tasks' permission can view tasks if they are:
+        // 1. Assigned to the task
+        // 2. Owner of the project
+        if ($user->can('view tasks')) {
+            return $user->id === $task->assigned_to || 
+                   $user->id === $task->project->user_id;
+        }
+        
+        // Users with 'assign tasks' permission (Project Managers) can view all tasks
+        if ($user->can('assign tasks')) {
+            return true;
+        }
+        
+        return false;
     }
 
     /**
@@ -33,21 +47,24 @@ class TaskPolicy
     public function create(User $user): bool
     {
         return $user->can('assign tasks');
-    }
-
-    /**
+    }    /**
      * Determine whether the user can update the model.
      */
     public function update(User $user, Task $task): bool
     {
         // Team members can update tasks assigned to them
-        if ($user->can('update tasks') && $user->id === $task->assignee_id) {
+        if ($user->can('update tasks') && $user->id === $task->assigned_to) {
             return true;
         }
         
         // Project managers and admins can update project tasks
         if ($user->can('assign tasks') && 
             ($user->id === $task->project->user_id || $user->hasRole('Admin'))) {
+            return true;
+        }
+        
+        // Admins can update any task
+        if ($user->hasRole('Admin')) {
             return true;
         }
         
@@ -70,15 +87,13 @@ class TaskPolicy
     {
         return $user->can('assign tasks') && 
                ($user->id === $task->project->user_id || $user->hasRole('Admin'));
-    }
-
-    /**
+    }    /**
      * Determine whether the user can comment on the task.
      */
     public function comment(User $user, Task $task): bool
     {
         return $user->can('comment tasks') && 
-               ($user->id === $task->assignee_id || 
+               ($user->id === $task->assigned_to || 
                 $user->id === $task->project->user_id || 
                 $user->hasRole('Admin'));
     }

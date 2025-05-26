@@ -9,6 +9,7 @@ export interface UserWithPermissions extends User {
         create_project?: boolean;
         update_project?: boolean;
         delete_project?: boolean;
+        view_tasks?: boolean;
         assign_tasks?: boolean;
         update_tasks?: boolean;
         comment_tasks?: boolean;
