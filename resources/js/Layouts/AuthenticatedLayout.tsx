@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Toaster } from "sonner";
 import { Head } from "@inertiajs/react";
 import { AppSidebar } from "@/components/app-sidebar";
+import FlashMessages from "@/components/FlashMessages";
 import {
     SidebarInset,
     SidebarProvider,
@@ -67,6 +68,8 @@ export default function AuthenticatedLayout({
                     {children}
                 </div>
             </SidebarInset>
+            <FlashMessages />
+            <Toaster />
         </SidebarProvider>
     );
 }

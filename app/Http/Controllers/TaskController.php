@@ -193,17 +193,35 @@ class TaskController extends Controller
 
     public function show(Task $task)
     {
-        $this->authorize('view', $task);
+        // Check if user can view this task
+        if (!auth()->user()->can('view', $task)) {
+            return redirect()->route('tasks.index')
+                ->with('error', 'You do not have permission to view this task.');
+        }
         
         $task->load(['project', 'assignee', 'comments.user', 'attachments.comments.user']);
+        
+        // Check if user can update this specific task
+        $canUpdate = auth()->user()->can('update', $task);
+        $canComment = auth()->user()->can('comment', $task);
+        
         return Inertia::render('Tasks/ShowNew', [
             'task' => $task,
+            'permissions' => [
+                'canUpdate' => $canUpdate,
+                'canComment' => $canComment,
+                'canDelete' => auth()->user()->can('delete', $task),
+            ]
         ]);
     }
 
     public function edit(Task $task)
     {
-        $this->authorize('update', $task);
+        // Check if user can update this task
+        if (!auth()->user()->can('update', $task)) {
+            return redirect()->route('tasks.index')
+                ->with('error', 'You can only edit tasks that are assigned to you.');
+        }
         
         $task->load(['project', 'assignee', 'comments.user', 'attachments.comments.user']);
         return Inertia::render('Tasks/Edit', [
@@ -215,7 +233,10 @@ class TaskController extends Controller
 
   public function update(Request $request, Task $task)
     {
-        $this->authorize('update', $task);
+        // Check if user can update this task
+        if (!auth()->user()->can('update', $task)) {
+            return back()->with('error', 'You can only update tasks that are assigned to you.');
+        }
         
         // Debug: Log incoming request data
         \Log::info('Task update request data:', $request->all());
@@ -319,20 +340,16 @@ class TaskController extends Controller
 
     public function updateStatus(Request $request, Task $task)
     {
-        $this->authorize('update', $task);
+        // Check if user can update this task instead of throwing 403
+        if (!auth()->user()->can('update', $task)) {
+            return back()->with('error', 'You can only update status for tasks that are assigned to you.');
+        }
         
         $validated = $request->validate([
             'status' => 'required|in:todo,in_progress,on_hold,completed',
         ]);
 
         $task->update(['status' => $validated['status']]);
-
-        // // For Inertia requests (like from kanban board), return minimal response
-        // if ($request->header('X-Inertia')) {
-        //     return response('', 200, [
-        //         'X-Inertia' => true,
-        //     ]);
-        // }
 
         return back()->with('success', 'Task status updated successfully');
     }

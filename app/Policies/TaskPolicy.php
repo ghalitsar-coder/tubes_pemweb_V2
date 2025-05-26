@@ -13,9 +13,7 @@ class TaskPolicy
     public function viewAny(User $user): bool
     {
         return $user->can('view tasks') || $user->can('assign tasks');
-    }
-
-    /**
+    }    /**
      * Determine whether the user can view the model.
      */
     public function view(User $user, Task $task): bool
@@ -25,16 +23,13 @@ class TaskPolicy
             return true;
         }
         
-        // Users with 'view tasks' permission can view tasks if they are:
-        // 1. Assigned to the task
-        // 2. Owner of the project
-        if ($user->can('view tasks')) {
-            return $user->id === $task->assigned_to || 
-                   $user->id === $task->project->user_id;
-        }
-        
         // Users with 'assign tasks' permission (Project Managers) can view all tasks
         if ($user->can('assign tasks')) {
+            return true;
+        }
+        
+        // Users with 'view tasks' permission can view ALL tasks (read-only for non-assigned tasks)
+        if ($user->can('view tasks')) {
             return true;
         }
         
