@@ -74,14 +74,17 @@ class JWTManager {
             // Optionally redirect to login or show notification
             window.location.href = '/login';
         }
-    }
-
-    private setupAxiosInterceptors(): void {
+    }    private setupAxiosInterceptors(): void {
         // Request interceptor to add JWT token to headers
         axios.interceptors.request.use(
             (config) => {
                 if (this.token) {
-                    config.headers['X-Auth-Token'] = this.token;
+                    // Use Authorization header for API routes, X-Auth-Token for Inertia/web routes
+                    if (config.url?.startsWith('/api/')) {
+                        config.headers['Authorization'] = `Bearer ${this.token}`;
+                    } else {
+                        config.headers['X-Auth-Token'] = this.token;
+                    }
                 }
                 return config;
             },
@@ -96,15 +99,18 @@ class JWTManager {
                 return response;
             },
             async (error) => {
-                const original = error.config;
-
-                if (error.response?.status === 401 && !original._retry) {
+                const original = error.config;                if (error.response?.status === 401 && !original._retry) {
                     original._retry = true;
 
                     try {
                         await this.refreshToken();
                         if (this.token) {
-                            original.headers['X-Auth-Token'] = this.token;
+                            // Use appropriate header based on the original request URL
+                            if (original.url?.startsWith('/api/')) {
+                                original.headers['Authorization'] = `Bearer ${this.token}`;
+                            } else {
+                                original.headers['X-Auth-Token'] = this.token;
+                            }
                             return axios(original);
                         }
                     } catch (refreshError) {
