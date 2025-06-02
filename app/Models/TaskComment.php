@@ -6,47 +6,35 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Comment extends Model
+class TaskComment extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'content',
         'task_id',
-        'project_id',
         'user_id',
         'parent_id',
         'image_path',
-        'commentable_type',
-        'commentable_id',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     protected $with = ['user', 'replies'];
 
-    // Polymorphic relationship
-    public function commentable(): MorphTo
-    {
-        return $this->morphTo();
-    }
-
-    // Legacy relationships (for backward compatibility)
+    // Relationship to Task
     public function task(): BelongsTo
     {
         return $this->belongsTo(Task::class);
     }
 
-    public function project(): BelongsTo
-    {
-        return $this->belongsTo(Project::class);
-    }
-
+    // Relationship to User
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -55,13 +43,13 @@ class Comment extends Model
     // Parent comment relationship (for replies)
     public function parent(): BelongsTo
     {
-        return $this->belongsTo(Comment::class, 'parent_id');
+        return $this->belongsTo(TaskComment::class, 'parent_id');
     }
 
     // Child comments (replies)
     public function replies(): HasMany
     {
-        return $this->hasMany(Comment::class, 'parent_id')->with(['user', 'replies']);
+        return $this->hasMany(TaskComment::class, 'parent_id')->with(['user', 'replies']);
     }
 
     // Scope for getting only top-level comments (not replies)

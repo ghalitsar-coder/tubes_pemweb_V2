@@ -779,6 +779,8 @@ export default function ShowNew({ auth, task }: Props) {
                                                 </div>
                                             )}
 
+                                            lorem
+
                                             {/* Created Date */}
                                             <div>
                                                 <label className="block text-sm font-medium text-muted-foreground mb-1">

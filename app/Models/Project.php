@@ -50,6 +50,11 @@ class Project extends Model
         return $this->hasMany(Task::class);
     }
 
+    public function comments(): HasMany
+    {
+        return $this->hasMany(ProjectComment::class);
+    }
+
     public function getTasksCountAttribute(): int
     {
         return $this->tasks()->count();
@@ -169,4 +174,4 @@ class Project extends Model
 
         return $template;
     }
-} 
+}

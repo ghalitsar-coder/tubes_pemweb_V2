@@ -14,14 +14,22 @@ import {
     Edit,
     Trash2,
 } from "lucide-react";
-import { Project, User, ProjectAttachment, Task } from "@/types";
+import {
+    Project,
+    User,
+    ProjectAttachment,
+    Task,
+    ProjectComment,
+} from "@/types";
 import {
     canUpdateProject,
     canDeleteProject,
     canAssignTasks,
     canUpdateTasks,
+    canCommentProjects,
     UserWithPermissions,
 } from "@/utils/permissions";
+import { ProjectComments } from "@/components/project/ProjectComments";
 
 interface Props {
     project: Project & {
@@ -126,7 +134,7 @@ export default function Show({ project, auth }: Props) {
                                 {project.name}
                             </h1>
                             <span className="ml-2 px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
-                                PRJ-{project.id}
+                                PRJ-{project.id} XXXXXXXXXXXXXX
                             </span>
                         </div>
                     </div>{" "}
@@ -764,7 +772,7 @@ export default function Show({ project, auth }: Props) {
                                                 </li>
                                             )}
                                         </ul>
-                                    </div>
+                                    </div>{" "}
                                     <button className="mt-4 text-sm font-medium text-indigo-600 hover:text-indigo-900">
                                         View all activity →
                                     </button>
@@ -772,6 +780,17 @@ export default function Show({ project, auth }: Props) {
                             </div>
                         </div>
                     </div>
+
+                    {/* Comments Section */}
+                    {canCommentProjects(auth.user) && (
+                        <div className="mt-6">
+                            <ProjectComments
+                                projectId={project.id}
+                                comments={project.comments || []}
+                                currentUser={auth.user}
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
         </AuthenticatedLayout>

@@ -126,13 +126,59 @@ class ProjectController extends Controller
 
         return redirect()->route('projects.index')
             ->with('success', 'Project created successfully.');
-    }    public function show(Project $project)
+    }    
+    public function show(Project $project)
     {
         $this->authorize('view', $project);
+          $project->load([
+            'tasks', 
+            'comments.user', 
+            'comments.replies.user'
+        ]);
+          // Format comments for the frontend (only top-level comments, replies are loaded with them)
+        $formattedComments = $project->comments
+            ->whereNull('parent_id') // Only get top-level comments
+            ->map(function ($comment) {
+            return [
+                'id' => $comment->id,
+                'content' => $comment->content,
+                'image_path' => $comment->image_path,
+                'created_at' => $comment->created_at->toISOString(),
+                'updated_at' => $comment->updated_at->toISOString(),
+                'parent_id' => $comment->parent_id,
+                'user' => [
+                    'id' => $comment->user->id,
+                    'name' => $comment->user->name,
+                    'email' => $comment->user->email,
+                    'avatar' => $comment->user->avatar ?? null,
+                ],
+                'replies' => $comment->replies->map(function ($reply) {
+                    return [
+                        'id' => $reply->id,
+                        'content' => $reply->content,
+                        'image_path' => $reply->image_path,
+                        'created_at' => $reply->created_at->toISOString(),
+                        'updated_at' => $reply->updated_at->toISOString(),
+                        'parent_id' => $reply->parent_id,
+                        'user' => [
+                            'id' => $reply->user->id,
+                            'name' => $reply->user->name,
+                            'email' => $reply->user->email,
+                            'avatar' => $reply->user->avatar ?? null,
+                        ],
+                        'time_ago' => $reply->created_at->diffForHumans(),
+                        'formatted_date' => $reply->created_at->format('M d, Y \a\t g:i A'),
+                    ];
+                }),
+                'time_ago' => $comment->created_at->diffForHumans(),
+                'formatted_date' => $comment->created_at->format('M d, Y \a\t g:i A'),
+            ];
+        });
         
-        $project->load('tasks');
         return Inertia::render('Projects/Show', [
-            'project' => $project,
+            'project' => array_merge($project->toArray(), [
+                'comments' => $formattedComments,
+            ]),
         ]);
     }
 

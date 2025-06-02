@@ -312,22 +312,6 @@ class TaskController extends Controller
         return redirect()->route('tasks.show', $task->id)->with('success', 'Task updated successfully');
     }
 
-    public function addComment(Request $request, Task $task)
-    {
-        $this->authorize('comment', $task);
-        
-        $validated = $request->validate([
-            'content' => 'required|string'
-        ]);
-
-        $task->comments()->create([
-            'content' => $validated['content'],
-            'user_id' => auth()->id()
-        ]);
-
-        return back()->with('success', 'Comment added successfully.');
-    }
-
     public function destroy(Task $task)
     {
         $this->authorize('delete', $task);

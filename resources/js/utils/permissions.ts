@@ -13,6 +13,7 @@ export interface UserWithPermissions extends User {
         assign_tasks?: boolean;
         update_tasks?: boolean;
         comment_tasks?: boolean;
+        comment_projects?: boolean;
         view_dashboard?: boolean;
     };
 }
@@ -133,6 +134,13 @@ export function canDeleteTasks(user: UserWithPermissions): boolean {
  */
 export function canCommentTasks(user: UserWithPermissions): boolean {
     return hasPermission(user, "comment tasks");
+}
+
+/**
+ * Check if user can comment on projects
+ */
+export function canCommentProjects(user: UserWithPermissions): boolean {
+    return hasPermission(user, "comment projects");
 }
 
 /**

@@ -30,6 +30,24 @@ export interface Task {
     updated_at: string;
 }
 
+export interface ProjectComment {
+    id: number;
+    content: string;
+    image_path?: string;
+    created_at: string;
+    updated_at: string;
+    parent_id: number | null;
+    user: {
+        id: number;
+        name: string;
+        email: string;
+        avatar?: string;
+    };
+    replies: ProjectComment[];
+    time_ago: string;
+    formatted_date: string;
+}
+
 export interface Project {
     id: number;
     name: string;
@@ -45,6 +63,7 @@ export interface Project {
     is_template: boolean;
     user_id: number;
     attachments?: ProjectAttachment[] | string | any;
+    comments?: ProjectComment[];
     created_at: string;
     updated_at: string;
 }

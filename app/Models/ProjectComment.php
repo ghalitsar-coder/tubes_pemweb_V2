@@ -6,47 +6,35 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Comment extends Model
+class ProjectComment extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'content',
-        'task_id',
         'project_id',
         'user_id',
         'parent_id',
         'image_path',
-        'commentable_type',
-        'commentable_id',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     protected $with = ['user', 'replies'];
 
-    // Polymorphic relationship
-    public function commentable(): MorphTo
-    {
-        return $this->morphTo();
-    }
-
-    // Legacy relationships (for backward compatibility)
-    public function task(): BelongsTo
-    {
-        return $this->belongsTo(Task::class);
-    }
-
+    // Relationship to Project
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
 
+    // Relationship to User
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -55,19 +43,22 @@ class Comment extends Model
     // Parent comment relationship (for replies)
     public function parent(): BelongsTo
     {
-        return $this->belongsTo(Comment::class, 'parent_id');
+        return $this->belongsTo(ProjectComment::class, 'parent_id');
     }
 
     // Child comments (replies)
     public function replies(): HasMany
     {
-        return $this->hasMany(Comment::class, 'parent_id')->with(['user', 'replies']);
+        return $this->hasMany(ProjectComment::class, 'parent_id')
+               ->with(['user', 'replies'])
+               ->orderBy('created_at', 'asc');
     }
 
     // Scope for getting only top-level comments (not replies)
     public function scopeTopLevel($query)
     {
-        return $query->whereNull('parent_id');
+        return $query->whereNull('parent_id')
+                    ->orderBy('created_at', 'desc');
     }
 
     // Helper method to check if comment has image
@@ -83,7 +74,7 @@ class Comment extends Model
             return null;
         }
 
-        // If it's a Cloudinary URL
+        // If it's already a full URL (Cloudinary)
         if (str_starts_with($this->image_path, 'http')) {
             return $this->image_path;
         }
@@ -103,5 +94,29 @@ class Comment extends Model
     public function getFormattedDateAttribute(): string
     {
         return $this->created_at->format('M j, Y \a\t g:i A');
+    }
+
+    // Helper method to check if comment is a reply
+    public function isReply(): bool
+    {
+        return !is_null($this->parent_id);
+    }
+
+    // Helper method to get reply count
+    public function getReplyCountAttribute(): int
+    {
+        return $this->replies()->count();
+    }
+
+    // Helper method to check if user can edit this comment
+    public function canEdit(User $user): bool
+    {
+        return $this->user_id === $user->id;
+    }
+
+    // Helper method to check if user can delete this comment
+    public function canDelete(User $user): bool
+    {
+        return $this->user_id === $user->id || $user->hasRole('admin');
     }
 }

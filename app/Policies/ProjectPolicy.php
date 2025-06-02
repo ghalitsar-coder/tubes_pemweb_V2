@@ -69,4 +69,14 @@ class ProjectPolicy
     {
         return $user->hasRole('Admin');
     }
+
+    /**
+     * Determine whether the user can comment on the project.
+     */
+    public function comment(User $user, Project $project): bool
+    {
+        return $user->can('comment projects') && 
+               ($user->id === $project->user_id || $user->hasRole('Admin') || 
+                $project->tasks()->where('assigned_to', $user->id)->exists());
+    }
 }

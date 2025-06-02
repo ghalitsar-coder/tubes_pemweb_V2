@@ -22,6 +22,7 @@ class RoleAndPermissionSeeder extends Seeder
             'assign tasks',
             'update tasks',
             'comment tasks',
+            'comment projects',
             'view dashboard'
         ];
 
@@ -39,14 +40,14 @@ class RoleAndPermissionSeeder extends Seeder
             'assign tasks',
             'update tasks',
             'comment tasks',
+            'comment projects',
             'view dashboard'
-        ]);
-
-        $teamMember = Role::firstOrCreate(['name' => 'Team Member']);
+        ]);        $teamMember = Role::firstOrCreate(['name' => 'Team Member']);
         $teamMember->givePermissionTo([
             'view tasks',
             'update tasks',
             'comment tasks',
+            'comment projects',
             'view dashboard'
         ]);
 

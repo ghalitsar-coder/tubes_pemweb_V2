@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectCommentController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TaskCommentController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\ProjectsCalendarController;
 use App\Http\Controllers\TasksCalendarController;
@@ -80,6 +82,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
     });
     
+    // Project comment routes with permission-based access
+    Route::middleware('permission:comment projects')->group(function () {
+        Route::post('/projects/{project}/comments', [ProjectCommentController::class, 'store'])->name('projects.comments.store');
+        Route::patch('/projects/{project}/comments/{comment}', [ProjectCommentController::class, 'update'])->name('projects.comments.update');
+        Route::delete('/projects/{project}/comments/{comment}', [ProjectCommentController::class, 'destroy'])->name('projects.comments.destroy');
+    });
+    
     // Task routes with permission-based access (fixed order: specific routes before parameterized)
     Route::middleware('permission:view dashboard')->group(function () {
         Route::get('/tasks/calendar', [TasksCalendarController::class, 'index'])->name('tasks.calendar');
@@ -108,7 +117,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
     
     Route::middleware('permission:comment tasks')->group(function () {
-        Route::post('/tasks/{task}/comments', [TaskController::class, 'addComment'])->name('tasks.comments.store');
+        Route::post('/tasks/{task}/comments', [TaskCommentController::class, 'store'])->name('tasks.comments.store');
+        Route::put('/tasks/{task}/comments/{comment}', [TaskCommentController::class, 'update'])->name('tasks.comments.update');
+        Route::delete('/tasks/{task}/comments/{comment}', [TaskCommentController::class, 'destroy'])->name('tasks.comments.destroy');
         Route::post('/tasks/{task}/attachments/{attachment}/comments', [TaskAttachmentController::class, 'storeComment'])->name('tasks.attachments.comments.store');
     });
 
