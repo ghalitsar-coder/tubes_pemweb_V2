@@ -53,6 +53,10 @@ class HandleInertiaRequests extends Middleware
                     ]
                 ] : null,
             ],
+            'jwt' => [
+                'token' => $request->get('jwt_token'), // Token dari middleware
+                'refreshed' => $request->get('token_refreshed', false),
+            ],
             'flash' => [
                 'message' => fn () => $request->session()->get('message'),
                 'success' => fn () => $request->session()->get('success'),

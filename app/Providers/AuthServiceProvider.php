@@ -16,10 +16,29 @@ class AuthServiceProvider extends ServiceProvider
         Project::class => ProjectPolicy::class,
         Task::class => TaskPolicy::class,
         CalendarEvent::class => CalendarEventPolicy::class,
-    ];
-
-    public function boot()
+    ];    public function boot()
     {
         $this->registerPolicies();
+        
+        // Register JWT Auth Guard
+        $this->app['auth']->viaRequest('jwt', function ($request) {
+            $token = null;
+            
+            // Get token from Authorization header
+            $authHeader = $request->header('Authorization');
+            if ($authHeader && str_starts_with($authHeader, 'Bearer ')) {
+                $token = substr($authHeader, 7);
+            }
+            
+            if (!$token) {
+                return null;
+            }
+            
+            try {
+                return \PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth::setToken($token)->authenticate();
+            } catch (\Exception $e) {
+                return null;
+            }
+        });
     }
 }

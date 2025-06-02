@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class RegisteredUserController extends Controller
 {
@@ -49,6 +50,13 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // Generate JWT token for registered user
+        $token = JWTAuth::fromUser($user);
+
+        // Set JWT token in httpOnly cookie for security
+        $response = redirect(route('dashboard', absolute: false));
+        $response->cookie('jwt_token', $token, config('jwt.ttl'), '/', null, true, true, false, 'Strict');
+
+        return $response;
     }
 }

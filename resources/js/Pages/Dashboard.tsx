@@ -1,6 +1,7 @@
 import { PageProps } from "@/types";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { JWTTestComponent } from "@/components/JWTTestComponent";
 import {
     FolderKanban,
     CheckSquare,
@@ -458,6 +459,14 @@ export default function Dashboard({
                         </CardContent>
                     </Card>
                 ))}
+            </div>
+
+            {/* JWT Test Component for Development */}
+            <div className="mt-8">
+                <h2 className="text-lg font-semibold mb-4">
+                    JWT Integration Test
+                </h2>
+                <JWTTestComponent />
             </div>
         </AuthenticatedLayout>
     );
