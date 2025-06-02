@@ -199,7 +199,14 @@ class TaskController extends Controller
                 ->with('error', 'You do not have permission to view this task.');
         }
         
-        $task->load(['project', 'assignee', 'comments.user', 'attachments.comments.user']);
+        $task->load([
+            'project', 
+            'assignee', 
+            'comments' => function($query) {
+                $query->topLevel()->with(['user', 'replies.user', 'replies.replies.user'])->latest();
+            },
+            'attachments.comments.user'
+        ]);
         
         // Check if user can update this specific task
         $canUpdate = auth()->user()->can('update', $task);
@@ -223,7 +230,14 @@ class TaskController extends Controller
                 ->with('error', 'You can only edit tasks that are assigned to you.');
         }
         
-        $task->load(['project', 'assignee', 'comments.user', 'attachments.comments.user']);
+        $task->load([
+            'project', 
+            'assignee', 
+            'comments' => function($query) {
+                $query->topLevel()->with(['user', 'replies.user', 'replies.replies.user'])->latest();
+            },
+            'attachments.comments.user'
+        ]);
         return Inertia::render('Tasks/Edit', [
             'task' => $task,
             'projects' => Project::all(),
@@ -283,7 +297,7 @@ class TaskController extends Controller
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
                 try {
-                    $uploadedFile = Cloudinary::upload($file->getRealPath(), [
+                    $uploadedFile = Cloudinary::uploadApi()->upload($file->getRealPath(), [
                         'folder' => 'task_attachments',
                         'resource_type' => 'auto',
                     ]);
@@ -291,9 +305,9 @@ class TaskController extends Controller
                     $task->attachments()->create([
                         'task_id' => $task->id,
                         'filename' => $file->getClientOriginalName(),
-                        'path' => $uploadedFile->getSecurePath(),
-                        'type' => $uploadedFile->getResourceType(),
-                        'public_id' => $uploadedFile->getPublicId(), // Simpan public_id
+                        'path' => $uploadedFile['secure_url'],
+                        'type' => $uploadedFile['resource_type'],
+                        'public_id' => $uploadedFile['public_id'], // Simpan public_id
                         'uploaded_at' => now(),
                     ]);
                 } catch (\Exception $e) {

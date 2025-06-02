@@ -42,13 +42,14 @@ import {
     Trash2,
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
-import { User } from "@/types";
+import { User, TaskComment } from "@/types";
 import {
     canUpdateTasks,
     canDeleteTasks,
     canCommentTasks,
     UserWithPermissions,
 } from "@/utils/permissions";
+import TaskComments from "@/components/task/TaskComments";
 
 interface Props {
     task: {
@@ -90,16 +91,7 @@ interface Props {
                 created_at: string;
             }[];
         }[];
-        comments: {
-            id: number;
-            content: string;
-            user: {
-                id: number;
-                name: string;
-                avatar?: string;
-            };
-            created_at: string;
-        }[];
+        comments: TaskComment[];
     };
     auth: {
         user: UserWithPermissions;
@@ -109,7 +101,6 @@ interface Props {
 export default function ShowNew({ auth, task }: Props) {
     const [activeTab, setActiveTab] = useState("details");
     const [taskStatus, setTaskStatus] = useState(task.status);
-    const [newComment, setNewComment] = useState("");
     const getStatusBadge = (status: string) => {
         const statusConfig = {
             todo: { variant: "secondary", label: "To Do" },
@@ -162,21 +153,6 @@ export default function ShowNew({ auth, task }: Props) {
                     // Revert status on error
                     setTaskStatus(task.status);
                 },
-            }
-        );
-    };
-
-    const handleCommentSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!newComment.trim()) return;
-
-        router.post(
-            `/tasks/${task.id}/comments`,
-            {
-                content: newComment,
-            },
-            {
-                onSuccess: () => setNewComment(""),
             }
         );
     };
@@ -391,173 +367,13 @@ export default function ShowNew({ auth, task }: Props) {
                                                 <div className="prose prose-sm max-w-none text-muted-foreground">
                                                     <p>{task.description}</p>
                                                 </div>
-                                            </div>
-
+                                            </div>{" "}
                                             {/* Comments */}
-                                            <div>
-                                                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                                                    Comments (
-                                                    {task.comments?.length || 0}
-                                                    )
-                                                </h3>
-                                                <div className="space-y-4">
-                                                    {task.comments?.map(
-                                                        (comment) => (
-                                                            <div
-                                                                key={comment.id}
-                                                                className="flex items-start space-x-3"
-                                                            >
-                                                                {" "}
-                                                                <Avatar className="h-10 w-10">
-                                                                    <AvatarImage
-                                                                        src={
-                                                                            comment
-                                                                                .user
-                                                                                .avatar ||
-                                                                            `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                                                                                comment
-                                                                                    .user
-                                                                                    .name
-                                                                            )}&background=0ea5e9&color=fff`
-                                                                        }
-                                                                        alt={
-                                                                            comment
-                                                                                .user
-                                                                                .name
-                                                                        }
-                                                                    />
-                                                                    <AvatarFallback>
-                                                                        {comment.user.name.charAt(
-                                                                            0
-                                                                        )}
-                                                                    </AvatarFallback>
-                                                                </Avatar>
-                                                                <div className="flex-1">
-                                                                    <div className="bg-muted rounded-lg p-4">
-                                                                        <div className="flex items-center justify-between mb-1">
-                                                                            <h4 className="text-sm font-medium">
-                                                                                {
-                                                                                    comment
-                                                                                        .user
-                                                                                        .name
-                                                                                }
-                                                                            </h4>
-                                                                            <span className="text-xs text-muted-foreground">
-                                                                                {formatDate(
-                                                                                    comment.created_at
-                                                                                )}
-                                                                            </span>
-                                                                        </div>
-                                                                        <p className="text-sm text-gray-700">
-                                                                            {
-                                                                                comment.content
-                                                                            }
-                                                                        </p>
-                                                                        <div className="mt-2 flex space-x-4">
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="sm"
-                                                                            >
-                                                                                <Reply className="h-3 w-3 mr-1" />
-                                                                                Reply
-                                                                            </Button>
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="sm"
-                                                                            >
-                                                                                <Flag className="h-3 w-3 mr-1" />
-                                                                                Flag
-                                                                            </Button>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        )
-                                                    )}{" "}
-                                                    {/* New Comment Form */}
-                                                    {canCommentTasks(
-                                                        auth.user
-                                                    ) && (
-                                                        <div className="mt-6 flex items-start space-x-3">
-                                                            <Avatar className="h-10 w-10">
-                                                                <AvatarImage
-                                                                    src={
-                                                                        auth
-                                                                            .user
-                                                                            .avatar ||
-                                                                        `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                                                                            auth
-                                                                                .user
-                                                                                .name
-                                                                        )}&background=0ea5e9&color=fff`
-                                                                    }
-                                                                    alt={
-                                                                        auth
-                                                                            .user
-                                                                            .name
-                                                                    }
-                                                                />
-                                                                <AvatarFallback>
-                                                                    {auth.user.name.charAt(
-                                                                        0
-                                                                    )}
-                                                                </AvatarFallback>
-                                                            </Avatar>
-                                                            <div className="flex-1">
-                                                                <form
-                                                                    onSubmit={
-                                                                        handleCommentSubmit
-                                                                    }
-                                                                >
-                                                                    <Card>
-                                                                        <CardContent className="p-0">
-                                                                            <Textarea
-                                                                                rows={
-                                                                                    3
-                                                                                }
-                                                                                value={
-                                                                                    newComment
-                                                                                }
-                                                                                onChange={(
-                                                                                    e
-                                                                                ) =>
-                                                                                    setNewComment(
-                                                                                        e
-                                                                                            .target
-                                                                                            .value
-                                                                                    )
-                                                                                }
-                                                                                placeholder="Add a comment..."
-                                                                                className="border-0 resize-none focus-visible:ring-0"
-                                                                            />
-                                                                            <div className="bg-muted/50 px-3 py-2 flex justify-end space-x-3 border-t">
-                                                                                <Button
-                                                                                    type="button"
-                                                                                    variant="outline"
-                                                                                    size="sm"
-                                                                                    onClick={() =>
-                                                                                        setNewComment(
-                                                                                            ""
-                                                                                        )
-                                                                                    }
-                                                                                >
-                                                                                    Cancel
-                                                                                </Button>
-                                                                                <Button
-                                                                                    type="submit"
-                                                                                    size="sm"
-                                                                                >
-                                                                                    Comment
-                                                                                </Button>
-                                                                            </div>
-                                                                        </CardContent>
-                                                                    </Card>
-                                                                </form>
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
+                                            <TaskComments
+                                                taskId={task.id}
+                                                comments={task.comments}
+                                                currentUser={auth.user}
+                                            />
                                         </div>
                                     )}
 
@@ -702,7 +518,6 @@ export default function ShowNew({ auth, task }: Props) {
                                                     </Badge>
                                                 </Link>
                                             </div>
-
                                             {/* Assignee */}
                                             {task.assignee && (
                                                 <div>
@@ -740,7 +555,6 @@ export default function ShowNew({ auth, task }: Props) {
                                                     </div>
                                                 </div>
                                             )}
-
                                             {/* Reporter */}
                                             {task.reporter && (
                                                 <div>
@@ -778,9 +592,7 @@ export default function ShowNew({ auth, task }: Props) {
                                                     </div>
                                                 </div>
                                             )}
-
                                             lorem
-
                                             {/* Created Date */}
                                             <div>
                                                 <label className="block text-sm font-medium text-muted-foreground mb-1">

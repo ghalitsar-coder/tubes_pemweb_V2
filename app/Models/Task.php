@@ -37,7 +37,10 @@ class Task extends Model
         return $this->belongsTo(User::class, 'assigned_to');
     }    public function comments(): HasMany
     {
-        return $this->hasMany(TaskComment::class);
+        return $this->hasMany(TaskComment::class)
+                   ->topLevel()
+                   ->with(['user', 'replies.user', 'replies.replies.user'])
+                   ->latest();
     }
 
     public function attachments(): HasMany

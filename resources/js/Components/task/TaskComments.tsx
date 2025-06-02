@@ -7,9 +7,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
-import { canCommentProjects } from "@/utils/permissions";
+import { canCommentTasks } from "@/utils/permissions";
 import { toast } from "sonner";
-import { ProjectComment, User } from "@/types";
+import { TaskComment, User } from "@/types";
 import {
     ImageIcon,
     Reply,
@@ -21,25 +21,25 @@ import {
     X,
 } from "lucide-react";
 
-interface ProjectCommentsProps {
-    projectId: number;
-    comments: ProjectComment[] | Record<string, ProjectComment>;
+interface TaskCommentsProps {
+    taskId: number;
+    comments: TaskComment[] | Record<string, TaskComment>;
     currentUser: User;
-    onCommentsUpdate?: (comments: ProjectComment[]) => void;
+    onCommentsUpdate?: (comments: TaskComment[]) => void;
 }
 
-export function ProjectComments({
-    projectId,
+export function TaskComments({
+    taskId,
     comments: initialComments,
     currentUser,
     onCommentsUpdate,
-}: ProjectCommentsProps) {
+}: TaskCommentsProps) {
     // Convert comments object to array if needed
     const commentsArray = Array.isArray(initialComments)
         ? initialComments
         : Object.values(initialComments || {});
 
-    const [comments, setComments] = useState<ProjectComment[]>(commentsArray);
+    const [comments, setComments] = useState<TaskComment[]>(commentsArray);
     const [editingComment, setEditingComment] = useState<number | null>(null);
     const [editContent, setEditContent] = useState("");
     const [replyingTo, setReplyingTo] = useState<number | null>(null);
@@ -55,20 +55,7 @@ export function ProjectComments({
     );
     const fileInputRef = useRef<HTMLInputElement>(null);
     const replyFileInputRef = useRef<HTMLInputElement>(null);
-
     const { data, setData, post, processing, reset } = useForm({
-        content: "",
-        image: null as File | null,
-        parent_id: null as number | null,
-    });
-
-    const {
-        data: replyData,
-        setData: setReplyData,
-        post: postReply,
-        processing: replyProcessing,
-        reset: resetReply,
-    } = useForm({
         content: "",
         image: null as File | null,
         parent_id: null as number | null,
@@ -82,13 +69,12 @@ export function ProjectComments({
         setComments(commentsArray);
     }, [initialComments]);
 
-    const canComment = canCommentProjects(currentUser);
+    const canComment = canCommentTasks(currentUser);
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!data.content.trim() && !data.image) return;
-
         router.post(
-            `/projects/${projectId}/comments`,
+            `/tasks/${taskId}/comments`,
             {
                 content: data.content,
                 image: data.image,
@@ -108,13 +94,11 @@ export function ProjectComments({
             }
         );
     };
-
     const handleReplySubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!replyContent.trim() && !replyImage) return;
-
         router.post(
-            `/projects/${projectId}/comments`,
+            `/tasks/${taskId}/comments`,
             {
                 content: replyContent,
                 image: replyImage,
@@ -135,6 +119,7 @@ export function ProjectComments({
             }
         );
     };
+
     const handleReply = (commentId: number) => {
         setReplyingTo(commentId);
         setReplyContent(""); // Reset reply content
@@ -142,7 +127,7 @@ export function ProjectComments({
         setReplyImagePreview(null);
     };
 
-    const handleEdit = (comment: ProjectComment) => {
+    const handleEdit = (comment: TaskComment) => {
         setEditingComment(comment.id);
         setEditContent(comment.content);
     };
@@ -150,7 +135,7 @@ export function ProjectComments({
     const handleUpdate = (commentId: number) => {
         if (!editContent.trim()) return;
         router.patch(
-            `/projects/${projectId}/comments/${commentId}`,
+            `/tasks/${taskId}/comments/${commentId}`,
             { content: editContent },
             {
                 onSuccess: () => {
@@ -168,7 +153,8 @@ export function ProjectComments({
 
     const handleDelete = (commentId: number) => {
         if (!confirm("Are you sure you want to delete this comment?")) return;
-        router.delete(`/projects/${projectId}/comments/${commentId}`, {
+
+        router.delete(`/tasks/${taskId}/comments/${commentId}`, {
             onSuccess: () => {
                 toast.success("Comment deleted successfully");
                 // Data will be updated by Inertia page refresh
@@ -247,7 +233,7 @@ export function ProjectComments({
         setExpandedComments(newExpanded);
     };
 
-    const renderComment = (comment: ProjectComment, isReply = false) => (
+    const renderComment = (comment: TaskComment, isReply = false) => (
         <div
             key={comment.id}
             className={`flex gap-3 ${isReply ? "ml-8 mt-3" : ""}`}
@@ -373,6 +359,7 @@ export function ProjectComments({
                         </>
                     )}
                 </div>
+
                 {/* Action buttons */}
                 <div className="flex items-center gap-3 mt-1">
                     {canComment && !isReply && (
@@ -408,17 +395,7 @@ export function ProjectComments({
                             </Button>
                         )}
                 </div>
-                {/* Replies */}
-                {comment.replies &&
-                    comment.replies.length > 0 &&
-                    !isReply &&
-                    expandedComments.has(comment.id) && (
-                        <div className="mt-3 space-y-3">
-                            {comment.replies.map((reply) =>
-                                renderComment(reply, true)
-                            )}
-                        </div>
-                    )}{" "}
+
                 {/* Reply form */}
                 {replyingTo === comment.id && (
                     <div className="mt-3">
@@ -482,15 +459,12 @@ export function ProjectComments({
                                 <Button
                                     type="submit"
                                     disabled={
-                                        replyProcessing ||
-                                        (!replyContent.trim() && !replyImage)
+                                        !replyContent.trim() && !replyImage
                                     }
                                     size="sm"
                                     className="text-xs"
                                 >
-                                    {replyProcessing
-                                        ? "Posting..."
-                                        : "Post Reply"}
+                                    Post Reply
                                 </Button>
                                 <Button
                                     type="button"
@@ -510,6 +484,18 @@ export function ProjectComments({
                         </form>
                     </div>
                 )}
+
+                {/* Replies */}
+                {comment.replies &&
+                    comment.replies.length > 0 &&
+                    !isReply &&
+                    expandedComments.has(comment.id) && (
+                        <div className="mt-3 space-y-3">
+                            {comment.replies.map((reply) =>
+                                renderComment(reply, true)
+                            )}
+                        </div>
+                    )}
             </div>
         </div>
     );
@@ -518,7 +504,7 @@ export function ProjectComments({
         <Card>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    Project Comments
+                    Task Comments
                     <Badge variant="secondary">{comments.length}</Badge>
                 </CardTitle>
             </CardHeader>
@@ -530,7 +516,7 @@ export function ProjectComments({
                             rows={3}
                             value={data.content}
                             onChange={(e) => setData("content", e.target.value)}
-                            placeholder="Add a comment to this project..."
+                            placeholder="Add a comment to this task..."
                             className="resize-none"
                         />
 
@@ -586,7 +572,8 @@ export function ProjectComments({
                             </Button>
                         </div>
                     </form>
-                )}{" "}
+                )}
+
                 {/* Comments List */}
                 <div className="space-y-4 max-h-[500px] overflow-y-auto">
                     {!comments || comments.length === 0 ? (
@@ -601,3 +588,5 @@ export function ProjectComments({
         </Card>
     );
 }
+
+export default TaskComments;

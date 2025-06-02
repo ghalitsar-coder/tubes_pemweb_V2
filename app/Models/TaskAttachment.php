@@ -36,11 +36,10 @@ class TaskAttachment extends Model
     }
 
     public function delete()
-  {
-        // Hapus file dari Cloudinary jika public_id tersedia
+  {        // Hapus file dari Cloudinary jika public_id tersedia
         if ($this->public_id) {
             try {
-                Cloudinary::destroy($this->public_id);
+                Cloudinary::uploadApi()->destroy($this->public_id);
             } catch (\Exception $e) {
                 \Log::error('Failed to delete file from Cloudinary: ' . $e->getMessage());
             }

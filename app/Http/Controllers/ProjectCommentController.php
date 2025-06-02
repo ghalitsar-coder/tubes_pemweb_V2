@@ -62,20 +62,18 @@ class ProjectCommentController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // Max 5MB
         ]);
 
-        $imagePath = null;
-
-        // Handle image upload to Cloudinary
+        $imagePath = null;        // Handle image upload to Cloudinary
         if ($request->hasFile('image')) {
             try {
-                $uploadedFileUrl = Cloudinary::upload($request->file('image')->getRealPath(), [
+                $uploadedFileUrl = Cloudinary::uploadApi()->upload($request->file('image')->getRealPath(), [
                     'folder' => 'project_comments',
                     'transformation' => [
                         'quality' => 'auto',
                         'fetch_format' => 'auto'
                     ]
-                ])->getSecurePath();
+                ]);
                 
-                $imagePath = $uploadedFileUrl;
+                $imagePath = $uploadedFileUrl['secure_url'];
             } catch (\Exception $e) {
                 return back()->withErrors(['image' => 'Failed to upload image: ' . $e->getMessage()]);
             }
@@ -87,16 +85,13 @@ class ProjectCommentController extends Controller
             'user_id' => Auth::id(),
             'parent_id' => $request->parent_id,
             'image_path' => $imagePath,
-        ]);
-
-        // Load the comment with relationships
+        ]);        // Load the comment with relationships and format data
         $comment->load(['user', 'replies.user']);
+        $comment->time_ago = $comment->created_at->diffForHumans();
+        $comment->formatted_date = $comment->created_at->format('M d, Y \a\t g:i A');
 
-        // Return back with success message and the new comment
-        return back()->with([
-            'message' => 'Comment added successfully',
-            'comment' => $comment
-        ]);
+        // Return redirect back to refresh the page with updated comments
+        return redirect()->back()->with('message', 'Comment added successfully');
     }    /**
      * Update a project comment
      */
@@ -113,12 +108,7 @@ class ProjectCommentController extends Controller
 
         $comment->update([
             'content' => $request->content,
-        ]);
-
-        return back()->with([
-            'message' => 'Comment updated successfully',
-            'comment' => $comment->load(['user', 'replies.user'])
-        ]);
+        ]);        return redirect()->back()->with('message', 'Comment updated successfully');
     }
 
     /**
@@ -131,11 +121,7 @@ class ProjectCommentController extends Controller
             return back()->withErrors(['message' => 'Unauthorized']);
         }
 
-        $comment->delete();
-
-        return back()->with([
-            'message' => 'Comment deleted successfully'
-        ]);
+        $comment->delete();        return redirect()->back()->with('message', 'Comment deleted successfully');
     }
 
     /**
@@ -150,20 +136,18 @@ class ProjectCommentController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
-        $imagePath = null;
-
-        // Handle image upload for reply
+        $imagePath = null;        // Handle image upload for reply
         if ($request->hasFile('image')) {
             try {
-                $uploadedFileUrl = Cloudinary::upload($request->file('image')->getRealPath(), [
+                $uploadedFileUrl = Cloudinary::uploadApi()->upload($request->file('image')->getRealPath(), [
                     'folder' => 'project_comments',
                     'transformation' => [
                         'quality' => 'auto',
                         'fetch_format' => 'auto'
                     ]
-                ])->getSecurePath();
+                ]);
                 
-                $imagePath = $uploadedFileUrl;
+                $imagePath = $uploadedFileUrl['secure_url'];
             } catch (\Exception $e) {
                 return response()->json([
                     'message' => 'Failed to upload image: ' . $e->getMessage()

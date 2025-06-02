@@ -48,6 +48,24 @@ export interface ProjectComment {
     formatted_date: string;
 }
 
+export interface TaskComment {
+    id: number;
+    content: string;
+    image_path?: string;
+    created_at: string;
+    updated_at: string;
+    parent_id: number | null;
+    user: {
+        id: number;
+        name: string;
+        email: string;
+        avatar?: string;
+    };
+    replies: TaskComment[];
+    time_ago: string;
+    formatted_date: string;
+}
+
 export interface Project {
     id: number;
     name: string;

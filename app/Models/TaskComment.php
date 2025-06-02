@@ -18,15 +18,15 @@ class TaskComment extends Model
         'user_id',
         'parent_id',
         'image_path',
-    ];
-
-    protected $casts = [
+    ];    protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
 
     protected $with = ['user', 'replies'];
+    
+    protected $appends = ['time_ago', 'formatted_date'];
 
     // Relationship to Task
     public function task(): BelongsTo
@@ -44,18 +44,19 @@ class TaskComment extends Model
     public function parent(): BelongsTo
     {
         return $this->belongsTo(TaskComment::class, 'parent_id');
-    }
-
-    // Child comments (replies)
+    }    // Child comments (replies)
     public function replies(): HasMany
     {
-        return $this->hasMany(TaskComment::class, 'parent_id')->with(['user', 'replies']);
+        return $this->hasMany(TaskComment::class, 'parent_id')
+               ->with(['user', 'replies'])
+               ->orderBy('created_at', 'asc');
     }
 
     // Scope for getting only top-level comments (not replies)
     public function scopeTopLevel($query)
     {
-        return $query->whereNull('parent_id');
+        return $query->whereNull('parent_id')
+                    ->orderBy('created_at', 'desc');
     }
 
     // Helper method to check if comment has image
@@ -85,11 +86,33 @@ class TaskComment extends Model
     public function getTimeAgoAttribute(): string
     {
         return $this->created_at->diffForHumans();
-    }
-
-    // Helper method to get full formatted date
+    }    // Helper method to get full formatted date
     public function getFormattedDateAttribute(): string
     {
         return $this->created_at->format('M j, Y \a\t g:i A');
+    }
+
+    // Helper method to check if comment is a reply
+    public function isReply(): bool
+    {
+        return !is_null($this->parent_id);
+    }
+
+    // Helper method to get reply count
+    public function getReplyCountAttribute(): int
+    {
+        return $this->replies()->count();
+    }
+
+    // Helper method to check if user can edit this comment
+    public function canEdit(User $user): bool
+    {
+        return $this->user_id === $user->id;
+    }
+
+    // Helper method to check if user can delete this comment
+    public function canDelete(User $user): bool
+    {
+        return $this->user_id === $user->id || $user->hasRole('admin');
     }
 }
