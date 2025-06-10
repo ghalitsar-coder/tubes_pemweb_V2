@@ -18,15 +18,15 @@ class TaskComment extends Model
         'user_id',
         'parent_id',
         'image_path',
-    ];    protected $casts = [
+    ];
+
+    protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
 
     protected $with = ['user', 'replies'];
-    
-    protected $appends = ['time_ago', 'formatted_date'];
 
     // Relationship to Task
     public function task(): BelongsTo
