@@ -56,7 +56,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
     const editMode = isEdit ?? project !== null;
 
     // Use project data if in edit mode, otherwise use initialData
-    const formData = editMode ? project : initialData;    const [selectedTags, setSelectedTags] = useState<string[]>(() => {
+    const formData = editMode ? project : initialData;
+    const [selectedTags, setSelectedTags] = useState<string[]>(() => {
         if (editMode && project?.tags) {
             return Array.isArray(project.tags)
                 ? project.tags
@@ -79,16 +80,18 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
         return [];
     });
 
-    const [memberRoles, setMemberRoles] = useState<{[key: number]: string}>(() => {
-        if (editMode && project?.members) {
-            const roles: {[key: number]: string} = {};
-            project.members.forEach((member: any) => {
-                roles[member.id] = member.pivot?.role || 'member';
-            });
-            return roles;
+    const [memberRoles, setMemberRoles] = useState<{ [key: number]: string }>(
+        () => {
+            if (editMode && project?.members) {
+                const roles: { [key: number]: string } = {};
+                project.members.forEach((member: any) => {
+                    roles[member.id] = member.pivot?.role || "member";
+                });
+                return roles;
+            }
+            return {};
         }
-        return {};
-    });
+    );
 
     const [progress, setProgress] = useState<number[]>([
         formData?.progress || 0,
@@ -137,7 +140,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
             return { from: undefined, to: endDate };
         }
         return undefined;
-    });    const { data, setData, post, put, processing, errors, reset } = useForm({
+    });
+    const { data, setData, post, put, processing, errors, reset } = useForm({
         name: formData?.name || "",
         description: formData?.description || "",
         user_id: formData?.user_id?.toString() || "",
@@ -154,9 +158,9 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
         members: selectedMembers,
         member_roles: memberRoles,
     });
-    console.log(`THIS IS  errors:`, errors)
+    console.log(`THIS IS  errors:`, errors);
     const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();        // Update the form data with current values
+        e.preventDefault(); // Update the form data with current values
         const updatedData = {
             ...data,
             progress: progress[0],
@@ -201,7 +205,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
                 },
             });
         }
-    };    const handleTagsChange = (tags: string[]) => {
+    };
+    const handleTagsChange = (tags: string[]) => {
         setSelectedTags(tags);
         setData("tags", tags);
     };
@@ -210,14 +215,17 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
         if (!selectedMembers.includes(userId)) {
             const newMembers = [...selectedMembers, userId];
             setSelectedMembers(newMembers);
-            setMemberRoles(prev => ({ ...prev, [userId]: 'member' }));
+            setMemberRoles((prev) => ({ ...prev, [userId]: "member" }));
             setData("members", newMembers);
-            setData("member_roles", Object.values({ ...memberRoles, [userId]: 'member' }));
+            setData(
+                "member_roles",
+                Object.values({ ...memberRoles, [userId]: "member" })
+            );
         }
     };
 
     const handleRemoveMember = (userId: number) => {
-        const newMembers = selectedMembers.filter(id => id !== userId);
+        const newMembers = selectedMembers.filter((id) => id !== userId);
         const newRoles = { ...memberRoles };
         delete newRoles[userId];
         setSelectedMembers(newMembers);
@@ -233,9 +241,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
     };
 
     const getAvailableUsers = () => {
-        return users.filter(user => 
-            !selectedMembers.includes(user.id) && 
-            user.id.toString() !== data.user_id
+        return users.filter(
+            (user) =>
+                !selectedMembers.includes(user.id) &&
+                user.id.toString() !== data.user_id
         );
     };
 
@@ -480,8 +489,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
                             <p className="text-red-500 text-sm mt-1">
                                 {errors.user_id}
                             </p>
-                        )}                    </div>
-
+                        )}{" "}
+                    </div>
                     {/* Project Members */}
                     <div>
                         <Label className="flex items-center gap-2">
@@ -489,43 +498,73 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
                             Project Members
                         </Label>
                         <p className="text-xs text-gray-500 mt-1 mb-3">
-                            Add team members who can be assigned tasks in this project
+                            Add team members who can be assigned tasks in this
+                            project
                         </p>
-                        
+
                         {/* Selected Members */}
                         {selectedMembers.length > 0 && (
                             <div className="space-y-2 mb-3">
-                                {selectedMembers.map(memberId => {
-                                    const user = users.find(u => u.id === memberId);
+                                {selectedMembers.map((memberId) => {
+                                    const user = users.find(
+                                        (u) => u.id === memberId
+                                    );
                                     if (!user) return null;
                                     return (
-                                        <div key={memberId} className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
+                                        <div
+                                            key={memberId}
+                                            className="flex items-center justify-between p-2 bg-gray-50 rounded-md"
+                                        >
                                             <div className="flex items-center gap-2">
                                                 <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-medium text-indigo-600">
-                                                    {user.name.charAt(0).toUpperCase()}
+                                                    {user.name
+                                                        .charAt(0)
+                                                        .toUpperCase()}
                                                 </div>
-                                                <span className="text-sm font-medium">{user.name}</span>
-                                                <span className="text-xs text-gray-500">({user.email})</span>
+                                                <span className="text-sm font-medium">
+                                                    {user.name}
+                                                </span>
+                                                <span className="text-xs text-gray-500">
+                                                    ({user.email})
+                                                </span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <Select
-                                                    value={memberRoles[memberId] || 'member'}
-                                                    onValueChange={(value) => handleRoleChange(memberId, value)}
+                                                    value={
+                                                        memberRoles[memberId] ||
+                                                        "member"
+                                                    }
+                                                    onValueChange={(value) =>
+                                                        handleRoleChange(
+                                                            memberId,
+                                                            value
+                                                        )
+                                                    }
                                                 >
                                                     <SelectTrigger className="w-24 h-7 text-xs">
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="member">Member</SelectItem>
-                                                        <SelectItem value="lead">Lead</SelectItem>
-                                                        <SelectItem value="contributor">Contributor</SelectItem>
+                                                        <SelectItem value="member">
+                                                            Member
+                                                        </SelectItem>
+                                                        <SelectItem value="lead">
+                                                            Lead
+                                                        </SelectItem>
+                                                        <SelectItem value="contributor">
+                                                            Contributor
+                                                        </SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                                 <Button
                                                     type="button"
                                                     variant="ghost"
                                                     size="sm"
-                                                    onClick={() => handleRemoveMember(memberId)}
+                                                    onClick={() =>
+                                                        handleRemoveMember(
+                                                            memberId
+                                                        )
+                                                    }
                                                     className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                                                 >
                                                     <X className="h-3 w-3" />
@@ -539,38 +578,50 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
 
                         {/* Add Member Dropdown */}
                         {getAvailableUsers().length > 0 && (
-                            <Select onValueChange={(value) => handleAddMember(parseInt(value))}>
+                            <Select
+                                onValueChange={(value) =>
+                                    handleAddMember(parseInt(value))
+                                }
+                            >
                                 <SelectTrigger className="mt-1">
                                     <SelectValue placeholder="Add a team member" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {getAvailableUsers().map((user) => (
-                                        <SelectItem key={user.id} value={user.id.toString()}>
+                                        <SelectItem
+                                            key={user.id}
+                                            value={user.id.toString()}
+                                        >
                                             <div className="flex items-center gap-2">
                                                 <div className="w-5 h-5 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-medium text-indigo-600">
-                                                    {user.name.charAt(0).toUpperCase()}
+                                                    {user.name
+                                                        .charAt(0)
+                                                        .toUpperCase()}
                                                 </div>
-                                                <span>{user.name} ({user.email})</span>
+                                                <span>
+                                                    {user.name} ({user.email})
+                                                </span>
                                             </div>
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
                         )}
-                        
-                        {getAvailableUsers().length === 0 && selectedMembers.length === 0 && (
-                            <p className="text-xs text-gray-400 mt-2">
-                                No additional users available to add as members
-                            </p>
-                        )}
-                        
+
+                        {getAvailableUsers().length === 0 &&
+                            selectedMembers.length === 0 && (
+                                <p className="text-xs text-gray-400 mt-2">
+                                    No additional users available to add as
+                                    members
+                                </p>
+                            )}
+
                         {errors.members && (
                             <p className="text-red-500 text-sm mt-1">
                                 {errors.members}
                             </p>
                         )}
                     </div>
-
                     {/* Status */}
                     <div>
                         <Label htmlFor="status">Status</Label>

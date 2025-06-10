@@ -7,6 +7,7 @@ import {
     Settings2,
     Calendar,
     Plus,
+    User,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";

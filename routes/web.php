@@ -50,8 +50,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('dashboard');
 
     // Profile routes - accessible by all authenticated users
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
+    Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+    Route::patch('/profile/settings', [ProfileController::class, 'updateSettings'])->name('profile.settings.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Project routes with permission-based access (fixed order: specific routes before parameterized)

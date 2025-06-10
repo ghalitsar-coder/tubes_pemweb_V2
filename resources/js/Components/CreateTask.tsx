@@ -79,11 +79,11 @@ const CreateTask: React.FC<CreateTaskProps> = ({
                         activeTab={activeTab}
                         setActiveTab={setActiveTab}
                     />
-
-                    {/* Task Form */}                    <div className="px-6 py-5">
+                    {/* Task Form */}{" "}
+                    <div className="px-6 py-5">
                         {activeTab === "creation" && (
-                            <TaskForm 
-                                projects={projects} 
+                            <TaskForm
+                                projects={projects}
                                 users={users}
                                 selectedProject={selectedProject}
                             />

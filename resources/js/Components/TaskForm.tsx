@@ -134,7 +134,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
     const { data, setData, post, put, processing, errors, reset } = useForm({
         title: task?.title || "",
         description: task?.description || "",
-        project_id: task?.project_id.toString() || selectedProject?.id.toString() || "",
+        project_id:
+            task?.project_id.toString() || selectedProject?.id.toString() || "",
         task_type: task?.task_type || "feature",
         priority: task?.priority || "medium",
         assigned_to: task?.assigned_to?.toString() || "",
@@ -385,7 +386,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
                                     {selectedProject.name}
                                 </div>
                                 <p className="text-sm text-gray-500 mt-1">
-                                    Project automatically selected from project detail page
+                                    Project automatically selected from project
+                                    detail page
                                 </p>
                             </div>
                         ) : (
