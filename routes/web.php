@@ -76,6 +76,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('projects/{project}/tags/{tag}', [ProjectController::class, 'removeTag'])->name('projects.tags.destroy');
         Route::post('projects/{project}/budget', [ProjectController::class, 'updateBudget'])->name('projects.budget.update');
         Route::post('projects/{project}/calculate-progress', [ProjectController::class, 'calculateProgress'])->name('projects.calculate-progress');
+        
+        // Project member management routes
+        Route::post('projects/{project}/members', [ProjectController::class, 'addMember'])->name('projects.members.store');
+        Route::delete('projects/{project}/members/{user}', [ProjectController::class, 'removeMember'])->name('projects.members.destroy');
+        Route::patch('projects/{project}/members/{user}/role', [ProjectController::class, 'updateMemberRole'])->name('projects.members.update-role');
+        Route::get('projects/{project}/available-users', [ProjectController::class, 'getAvailableUsers'])->name('projects.available-users');
     });
     
     Route::middleware('permission:delete project')->group(function () {

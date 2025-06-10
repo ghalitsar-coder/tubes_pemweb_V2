@@ -134,7 +134,7 @@ class TaskController extends Controller
             });
 
         return Inertia::render('Tasks/Create', [
-            'users' => User::select('id', 'name', 'email')->get(),
+            'users' => $project ? $project->getAvailableUsersForTasks() : User::select('id', 'name', 'email')->get(),
             'projects' => Project::select('id', 'name')->get(),
             'recentTasks' => $recentTasks,
             'selectedProject' => $project ? [
@@ -241,7 +241,7 @@ class TaskController extends Controller
         return Inertia::render('Tasks/Edit', [
             'task' => $task,
             'projects' => Project::all(),
-            'users' => User::all(),
+            'users' => $task->project ? $task->project->getAvailableUsersForTasks() : User::all(),
         ]);
     }
 

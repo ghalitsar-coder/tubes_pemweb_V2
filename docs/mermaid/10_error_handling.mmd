@@ -1,0 +1,46 @@
+graph TD
+    A[Error Occurs] --> B{Error Type}
+    
+    B -->|Validation Error| C[Form Validation]
+    B -->|Database Error| D[Database Exception]
+    B -->|Authentication Error| E[Auth Exception]
+    B -->|Authorization Error| F[Permission Exception]
+    B -->|Network Error| G[Network Exception]
+    B -->|System Error| H[System Exception]
+    
+    C --> I[Display Field Errors]
+    I --> J[Highlight Invalid Fields]
+    J --> K[Show Validation Messages]
+    
+    D --> L[Log Database Error]
+    L --> M[Show Generic Error]
+    M --> N[Retry Option]
+    
+    E --> O[Clear Session]
+    O --> P[Redirect to Login]
+    
+    F --> Q[Show 403 Page]
+    Q --> R[Go Back Option]
+    
+    G --> S[Show Connection Error]
+    S --> T[Retry Button]
+    T --> U{Retry Successful?}
+    U -->|Yes| V[Continue Operation]
+    U -->|No| W[Show Persistent Error]
+    
+    H --> X[Log System Error]
+    X --> Y[Show 500 Page]
+    Y --> Z[Contact Support]
+    
+    K --> AA[User Corrects Input]
+    N --> BB[User Retries]
+    R --> CC[User Navigates Back]
+    V --> DD[Normal Flow Continues]
+    W --> EE[Escalate to Admin]
+    Z --> EE
+    
+    AA --> FF[Resubmit Form]
+    BB --> GG[Retry Operation]
+    CC --> HH[Previous Page]
+    DD --> HH
+    EE --> II[Admin Investigation]

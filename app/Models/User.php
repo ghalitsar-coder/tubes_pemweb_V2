@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Support\Facades\Cache;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -68,10 +69,44 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
+    // Project Members Relationships
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class, 'project_members')
+                    ->withPivot(['role', 'joined_at'])
+                    ->withTimestamps()
+                    ->orderBy('project_members.created_at', 'desc');
+    }
+
+    public function projectMemberships()
+    {
+        return $this->hasMany(ProjectMember::class);
+    }
+
+    // Helper methods for project membership
+    public function isProjectMember(Project $project): bool
+    {
+        return $this->projects()->where('project_id', $project->id)->exists();
+    }
+
+    public function getProjectRole(Project $project): ?string
+    {
+        $membership = $this->projects()->where('project_id', $project->id)->first();
+        return $membership ? $membership->pivot->role : null;
+    }
+
+    public function getProjectsAsLead()
+    {
+        return $this->projects()->wherePivot('role', 'lead');
+    }
+
+    public function getProjectsAsMember()
+    {
+        return $this->projects()->whereIn('project_members.role', ['member', 'contributor']);
+    }
+
     public function isOnline()
-{
-    return Cache::has('user-is-online-' . $this->id);
-}
-
-
+    {
+        return Cache::has('user-is-online-' . $this->id);
+    }
 }

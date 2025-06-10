@@ -86,8 +86,7 @@ class ProjectController extends Controller
         return Inertia::render('Projects/Create', [
             'users' => User::select('id', 'name','email')->get(),
         ]);
-    }
-      public function store(Request $request)
+    }      public function store(Request $request)
     {
         $this->authorize('create', Project::class);
         $validated = $request->validate([
@@ -104,6 +103,10 @@ class ProjectController extends Controller
             'tags.*' => 'string|max:255',
             'is_template' => 'boolean',
             'user_id' => 'required|exists:users,id',
+            'members' => 'nullable|array',
+            'members.*' => 'exists:users,id',
+            'member_roles' => 'nullable|array',
+            'member_roles.*' => 'in:member,lead,contributor',
         ]);
 
         // Set default values for create
@@ -112,6 +115,20 @@ class ProjectController extends Controller
         $validated['spent_budget'] = $validated['spent_budget'] ?? 0;
 
         $project = Project::create($validated);
+
+        // Add project creator as a member with 'lead' role
+        $project->addMember(User::find($validated['user_id']), 'lead');
+
+        // Add other members if provided
+        if (!empty($validated['members'])) {
+            foreach ($validated['members'] as $index => $userId) {
+                $role = $validated['member_roles'][$index] ?? 'member';
+                $user = User::find($userId);
+                if ($user && $user->id !== $validated['user_id']) { // Don't add creator twice
+                    $project->addMember($user, $role);
+                }
+            }
+        }
 
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
@@ -126,14 +143,17 @@ class ProjectController extends Controller
 
         return redirect()->route('projects.index')
             ->with('success', 'Project created successfully.');
-    }    
-    public function show(Project $project)
+    }    public function show(Project $project)
     {
         $this->authorize('view', $project);
           $project->load([
             'tasks', 
             'comments.user', 
-            'comments.replies.user'
+            'comments.replies.user',
+            'members' => function($query) {
+                $query->select('users.id', 'users.name', 'users.email')
+                      ->withPivot('role');
+            }
         ]);
           // Format comments for the frontend (only top-level comments, replies are loaded with them)
         $formattedComments = $project->comments
@@ -180,10 +200,14 @@ class ProjectController extends Controller
                 'comments' => $formattedComments,
             ]),
         ]);
-    }
-
-    public function edit(Project $project)
+    }    public function edit(Project $project)
     {        $this->authorize('update', $project);
+        
+        // Load members with their roles
+        $project->load(['members' => function($query) {
+            $query->select('users.id', 'users.name', 'users.email')
+                  ->withPivot('role');
+        }]);
         
         return Inertia::render('Projects/Edit', [
             'project' => $project,
@@ -207,10 +231,29 @@ class ProjectController extends Controller
             'tags.*' => 'string|max:255',
             'is_template' => 'boolean',
             'user_id' => 'required|exists:users,id',
+            'members' => 'nullable|array',
+            'members.*' => 'exists:users,id',
+            'member_roles' => 'nullable|array',
+            'member_roles.*' => 'in:member,lead,contributor',
         ]);
 
         // Update project with validated data
         $project->update($validated);
+
+        // Update project members if provided
+        if (isset($validated['members'])) {
+            // Remove all existing members except the project creator
+            $project->members()->wherePivot('user_id', '!=', $project->user_id)->detach();
+            
+            // Add new members
+            foreach ($validated['members'] as $index => $userId) {
+                $role = $validated['member_roles'][$index] ?? 'member';
+                $user = User::find($userId);
+                if ($user && $user->id !== $project->user_id) { // Don't add creator again
+                    $project->addMember($user, $role);
+                }
+            }
+        }
 
         // Handle attachments if any
         if ($request->hasFile('attachments')) {
@@ -226,7 +269,7 @@ class ProjectController extends Controller
 
         return redirect()->route('projects.show', $project)
             ->with('success', 'Project updated successfully.');
-    }    public function destroy(Project $project)
+    }public function destroy(Project $project)
     {
         $this->authorize('delete', $project);
         
@@ -348,6 +391,81 @@ class ProjectController extends Controller
         $template = $project->duplicateAsTemplate();
         return redirect()->route('projects.show', $template)
             ->with('success', 'Project duplicated as template successfully.');
+    }
+
+    // Project Members Management Methods
+    public function addMember(Request $request, Project $project)
+    {
+        $this->authorize('update', $project);
+        
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'role' => 'required|in:member,lead,contributor',
+        ]);
+
+        $user = User::find($request->user_id);
+        
+        if ($project->hasMember($user)) {
+            return back()->with('error', 'User is already a member of this project.');
+        }
+
+        $project->addMember($user, $request->role);
+        
+        return back()->with('success', 'Member added successfully.');
+    }
+
+    public function removeMember(Request $request, Project $project)
+    {
+        $this->authorize('update', $project);
+        
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $user = User::find($request->user_id);
+        
+        // Prevent removing the project creator
+        if ($user->id === $project->user_id) {
+            return back()->with('error', 'Cannot remove the project creator.');
+        }
+
+        $project->removeMember($user);
+        
+        return back()->with('success', 'Member removed successfully.');
+    }
+
+    public function updateMemberRole(Request $request, Project $project)
+    {
+        $this->authorize('update', $project);
+        
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'role' => 'required|in:member,lead,contributor',
+        ]);
+
+        $user = User::find($request->user_id);
+        
+        if (!$project->hasMember($user)) {
+            return back()->with('error', 'User is not a member of this project.');
+        }
+
+        // Update member role
+        $project->members()->updateExistingPivot($user->id, ['role' => $request->role]);
+        
+        return back()->with('success', 'Member role updated successfully.');
+    }
+
+    public function getAvailableUsers(Project $project)
+    {
+        $this->authorize('view', $project);
+        
+        // Get users that are not already members of this project
+        $existingMemberIds = $project->members()->pluck('user_id')->toArray();
+        $availableUsers = User::whereNotIn('id', $existingMemberIds)
+                             ->select('id', 'name', 'email')
+                             ->get();
+        
+        return response()->json($availableUsers);
     }
 
     public function updateBudget(Request $request, Project $project)

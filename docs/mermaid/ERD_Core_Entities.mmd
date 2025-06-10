@@ -1,0 +1,131 @@
+erDiagram
+    %% Core Business Entities Only
+    
+    users {
+        bigint id PK
+        varchar name
+        varchar email UK
+        varchar role
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    projects {
+        bigint id PK
+        varchar name
+        text description
+        bigint user_id FK
+        date start_date
+        date end_date
+        int progress
+        enum status
+        decimal budget
+        varchar category
+        json tags
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    tasks {
+        bigint id PK
+        varchar title
+        text description
+        enum task_type
+        bigint project_id FK
+        bigint assigned_to FK
+        enum status
+        date due_date
+        varchar priority
+        decimal time_estimate
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    project_comments {
+        bigint id PK
+        text content
+        bigint project_id FK
+        bigint user_id FK
+        bigint parent_id FK
+        varchar image_path
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    task_comments {
+        bigint id PK
+        text content
+        bigint task_id FK
+        bigint user_id FK
+        bigint parent_id FK
+        varchar image_path
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    task_attachments {
+        bigint id PK
+        bigint task_id FK
+        varchar filename
+        varchar path
+        varchar type
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    calendar_events {
+        bigint id PK
+        varchar title
+        text description
+        date event_date
+        enum event_type
+        enum status
+        bigint user_id FK
+        bigint project_id FK
+        bigint task_id FK
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    roles {
+        bigint id PK
+        varchar name
+        varchar guard_name
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    permissions {
+        bigint id PK
+        varchar name
+        varchar guard_name
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    %% RELATIONSHIPS
+    
+    %% User as the central entity
+    users ||--o{ projects : "creates/owns"
+    users ||--o{ tasks : "assigned_to"
+    users ||--o{ project_comments : "writes"
+    users ||--o{ task_comments : "writes"
+    users ||--o{ calendar_events : "creates"
+    
+    %% Project relationships
+    projects ||--o{ tasks : "contains"
+    projects ||--o{ project_comments : "has_comments"
+    projects ||--o{ calendar_events : "has_events"
+    
+    %% Task relationships
+    tasks ||--o{ task_comments : "has_comments"
+    tasks ||--o{ task_attachments : "has_attachments"
+    tasks ||--o{ calendar_events : "has_events"
+    
+    %% Self-referencing relationships for nested comments
+    project_comments ||--o{ project_comments : "replies_to"
+    task_comments ||--o{ task_comments : "replies_to"
+    
+    %% Many-to-many relationships (simplified)
+    users }o--o{ roles : "has_roles"
+    roles }o--o{ permissions : "has_permissions"

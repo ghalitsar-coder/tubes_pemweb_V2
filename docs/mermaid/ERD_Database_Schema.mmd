@@ -1,0 +1,281 @@
+erDiagram
+    %% User Management System
+    users {
+        bigint id PK
+        varchar name
+        varchar email UK
+        varchar role
+        timestamp email_verified_at
+        varchar password
+        varchar remember_token
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    %% Roles and Permissions System
+    roles {
+        bigint id PK
+        varchar name
+        varchar guard_name
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    permissions {
+        bigint id PK
+        varchar name
+        varchar guard_name
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    model_has_roles {
+        bigint role_id PK,FK
+        varchar model_type PK
+        bigint model_id PK
+    }
+    
+    model_has_permissions {
+        bigint permission_id PK,FK
+        varchar model_type PK
+        bigint model_id PK
+    }
+    
+    role_has_permissions {
+        bigint permission_id PK,FK
+        bigint role_id PK,FK
+    }
+    
+    %% Core Business Entities
+    projects {
+        bigint id PK
+        varchar name
+        text description
+        bigint user_id FK
+        date start_date
+        date end_date
+        int progress
+        enum status
+        decimal budget
+        decimal spent_budget
+        varchar category
+        json tags
+        boolean is_template
+        json attachments
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    tasks {
+        bigint id PK
+        varchar title
+        text description
+        enum task_type
+        bigint project_id FK
+        bigint assigned_to FK
+        enum status
+        date due_date
+        text tags
+        decimal time_estimate
+        date start_date
+        varchar priority
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    %% Comment System
+    comments {
+        bigint id PK
+        text content
+        bigint task_id FK
+        bigint user_id FK
+        bigint project_id FK
+        bigint parent_id FK
+        varchar image_path
+        varchar commentable_type
+        bigint commentable_id
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+    
+    project_comments {
+        bigint id PK
+        text content
+        bigint project_id FK
+        bigint user_id FK
+        bigint parent_id FK
+        varchar image_path
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+    
+    task_comments {
+        bigint id PK
+        text content
+        bigint task_id FK
+        bigint user_id FK
+        bigint parent_id FK
+        varchar image_path
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+    
+    %% Attachment System
+    task_attachments {
+        bigint id PK
+        bigint task_id FK
+        varchar filename
+        varchar path
+        varchar public_id
+        varchar type
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    task_attachment_comments {
+        bigint id PK
+        bigint task_attachment_id FK
+        bigint user_id FK
+        text content
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    %% Calendar System
+    calendar_events {
+        bigint id PK
+        varchar title
+        text description
+        date event_date
+        time start_time
+        time end_time
+        enum event_type
+        enum status
+        varchar color_theme
+        boolean is_all_day
+        json attendees
+        varchar location
+        text notes
+        enum priority
+        boolean is_recurring
+        json recurrence_settings
+        timestamp reminder_at
+        boolean reminder_sent
+        bigint user_id FK
+        bigint project_id FK
+        bigint task_id FK
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+    
+    %% Laravel System Tables
+    sessions {
+        varchar id PK
+        bigint user_id FK
+        varchar ip_address
+        text user_agent
+        longtext payload
+        int last_activity
+    }
+    
+    password_reset_tokens {
+        varchar email PK
+        varchar token
+        timestamp created_at
+    }
+    
+    cache {
+        varchar key PK
+        mediumtext value
+        int expiration
+    }
+    
+    cache_locks {
+        varchar key PK
+        varchar owner
+        int expiration
+    }
+    
+    failed_jobs {
+        bigint id PK
+        varchar uuid UK
+        text connection
+        text queue
+        longtext payload
+        longtext exception
+        timestamp failed_at
+    }
+    
+    jobs {
+        bigint id PK
+        varchar queue
+        longtext payload
+        tinyint attempts
+        int reserved_at
+        int available_at
+        int created_at
+    }
+    
+    job_batches {
+        varchar id PK
+        varchar name
+        int total_jobs
+        int pending_jobs
+        int failed_jobs
+        longtext failed_job_ids
+        mediumtext options
+        int cancelled_at
+        int created_at
+        int finished_at
+    }
+    
+    migrations {
+        int id PK
+        varchar migration
+        int batch
+    }
+    
+    %% PRIMARY RELATIONSHIPS
+    
+    %% User relationships
+    users ||--o{ projects : "creates"
+    users ||--o{ tasks : "assigned_to"
+    users ||--o{ comments : "writes"
+    users ||--o{ project_comments : "writes"
+    users ||--o{ task_comments : "writes"
+    users ||--o{ task_attachment_comments : "writes"
+    users ||--o{ calendar_events : "owns"
+    users ||--o{ sessions : "has"
+    
+    %% Project relationships
+    projects ||--o{ tasks : "contains"
+    projects ||--o{ project_comments : "has"
+    projects ||--o{ calendar_events : "relates_to"
+    projects ||--o{ comments : "has"
+    
+    %% Task relationships
+    tasks ||--o{ comments : "has"
+    tasks ||--o{ task_comments : "has"
+    tasks ||--o{ task_attachments : "has"
+    tasks ||--o{ calendar_events : "relates_to"
+    
+    %% Comment relationships (Self-referencing)
+    comments ||--o{ comments : "replies_to"
+    project_comments ||--o{ project_comments : "replies_to"
+    task_comments ||--o{ task_comments : "replies_to"
+    
+    %% Attachment relationships
+    task_attachments ||--o{ task_attachment_comments : "has"
+    
+    %% Permission System relationships
+    roles ||--o{ model_has_roles : "assigned_to"
+    permissions ||--o{ model_has_permissions : "assigned_to"
+    roles ||--o{ role_has_permissions : "has"
+    permissions ||--o{ role_has_permissions : "belongs_to"
+    
+    %% Password reset relationships
+    users ||--o{ password_reset_tokens : "requests"

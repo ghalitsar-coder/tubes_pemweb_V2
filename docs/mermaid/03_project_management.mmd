@@ -1,0 +1,37 @@
+graph TD
+    A[Project Request] --> B{User Role Check}
+    B -->|Admin/PM| C[Project Creation Form]
+    B -->|Team Member| D[Access Denied]
+    
+    C --> E[Fill Project Details]
+    E --> F[Set Budget & Timeline]
+    F --> G[Add Team Members]
+    G --> H[Submit Project]
+    
+    H --> I{Validation}
+    I -->|Failed| J[Show Errors]
+    J --> E
+    
+    I -->|Success| K[Create Project in DB]
+    K --> L[Project Created]
+    
+    L --> M[Project Dashboard]
+    M --> N[Task Management]
+    M --> O[Team Management]
+    M --> P[Progress Tracking]
+    M --> Q[Budget Monitoring]
+    
+    N --> R[Create Tasks]
+    R --> S[Assign to Users]
+    S --> T[Set Deadlines]
+    T --> U[Task Created]
+    
+    O --> V[Add Members]
+    V --> W[Set Permissions]
+    W --> X[Member Added]
+    
+    P --> Y[Update Progress]
+    Y --> Z[Status Reports]
+    
+    Q --> AA[Track Expenses]
+    AA --> BB[Budget Analytics]

@@ -1,0 +1,82 @@
+graph TD
+    %% TRD - Core Business Entities Only
+    %% Simplified Table Relationship Diagram
+    
+    %% Core Tables with Key Fields
+    USERS[<b>USERS</b><br/>🔑 id PK<br/>📧 email UK<br/>👤 name<br/>🎭 role<br/>📅 created_at]
+    
+    PROJECTS[<b>PROJECTS</b><br/>🔑 id PK<br/>👤 user_id FK<br/>📝 name<br/>📋 description<br/>📊 status<br/>💰 budget<br/>📅 start_date<br/>📅 end_date]
+    
+    TASKS[<b>TASKS</b><br/>🔑 id PK<br/>📁 project_id FK<br/>👤 assigned_to FK<br/>📝 title<br/>🏷️ task_type<br/>📊 status<br/>⚡ priority<br/>📅 due_date]
+    
+    PROJECT_COMMENTS[<b>PROJECT_COMMENTS</b><br/>🔑 id PK<br/>📁 project_id FK<br/>👤 user_id FK<br/>💬 parent_id FK<br/>📝 content<br/>🖼️ image_path]
+    
+    TASK_COMMENTS[<b>TASK_COMMENTS</b><br/>🔑 id PK<br/>📋 task_id FK<br/>👤 user_id FK<br/>💬 parent_id FK<br/>📝 content<br/>🖼️ image_path]
+    
+    TASK_ATTACHMENTS[<b>TASK_ATTACHMENTS</b><br/>🔑 id PK<br/>📋 task_id FK<br/>📎 filename<br/>📁 path<br/>🏷️ type]
+    
+    CALENDAR_EVENTS[<b>CALENDAR_EVENTS</b><br/>🔑 id PK<br/>👤 user_id FK<br/>📁 project_id FK<br/>📋 task_id FK<br/>📝 title<br/>📅 event_date<br/>🎯 event_type]
+    
+    ROLES[<b>ROLES</b><br/>🔑 id PK<br/>🏷️ name<br/>🛡️ guard_name]
+    
+    PERMISSIONS[<b>PERMISSIONS</b><br/>🔑 id PK<br/>🏷️ name<br/>🛡️ guard_name]
+    
+    %% Junction Tables for Many-to-Many Relationships
+    USER_ROLES[<b>MODEL_HAS_ROLES</b><br/>🔑 role_id PK,FK<br/>🔑 model_type PK<br/>🔑 model_id PK]
+    
+    ROLE_PERMISSIONS[<b>ROLE_HAS_PERMISSIONS</b><br/>🔑 permission_id PK,FK<br/>🔑 role_id PK,FK]
+    
+    %% Primary Relationships with Clear Labels
+    
+    %% User as Central Hub
+    USERS ||--o{ PROJECTS : "OWNS<br/>1:N"
+    USERS ||--o{ TASKS : "ASSIGNED<br/>1:N"
+    USERS ||--o{ PROJECT_COMMENTS : "WRITES<br/>1:N"
+    USERS ||--o{ TASK_COMMENTS : "WRITES<br/>1:N"
+    USERS ||--o{ CALENDAR_EVENTS : "CREATES<br/>1:N"
+    
+    %% Project Hierarchy
+    PROJECTS ||--o{ TASKS : "CONTAINS<br/>1:N"
+    PROJECTS ||--o{ PROJECT_COMMENTS : "HAS<br/>1:N"
+    PROJECTS ||--o{ CALENDAR_EVENTS : "RELATES<br/>1:N"
+    
+    %% Task Relationships
+    TASKS ||--o{ TASK_COMMENTS : "HAS<br/>1:N"
+    TASKS ||--o{ TASK_ATTACHMENTS : "HAS<br/>1:N"
+    TASKS ||--o{ CALENDAR_EVENTS : "RELATES<br/>1:N"
+    
+    %% Self-Referencing (Nested Comments)
+    PROJECT_COMMENTS ||--o{ PROJECT_COMMENTS : "REPLIES<br/>1:N"
+    TASK_COMMENTS ||--o{ TASK_COMMENTS : "REPLIES<br/>1:N"
+    
+    %% Permission System (Many-to-Many)
+    USERS }|--|| USER_ROLES : "HAS ROLES<br/>M:N"
+    ROLES }|--|| USER_ROLES : "ASSIGNED TO<br/>M:N"
+    ROLES }|--|| ROLE_PERMISSIONS : "HAS PERMS<br/>M:N"
+    PERMISSIONS }|--|| ROLE_PERMISSIONS : "GRANTED TO<br/>M:N"
+    
+    %% Constraint Annotations
+    USERS -.->|"CASCADE DELETE"| PROJECTS
+    PROJECTS -.->|"CASCADE DELETE"| TASKS
+    PROJECTS -.->|"CASCADE DELETE"| PROJECT_COMMENTS
+    TASKS -.->|"CASCADE DELETE"| TASK_COMMENTS
+    TASKS -.->|"CASCADE DELETE"| TASK_ATTACHMENTS
+    
+    %% Color Coding by Function
+    classDef userEntity fill:#4fc3f7,stroke:#0277bd,stroke-width:3px,color:#000
+    classDef projectEntity fill:#81c784,stroke:#388e3c,stroke-width:3px,color:#000
+    classDef taskEntity fill:#ffb74d,stroke:#f57c00,stroke-width:3px,color:#000
+    classDef commentEntity fill:#ba68c8,stroke:#7b1fa2,stroke-width:3px,color:#000
+    classDef attachmentEntity fill:#a5d6a7,stroke:#4caf50,stroke-width:3px,color:#000
+    classDef calendarEntity fill:#ff8a65,stroke:#d84315,stroke-width:3px,color:#000
+    classDef permissionEntity fill:#f48fb1,stroke:#ad1457,stroke-width:3px,color:#000
+    classDef junctionEntity fill:#90a4ae,stroke:#455a64,stroke-width:2px,color:#000
+    
+    class USERS userEntity
+    class PROJECTS projectEntity
+    class TASKS taskEntity
+    class PROJECT_COMMENTS,TASK_COMMENTS commentEntity
+    class TASK_ATTACHMENTS attachmentEntity
+    class CALENDAR_EVENTS calendarEntity
+    class ROLES,PERMISSIONS permissionEntity
+    class USER_ROLES,ROLE_PERMISSIONS junctionEntity

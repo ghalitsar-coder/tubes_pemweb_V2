@@ -82,6 +82,10 @@ interface TaskFormProps {
     users: User[];
     task?: Task;
     isEdit?: boolean;
+    selectedProject?: {
+        id: number;
+        name: string;
+    } | null;
 }
 
 const TaskForm: React.FC<TaskFormProps> = ({
@@ -89,6 +93,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
     users,
     task,
     isEdit = false,
+    selectedProject,
 }) => {
     console.log(`THIS IS  task:`, task);
     // console.log(`THIS IS  users:`, users);
@@ -129,7 +134,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
     const { data, setData, post, put, processing, errors, reset } = useForm({
         title: task?.title || "",
         description: task?.description || "",
-        project_id: task?.project_id.toString() || "",
+        project_id: task?.project_id.toString() || selectedProject?.id.toString() || "",
         task_type: task?.task_type || "feature",
         priority: task?.priority || "medium",
         assigned_to: task?.assigned_to?.toString() || "",
@@ -374,32 +379,43 @@ const TaskForm: React.FC<TaskFormProps> = ({
                     {/* Project Selection */}
                     <div>
                         <Label htmlFor="project">Project *</Label>
-                        <Select
-                            value={data.project_id}
-                            onValueChange={(value) =>
-                                setData("project_id", value)
-                            }
-                        >
-                            <SelectTrigger className="mt-1">
-                                <SelectValue placeholder="Select a project" />
-                            </SelectTrigger>{" "}
-                            <SelectContent>
-                                {projects && projects.length > 0 ? (
-                                    projects.map((project) => (
-                                        <SelectItem
-                                            key={project.id}
-                                            value={project.id.toString()}
-                                        >
-                                            {project.name}
-                                        </SelectItem>
-                                    ))
-                                ) : (
-                                    <div className="px-2 py-1.5 text-sm text-gray-500">
-                                        No projects available
-                                    </div>
-                                )}
-                            </SelectContent>
-                        </Select>
+                        {selectedProject ? (
+                            <div className="mt-1">
+                                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700">
+                                    {selectedProject.name}
+                                </div>
+                                <p className="text-sm text-gray-500 mt-1">
+                                    Project automatically selected from project detail page
+                                </p>
+                            </div>
+                        ) : (
+                            <Select
+                                value={data.project_id}
+                                onValueChange={(value) =>
+                                    setData("project_id", value)
+                                }
+                            >
+                                <SelectTrigger className="mt-1">
+                                    <SelectValue placeholder="Select a project" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {projects && projects.length > 0 ? (
+                                        projects.map((project) => (
+                                            <SelectItem
+                                                key={project.id}
+                                                value={project.id.toString()}
+                                            >
+                                                {project.name}
+                                            </SelectItem>
+                                        ))
+                                    ) : (
+                                        <div className="px-2 py-1.5 text-sm text-gray-500">
+                                            No projects available
+                                        </div>
+                                    )}
+                                </SelectContent>
+                            </Select>
+                        )}
                         {errors.project_id && (
                             <p className="text-red-500 text-sm mt-1">
                                 {errors.project_id}

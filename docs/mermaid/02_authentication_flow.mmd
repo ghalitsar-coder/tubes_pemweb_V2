@@ -1,0 +1,33 @@
+graph TD
+    A[User Accesses System] --> B[Login Page]
+    B --> C[Submit Credentials]
+    C --> D{Valid Credentials?}
+    
+    D -->|No| E[Show Error Message]
+    E --> B
+    
+    D -->|Yes| F[Create Session]
+    F --> G[Load User Permissions]
+    G --> H{Check User Role}
+    
+    H -->|Admin| I[Full System Access]
+    H -->|Project Manager| J[Project & Task Management]
+    H -->|Team Member| K[Limited Task Access]
+    
+    I --> L[Admin Features]
+    J --> M[PM Features]
+    K --> N[Member Features]
+    
+    L --> O[Dashboard Redirect]
+    M --> O
+    N --> O
+    
+    O --> P[User Dashboard]
+    P --> Q[Route Protection Check]
+    Q --> R{Has Permission?}
+    
+    R -->|Yes| S[Access Granted]
+    R -->|No| T[Access Denied]
+    
+    S --> U[Feature Access]
+    T --> V[Error Page]

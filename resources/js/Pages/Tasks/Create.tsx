@@ -41,6 +41,10 @@ interface CreateTaskPageProps {
     projects: Project[];
     users: User[];
     recentTasks?: Task[];
+    selectedProject?: {
+        id: number;
+        name: string;
+    } | null;
 }
 
 export default function Create({
@@ -48,6 +52,7 @@ export default function Create({
     users,
     projects,
     recentTasks,
+    selectedProject,
 }: CreateTaskPageProps) {
     return (
         <CreateTask
@@ -55,6 +60,7 @@ export default function Create({
             users={users}
             projects={projects}
             recentTasks={recentTasks}
+            selectedProject={selectedProject}
         />
     );
 }

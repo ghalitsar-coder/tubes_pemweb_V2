@@ -1,0 +1,44 @@
+graph TD
+    A[Dashboard Load] --> B[Fetch User Data]
+    B --> C[Get Recent Projects]
+    C --> D[Get Assigned Tasks]
+    D --> E[Get Notifications]
+    E --> F[Calculate Statistics]
+    
+    F --> G[Render Dashboard]
+    G --> H{User Role}
+    
+    H -->|Admin| I[Show Admin Widgets]
+    H -->|Manager| J[Show Manager Widgets]
+    H -->|User| K[Show User Widgets]
+    
+    I --> L[All Projects Summary]
+    I --> M[User Management Panel]
+    I --> N[System Statistics]
+    
+    J --> O[Team Projects]
+    J --> P[Team Tasks Overview]
+    J --> Q[Progress Reports]
+    
+    K --> R[My Projects]
+    K --> S[My Tasks]
+    K --> T[My Activity]
+    
+    L --> U[Interactive Charts]
+    M --> U
+    N --> U
+    O --> U
+    P --> U
+    Q --> U
+    R --> U
+    S --> U
+    T --> U
+    
+    U --> V[Quick Actions]
+    V --> W[Create Project]
+    V --> X[Create Task]
+    V --> Y[View Reports]
+    
+    W --> Z[Project Form]
+    X --> AA[Task Form]
+    Y --> BB[Reports Page]

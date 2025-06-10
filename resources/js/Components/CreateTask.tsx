@@ -42,6 +42,10 @@ interface CreateTaskProps {
     projects: Project[];
     users: User[];
     recentTasks?: Task[];
+    selectedProject?: {
+        id: number;
+        name: string;
+    } | null;
 }
 
 const CreateTask: React.FC<CreateTaskProps> = ({
@@ -49,6 +53,7 @@ const CreateTask: React.FC<CreateTaskProps> = ({
     projects,
     users,
     recentTasks = [],
+    selectedProject,
 }) => {
     const [activeTab, setActiveTab] = useState("creation");
 
@@ -75,10 +80,13 @@ const CreateTask: React.FC<CreateTaskProps> = ({
                         setActiveTab={setActiveTab}
                     />
 
-                    {/* Task Form */}
-                    <div className="px-6 py-5">
+                    {/* Task Form */}                    <div className="px-6 py-5">
                         {activeTab === "creation" && (
-                            <TaskForm projects={projects} users={users} />
+                            <TaskForm 
+                                projects={projects} 
+                                users={users}
+                                selectedProject={selectedProject}
+                            />
                         )}
                         {activeTab === "bulk-import" && (
                             <div className="text-center py-12">
