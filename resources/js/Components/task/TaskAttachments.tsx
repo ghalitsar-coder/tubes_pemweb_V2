@@ -52,6 +52,7 @@ interface TaskAttachmentsProps {
         name: string;
         avatar?: string;
     };
+    hideComments?: boolean; // New prop to hide comment functionality
 }
 
 interface PageProps {
@@ -65,6 +66,7 @@ export function TaskAttachments({
     attachments,
     taskId,
     currentUser,
+    hideComments = false, // Default to false for backward compatibility
 }: TaskAttachmentsProps) {
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [selectedAttachment, setSelectedAttachment] =
@@ -203,6 +205,7 @@ export function TaskAttachments({
             }
         );
     };
+    console.log(`THIS IS  localAttachments:`, localAttachments);
 
     return (
         <Card>
@@ -309,7 +312,7 @@ export function TaskAttachments({
                                     <TableCell>
                                         <div className="flex justify-end gap-2">
                                             {attachment.type.startsWith(
-                                                "image/"
+                                                "image"
                                             ) && (
                                                 <Button
                                                     variant="ghost"
@@ -325,26 +328,29 @@ export function TaskAttachments({
                                                     <EyeIcon className="h-4 w-4" />
                                                 </Button>
                                             )}
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                    handleShowComments(
-                                                        attachment
-                                                    )
-                                                }
-                                            >
-                                                <MessageSquareIcon className="h-4 w-4" />
-                                                {attachment.comments.length >
-                                                    0 && (
-                                                    <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                                                        {
-                                                            attachment.comments
-                                                                .length
-                                                        }
-                                                    </span>
-                                                )}
-                                            </Button>
+                                            {/* {!hideComments && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() =>
+                                                        handleShowComments(
+                                                            attachment
+                                                        )
+                                                    }
+                                                >
+                                                    <MessageSquareIcon className="h-4 w-4" />
+                                                    {attachment.comments
+                                                        .length > 0 && (
+                                                        <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                                                            {
+                                                                attachment
+                                                                    .comments
+                                                                    .length
+                                                            }
+                                                        </span>
+                                                    )}
+                                                </Button>
+                                            )} */}
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
@@ -430,83 +436,89 @@ export function TaskAttachments({
                 </DialogContent>
             </Dialog>
 
-            <Dialog
-                open={showComments}
-                onOpenChange={() => setShowComments(false)}
-            >
-                <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                        <DialogTitle>Comments</DialogTitle>
-                    </DialogHeader>
-                    {selectedAttachment && (
-                        <div className="space-y-4">
-                            <div className="space-y-4 max-h-[400px] overflow-y-auto">
-                                {selectedAttachment.comments.map((comment) => (
-                                    <div
-                                        key={comment.id}
-                                        className="flex gap-3 items-start"
-                                    >
-                                        <Avatar>
-                                            <AvatarImage
-                                                src={comment.user.avatar}
-                                                alt={comment.user.name}
-                                            />
-                                            <AvatarFallback>
-                                                {comment.user.name
-                                                    .split(" ")
-                                                    .map((n) => n[0])
-                                                    .join("")}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-2">
-                                                <p className="font-medium">
-                                                    {comment.user.name}
-                                                </p>
-                                                <span className="text-sm text-gray-500">
-                                                    {new Date(
-                                                        comment.created_at
-                                                    ).toLocaleString()}
-                                                </span>
+            {!hideComments && (
+                <Dialog
+                    open={showComments}
+                    onOpenChange={() => setShowComments(false)}
+                >
+                    <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                            <DialogTitle>Comments</DialogTitle>
+                        </DialogHeader>
+                        {selectedAttachment && (
+                            <div className="space-y-4">
+                                <div className="space-y-4 max-h-[400px] overflow-y-auto">
+                                    {selectedAttachment.comments.map(
+                                        (comment) => (
+                                            <div
+                                                key={comment.id}
+                                                className="flex gap-3 items-start"
+                                            >
+                                                <Avatar>
+                                                    <AvatarImage
+                                                        src={
+                                                            comment.user.avatar
+                                                        }
+                                                        alt={comment.user.name}
+                                                    />
+                                                    <AvatarFallback>
+                                                        {comment.user.name
+                                                            .split(" ")
+                                                            .map((n) => n[0])
+                                                            .join("")}
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="font-medium">
+                                                            {comment.user.name}
+                                                        </p>
+                                                        <span className="text-sm text-gray-500">
+                                                            {new Date(
+                                                                comment.created_at
+                                                            ).toLocaleString()}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-sm text-gray-700 mt-1">
+                                                        {comment.content}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <p className="text-sm text-gray-700 mt-1">
-                                                {comment.content}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="space-y-2">
-                                <Textarea
-                                    placeholder="Add a comment..."
-                                    value={commentForm.data.content}
-                                    onChange={(e) =>
-                                        commentForm.setData(
-                                            "content",
-                                            e.target.value
                                         )
-                                    }
-                                    className="min-h-[100px]"
-                                />
-                                <div className="flex justify-end">
-                                    <Button
-                                        type="button"
-                                        onClick={handleAddComment}
-                                        disabled={
-                                            commentForm.processing ||
-                                            !commentForm.data.content
+                                    )}
+                                </div>
+                                <div className="space-y-2">
+                                    <Textarea
+                                        placeholder="Add a comment..."
+                                        value={commentForm.data.content}
+                                        onChange={(e) =>
+                                            commentForm.setData(
+                                                "content",
+                                                e.target.value
+                                            )
                                         }
-                                    >
-                                        {commentForm.processing
-                                            ? "Posting..."
-                                            : "Post Comment"}
-                                    </Button>
+                                        className="min-h-[100px]"
+                                    />
+                                    <div className="flex justify-end">
+                                        <Button
+                                            type="button"
+                                            onClick={handleAddComment}
+                                            disabled={
+                                                commentForm.processing ||
+                                                !commentForm.data.content
+                                            }
+                                        >
+                                            {commentForm.processing
+                                                ? "Posting..."
+                                                : "Post Comment"}
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
-                </DialogContent>
-            </Dialog>
+                        )}
+                    </DialogContent>
+                </Dialog>
+            )}
         </Card>
     );
 }

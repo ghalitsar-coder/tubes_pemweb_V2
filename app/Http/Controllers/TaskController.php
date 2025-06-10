@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class TaskController extends Controller
 {
@@ -169,7 +170,7 @@ class TaskController extends Controller
             'attachments.*' => 'file|max:10240', // 10MB max per file
         ]);
 
-        // Remove attachments from main data since we'll handle them separately
+        // Remove attachments and dependencies from main data since we'll handle them separately
         $attachments = $validated['attachments'] ?? [];
         unset($validated['attachments'], $validated['dependencies']);
 
@@ -181,9 +182,24 @@ class TaskController extends Controller
         // Handle file attachments if any
         if (!empty($attachments)) {
             foreach ($attachments as $file) {
-                $filename = $file->getClientOriginalName();
-                $path = $file->store('task-attachments', 'public');
-                $task->addAttachment($filename, $path, $file->getClientMimeType());
+                try {
+                    $uploadedFile = Cloudinary::uploadApi()->upload($file->getRealPath(), [
+                        'folder' => 'task_attachments',
+                        'resource_type' => 'auto',
+                    ]);
+
+                    $task->attachments()->create([
+                        'task_id' => $task->id,
+                        'filename' => $file->getClientOriginalName(),
+                        'path' => $uploadedFile['secure_url'],
+                        'type' => $uploadedFile['resource_type'],
+                        'public_id' => $uploadedFile['public_id'],
+                        'uploaded_at' => now(),
+                    ]);
+                } catch (\Exception $e) {
+                    \Log::error('Cloudinary upload failed: ' . $e->getMessage());
+                    // Continue with task creation even if attachment upload fails
+                }
             }
         }
 
@@ -272,56 +288,12 @@ class TaskController extends Controller
             'status' => 'required|in:todo,in_progress,on_hold,completed',
             'dependencies' => 'nullable|array',
             'dependencies.*' => 'exists:tasks,id',
-            'existing_attachments' => 'nullable|array',
-            'existing_attachments.*' => 'exists:task_attachments,id',
-            'attachments.*' => 'nullable|file|mimes:jpg,png,pdf|max:2048',
-        ]);
-
-        // Update task
-        $task->update([
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'project_id' => $validated['project_id'],
-            'task_type' => $validated['task_type'],
-            'priority' => $validated['priority'],
-            'assigned_to' => $validated['assigned_to'],
-            'due_date' => $validated['due_date'],
-            'start_date' => $validated['start_date'],
         ]);
 
         \Log::info('Validated task data before update:', $validated);
 
+        // Update task with all validated data at once
         $task->update($validated);
-
-        // Menangani attachment baru
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                try {
-                    $uploadedFile = Cloudinary::uploadApi()->upload($file->getRealPath(), [
-                        'folder' => 'task_attachments',
-                        'resource_type' => 'auto',
-                    ]);
-
-                    $task->attachments()->create([
-                        'task_id' => $task->id,
-                        'filename' => $file->getClientOriginalName(),
-                        'path' => $uploadedFile['secure_url'],
-                        'type' => $uploadedFile['resource_type'],
-                        'public_id' => $uploadedFile['public_id'], // Simpan public_id
-                        'uploaded_at' => now(),
-                    ]);
-                } catch (\Exception $e) {
-                    \Log::error('Cloudinary upload failed: ' . $e->getMessage());
-                    return back()->withErrors(['attachments' => 'Failed to upload file to Cloudinary']);
-                }
-            }
-        }
-
-        // Menangani existing_attachments
-        if ($request->has('existing_attachments')) {
-            $existingIds = $request->input('existing_attachments', []);
-            $task->attachments()->whereNotIn('id', $existingIds)->delete();
-        }
 
         return redirect()->route('tasks.show', $task->id)->with('success', 'Task updated successfully');
     }

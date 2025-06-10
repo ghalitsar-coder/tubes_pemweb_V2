@@ -41,6 +41,7 @@ export function ProjectAttachments({
     const [localAttachments, setLocalAttachments] = useState<Attachment[]>(
         attachments || []
     );
+    const [isDragging, setIsDragging] = useState(false);
     const { data, setData, post, processing } = useForm({
         file: null as File | null,
     });
@@ -52,9 +53,14 @@ export function ProjectAttachments({
 
     // Function to get full Cloudinary URL
     const getFullCloudinaryUrl = (path: string) => {
-        if (path.startsWith("http")) return path;
+        if (!path) return "";
+
+        // Clean the path by removing any trailing characters that shouldn't be there
+        const cleanPath = path.trim().replace(/[|]+$/, "");
+
+        if (cleanPath.startsWith("http")) return cleanPath;
         const cloudName = window.CLOUDINARY_CLOUD_NAME || "dtpflpunp"; // fallback to your cloud name
-        return `https://res.cloudinary.com/${cloudName}/image/upload/${path}`;
+        return `https://res.cloudinary.com/${cloudName}/image/upload/${cleanPath}`;
     };
 
     // Function to transform Cloudinary URL for thumbnails
@@ -77,18 +83,46 @@ export function ProjectAttachments({
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
-            // Validate file size (10MB max)
-            if (file.size > 10 * 1024 * 1024) {
-                toast.error("File size must be less than 10MB");
-                e.target.value = "";
-                return;
-            }
-            setData("file", file);
+            processFile(file);
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const processFile = (file: File) => {
+        // Validate file size (10MB max)
+        if (file.size > 10 * 1024 * 1024) {
+            toast.error("File size must be less than 10MB");
+            return;
+        }
+        setData("file", file);
+    };
+
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
+        setIsDragging(false);
+        const files = Array.from(e.dataTransfer.files);
+        if (files.length > 0) {
+            processFile(files[0]);
+        }
+    };
+
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+    };
+
+    const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        // Only set isDragging to false if we're leaving the drop zone itself
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+            setIsDragging(false);
+        }
+    };
+
+    const handleUpload = () => {
         if (!data.file) return;
 
         console.log("Starting file upload...", {
@@ -162,22 +196,52 @@ export function ProjectAttachments({
                 <CardTitle>Project Attachments</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="flex items-center gap-4">
-                        <input
-                            type="file"
-                            onChange={handleFileChange}
-                            className="flex-1 cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
-                            accept="*/*"
-                        />
-                        <Button
-                            type="submit"
-                            disabled={processing || !data.file}
-                        >
-                            {processing ? "Uploading..." : "Upload"}
-                        </Button>
+                <div className="space-y-4">
+                    <div
+                        className={`border-2 border-dashed rounded-lg p-6 transition-colors ${
+                            isDragging
+                                ? "border-blue-400 bg-blue-50"
+                                : "border-gray-300 hover:border-gray-400"
+                        }`}
+                        onDrop={handleDrop}
+                        onDragOver={handleDragOver}
+                        onDragEnter={handleDragEnter}
+                        onDragLeave={handleDragLeave}
+                    >
+                        <div className="flex items-center gap-4">
+                            <input
+                                type="file"
+                                onChange={handleFileChange}
+                                className="flex-1 cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
+                                accept="*/*"
+                            />
+                            <Button
+                                type="button"
+                                onClick={handleUpload}
+                                disabled={processing || !data.file}
+                            >
+                                {processing ? "Uploading..." : "Upload"}
+                            </Button>
+                        </div>
+                        {data.file && (
+                            <div className="mt-3 p-2 bg-blue-50 rounded text-sm">
+                                <span className="font-medium">
+                                    Selected file:
+                                </span>{" "}
+                                {data.file.name}
+                                <span className="text-gray-500 ml-2">
+                                    ({(data.file.size / 1024 / 1024).toFixed(2)}{" "}
+                                    MB)
+                                </span>
+                            </div>
+                        )}
+                        <p className="text-xs text-gray-500 mt-2 text-center">
+                            {isDragging
+                                ? "Drop file here to upload"
+                                : "Or drag and drop files here (Max 10MB)"}
+                        </p>
                     </div>
-                </form>
+                </div>
 
                 {localAttachments && localAttachments.length > 0 ? (
                     <Table>

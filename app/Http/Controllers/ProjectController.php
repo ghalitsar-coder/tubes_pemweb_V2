@@ -117,9 +117,7 @@ class ProjectController extends Controller
         $project = Project::create($validated);
 
         // Add project creator as a member with 'lead' role
-        $project->addMember(User::find($validated['user_id']), 'lead');
-
-        // Add other members if provided
+        $project->addMember(User::find($validated['user_id']), 'lead');        // Add other members if provided
         if (!empty($validated['members'])) {
             foreach ($validated['members'] as $index => $userId) {
                 $role = $validated['member_roles'][$index] ?? 'member';
@@ -132,7 +130,8 @@ class ProjectController extends Controller
 
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
-                $path = $file->store('project-attachments');
+                // Upload to Cloudinary using storage driver (same as addAttachment method)
+                $path = Storage::disk('cloudinary')->putFile('project-attachments', $file);
                 $project->addAttachment(
                     $file->getClientOriginalName(),
                     $path,
@@ -253,12 +252,11 @@ class ProjectController extends Controller
                     $project->addMember($user, $role);
                 }
             }
-        }
-
-        // Handle attachments if any
+        }        // Handle attachments if any
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
-                $path = $file->store('project-attachments');
+                // Upload to Cloudinary using storage driver (same as addAttachment method)
+                $path = Storage::disk('cloudinary')->putFile('project-attachments', $file);
                 $project->addAttachment(
                     $file->getClientOriginalName(),
                     $path,
@@ -312,17 +310,16 @@ class ProjectController extends Controller
                 $file->getClientOriginalName(),
                 $path,
                 $file->getMimeType()
-            );
-            \Log::info('Attachment added to project', [
+            );            \Log::info('Attachment added to project', [
                 'project_id' => $project->id,
                 'attachments' => $project->attachments
             ]);
 
-            // Load the project with its attachments
-            $project->load('attachments');
-            \Log::info('Project loaded with attachments', [
+            // Refresh the project instance to get updated data
+            $project->refresh();
+            \Log::info('Project refreshed with attachments', [
                 'project_id' => $project->id,
-                'attachments_count' => count($project->attachments)
+                'attachments_count' => count($project->attachments ?? [])
             ]);
 
             if ($request->wantsJson()) {

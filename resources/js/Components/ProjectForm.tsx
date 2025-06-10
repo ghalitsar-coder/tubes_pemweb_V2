@@ -15,6 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import TagInput from "./TagInput";
 import FileUploader from "./FileUploader";
+import ImageUploader from "./ImageUploader";
 import ProjectDateRangePicker from "./ProjectDateRangePicker";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -31,6 +32,7 @@ import {
 } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { DatePickerWithRange } from "./ui/date-picker-with-range";
+import { ProjectAttachments } from "./project/ProjectAttachments";
 
 interface User {
     id: number;
@@ -141,7 +143,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
         }
         return undefined;
     });
-    const { data, setData, post, put, processing, errors, reset } = useForm({
+    const { data, setData, post, patch, processing, errors, reset } = useForm({
         name: formData?.name || "",
         description: formData?.description || "",
         user_id: formData?.user_id?.toString() || "",
@@ -188,9 +190,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
         Object.keys(updatedData).forEach((key) => {
             setData(key as any, updatedData[key as keyof typeof updatedData]);
         });
-
         if (editMode && project?.id) {
-            put(route("projects.update", project.id), {
+            patch(route("projects.update", project.id), {
                 onSuccess: () => {
                     // Success handled by redirect
                 },
@@ -439,14 +440,37 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
                             onChange={handleTagsChange}
                             placeholder="Add tags separated by commas"
                         />
-                    </div>
+                    </div>{" "}
                     {/* Attachments */}
                     <div>
                         <Label className="flex items-center gap-2">
                             <Paperclip className="h-4 w-4" />
-                            Attachments
+                            Project Files & Attachments
                         </Label>
-                        <FileUploader onFilesChange={handleFileUpload} />
+                        {editMode && project?.id ? (
+                            // In edit mode, show existing attachments with CRUD functionality
+                            <div className="mt-2">
+                                <ProjectAttachments
+                                    attachments={project.attachments || []}
+                                    projectId={project.id}
+                                />
+                            </div>
+                        ) : (
+                            // In create mode, show single unified uploader for all file types
+                            <div className="mt-2">
+                                <ImageUploader
+                                    onFilesChange={handleFileUpload}
+                                    maxFiles={20}
+                                    showPreview={true}
+                                    acceptAllFiles={true}
+                                />
+                                <p className="text-xs text-gray-500 mt-2">
+                                    Upload images, documents, and other files.
+                                    Supported formats: JPG, PNG, GIF, PDF, DOC,
+                                    DOCX, XLS, XLSX, PPT, PPTX, TXT, ZIP, etc.
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
 

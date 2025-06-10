@@ -87,25 +87,25 @@ const TagInput: React.FC<TagInputProps> = ({ tags, onChange, placeholder }) => {
                     placeholder={tags.length === 0 ? placeholder : ""}
                     className="flex-1 min-w-[120px] border-none shadow-none focus:ring-0 focus:border-transparent p-0"
                 />
-            </div>
-
-            {/* Suggested Tags */}
-            {tags.length === 0 && (
+            </div>            {/* Suggested Tags */}
+            {suggestedTags.filter(tag => !tags.includes(tag)).length > 0 && (
                 <div className="mt-2">
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                         Suggested tags:
                     </p>
                     <div className="flex flex-wrap gap-1">
-                        {suggestedTags.map((tag) => (
-                            <button
-                                key={tag}
-                                type="button"
-                                onClick={() => onChange([...tags, tag])}
-                                className="inline-flex items-center px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition-colors"
-                            >
-                                {tag}
-                            </button>
-                        ))}
+                        {suggestedTags
+                            .filter(tag => !tags.includes(tag))
+                            .map((tag) => (
+                                <button
+                                    key={tag}
+                                    type="button"
+                                    onClick={() => onChange([...tags, tag])}
+                                    className="inline-flex items-center px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                >
+                                    {tag}
+                                </button>
+                            ))}
                     </div>
                 </div>
             )}

@@ -15,18 +15,14 @@ import TaskTypeSelector from "./TaskTypeSelector";
 import PrioritySelector from "./PrioritySelector";
 import TagInput from "./TagInput";
 import FileUploader from "./FileUploader";
+import ImageUploader from "./ImageUploader";
+import { TaskAttachments } from "./task/TaskAttachments";
 import { Checkbox } from "./ui/checkbox";
 import { DatePicker } from "@/components/ui/date-picker";
-import { CalendarDays } from "lucide-react";
-import ProjectDateRangePicker from "./ProjectDateRangePicker";
+import { CalendarDays, Paperclip } from "lucide-react";
 import { DatePickerWithRange } from "./ui/date-picker-with-range";
 import { DateRange } from "react-day-picker";
-import {
-    formatDateToString,
-    getFullCloudinaryUrl,
-    getPreviewUrl,
-    parseDate,
-} from "@/lib/utils";
+import { formatDateToString, parseDate } from "@/lib/utils";
 import type { FormDataConvertible } from "@inertiajs/core";
 import { set } from "date-fns";
 interface User {
@@ -46,7 +42,7 @@ interface TaskAttachment {
     path: string;
     type: string;
     uploaded_at: string;
-    comments?: {
+    comments: {
         id: number;
         content: string;
         user: {
@@ -145,9 +141,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
         tags: task?.tags || "",
         status: task?.status || "todo",
         dependencies: [] as number[], // Inisialisasi dengan array kosong
-        existing_attachments:
-            task?.attachments?.map((att: TaskAttachment) => att.id) || [], // Ambil hanya ID
-        attachments: [] as File[], // File baru
+        attachments: [] as File[], // File baru untuk upload
     });
     console.log(`THIS IS  data:`, data);
     // console.log(`THIS IS  data:`, data);    // Sync selectedTags with form data when task changes
@@ -199,16 +193,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
     };
 
     const handleFileUpload = (files: File[]) => {
-        console.log(`THIS IS  files:`, files);
-        console.log(
-            "Files type check:",
-            files.map((f) => ({
-                name: f.name,
-                instanceofFile: f instanceof File,
-            }))
-        );
-        setData("attachments", [...data.attachments, ...files]);
-        console.log("New files added:", files);
+        console.log(`Selected files:`, files);
+        setData("attachments", files);
     };
     return (
         <form onSubmit={handleSubmit}>
@@ -308,70 +294,49 @@ const TaskForm: React.FC<TaskFormProps> = ({
                     </div>{" "}
                     {/* Attachments */}
                     <div>
-                        <Label>Attachments</Label>
-                        <FileUploader onFilesChange={handleFileUpload} />
-
-                        {/* Preview existing attachments when editing */}
-                        {isEdit &&
-                            task?.attachments &&
-                            task.attachments.length > 0 && (
-                                <div className="mt-4">
-                                    <Label className="text-sm font-medium">
-                                        Existing Attachments
-                                    </Label>
-                                    <div className="grid grid-cols-2 gap-4 mt-2">
-                                        {task.attachments.map((attachment) => (
-                                            <div
-                                                key={attachment.id}
-                                                className="border rounded-lg p-3"
-                                            >
-                                                {attachment.type.startsWith(
-                                                    "image/"
-                                                ) ? (
-                                                    <div className="space-y-2">
-                                                        <img
-                                                            src={getPreviewUrl(
-                                                                attachment.path.slice(
-                                                                    attachment.path.indexOf(
-                                                                        "/"
-                                                                    )
-                                                                )
-                                                            )}
-                                                            alt={
-                                                                attachment.filename
-                                                            }
-                                                            className="w-full h-32 object-cover rounded"
-                                                        />
-                                                        <p className="text-sm text-gray-600 truncate">
-                                                            {
-                                                                attachment.filename
-                                                            }
-                                                        </p>
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex items-center space-x-2">
-                                                        <div className="w-8 h-8 bg-gray-200 rounded flex items-center justify-center">
-                                                            📄
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-sm font-medium truncate">
-                                                                {
-                                                                    attachment.filename
-                                                                }
-                                                            </p>
-                                                            <p className="text-xs text-gray-500">
-                                                                {
-                                                                    attachment.type
-                                                                }
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
+                        <Label className="flex items-center gap-2">
+                            <Paperclip className="h-4 w-4" />
+                            Task Files & Attachments
+                        </Label>
+                        {isEdit && task?.id ? (
+                            // In edit mode, show existing attachments with CRUD functionality
+                            <div className="mt-2">
+                                <TaskAttachments
+                                    attachments={(task.attachments || []).map(
+                                        (attachment) => ({
+                                            ...attachment,
+                                            comments: attachment.comments || [],
+                                        })
+                                    )}
+                                    taskId={task.id}
+                                    currentUser={{
+                                        id: 1, // You may need to pass actual current user data
+                                        name: "Current User",
+                                        avatar: undefined,
+                                    }}
+                                />
+                            </div>
+                        ) : (
+                            // In create mode, show single unified uploader for all file types
+                            <div className="mt-2">
+                                <ImageUploader
+                                    onFilesChange={handleFileUpload}
+                                    maxFiles={20}
+                                    showPreview={true}
+                                    acceptAllFiles={true}
+                                />
+                                <p className="text-xs text-gray-500 mt-2">
+                                    Upload images, documents, and other files.
+                                    Supported formats: JPG, PNG, GIF, PDF, DOC,
+                                    DOCX, XLS, XLSX, PPT, PPTX, TXT, ZIP, etc.
+                                </p>
+                            </div>
+                        )}
+                        {errors.attachments && (
+                            <p className="text-red-500 text-sm mt-1">
+                                {errors.attachments}
+                            </p>
+                        )}
                     </div>
                 </div>
 

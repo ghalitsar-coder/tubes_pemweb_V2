@@ -50,6 +50,7 @@ import {
     UserWithPermissions,
 } from "@/utils/permissions";
 import TaskComments from "@/components/task/TaskComments";
+import { TaskAttachments } from "@/components/task/TaskAttachments";
 
 interface Props {
     task: {
@@ -355,7 +356,6 @@ export default function ShowNew({ auth, task }: Props) {
                                             </button>
                                         </nav>
                                     </div>
-
                                     {/* Tab Content */}
                                     {activeTab === "details" && (
                                         <div className="space-y-6">
@@ -376,7 +376,6 @@ export default function ShowNew({ auth, task }: Props) {
                                             />
                                         </div>
                                     )}
-
                                     {activeTab === "activity" && (
                                         <div className="space-y-4">
                                             <div className="text-center py-8 text-muted-foreground">
@@ -387,48 +386,14 @@ export default function ShowNew({ auth, task }: Props) {
                                                 </p>
                                             </div>
                                         </div>
-                                    )}
-
+                                    )}{" "}
                                     {activeTab === "files" && (
                                         <div className="space-y-4">
-                                            {task.attachments?.length > 0 ? (
-                                                task.attachments.map(
-                                                    (attachment) => (
-                                                        <Card
-                                                            key={attachment.id}
-                                                        >
-                                                            <CardContent className="flex items-center justify-between p-4">
-                                                                <div className="flex items-center space-x-3">
-                                                                    <Paperclip className="h-5 w-5 text-muted-foreground" />
-                                                                    <div>
-                                                                        <p className="font-medium">
-                                                                            {
-                                                                                attachment.filename
-                                                                            }
-                                                                        </p>
-                                                                        <p className="text-sm text-muted-foreground">
-                                                                            {formatDate(
-                                                                                attachment.uploaded_at
-                                                                            )}
-                                                                        </p>
-                                                                    </div>
-                                                                </div>
-                                                                <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                >
-                                                                    Download
-                                                                </Button>
-                                                            </CardContent>
-                                                        </Card>
-                                                    )
-                                                )
-                                            ) : (
-                                                <div className="text-center py-8 text-muted-foreground">
-                                                    <Paperclip className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                                                    <p>No files attached</p>
-                                                </div>
-                                            )}
+                                            <TaskAttachments
+                                                attachments={task.attachments}
+                                                taskId={task.id}
+                                                currentUser={auth.user}
+                                            />
                                         </div>
                                     )}
                                 </div>

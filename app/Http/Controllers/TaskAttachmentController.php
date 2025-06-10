@@ -8,10 +8,10 @@ use App\Models\TaskAttachmentComment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class TaskAttachmentController extends Controller
-{
-    public function store(Request $request, Task $task)
+{    public function store(Request $request, Task $task)
     {
         try {
             $request->validate([
@@ -20,14 +20,20 @@ class TaskAttachmentController extends Controller
 
             $file = $request->file('file');
             
-            // Upload to Cloudinary using storage driver
-            $path = Storage::disk('cloudinary')->putFile('task-attachments', $file);
-            
-            $attachment = $task->addAttachment(
-                $file->getClientOriginalName(),
-                $path,
-                $file->getMimeType()
-            );
+            // Upload to Cloudinary directly using API
+            $uploadedFile = Cloudinary::uploadApi()->upload($file->getRealPath(), [
+                'folder' => 'task_attachments',
+                'resource_type' => 'auto',
+            ]);
+
+            $attachment = $task->attachments()->create([
+                'task_id' => $task->id,
+                'filename' => $file->getClientOriginalName(),
+                'path' => $uploadedFile['secure_url'],
+                'type' => $uploadedFile['resource_type'],
+                'public_id' => $uploadedFile['public_id'],
+                'uploaded_at' => now(),
+            ]);
 
             // Load the task with its attachments and comments
             $task->load(['attachments.comments.user']);

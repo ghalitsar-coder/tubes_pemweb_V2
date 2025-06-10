@@ -30,6 +30,7 @@ import {
     UserWithPermissions,
 } from "@/utils/permissions";
 import { ProjectComments } from "@/components/project/ProjectComments";
+import { ProjectAttachments } from "@/components/project/ProjectAttachments";
 
 interface Props {
     project: Project & {
@@ -507,88 +508,13 @@ export default function Show({ project, auth }: Props) {
                                             </div>
                                         )}
                                 </div>
-                            </div>
-
-                            {/* Project Resources */}
+                            </div>{" "}
+                            {/* Project Resources with Enhanced CRUD */}
                             <div className="bg-white rounded-lg shadow overflow-hidden border border-gray-200 mb-6">
-                                <div className="px-5 py-4 border-b border-gray-200 bg-gray-50">
-                                    <h3 className="text-lg font-semibold text-gray-900">
-                                        Project Resources
-                                    </h3>
-                                </div>{" "}
-                                <div className="p-5">
-                                    <div className="space-y-4">
-                                        {Array.isArray(project.attachments) &&
-                                        project.attachments.length > 0 ? (
-                                            project.attachments.map(
-                                                (
-                                                    attachment: ProjectAttachment,
-                                                    index: number
-                                                ) => (
-                                                    <div
-                                                        key={
-                                                            attachment.id ||
-                                                            index
-                                                        }
-                                                        className="flex items-center"
-                                                    >
-                                                        <div className="p-3 bg-blue-100 rounded-lg text-blue-600 mr-4">
-                                                            {attachment.type.includes(
-                                                                "pdf"
-                                                            ) ? (
-                                                                <FileText className="w-5 h-5" />
-                                                            ) : attachment.type.includes(
-                                                                  "image"
-                                                              ) ? (
-                                                                <img
-                                                                    src={
-                                                                        attachment.path
-                                                                    }
-                                                                    alt={
-                                                                        attachment.filename
-                                                                    }
-                                                                    className="w-5 h-5 object-cover"
-                                                                />
-                                                            ) : (
-                                                                <Folder className="w-5 h-5" />
-                                                            )}
-                                                        </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="text-sm font-medium text-gray-900 truncate">
-                                                                {
-                                                                    attachment.filename
-                                                                }
-                                                            </p>
-                                                            <p className="text-xs text-gray-500">
-                                                                Uploaded{" "}
-                                                                {new Date(
-                                                                    attachment.uploaded_at
-                                                                ).toLocaleDateString(
-                                                                    "en-US",
-                                                                    {
-                                                                        month: "short",
-                                                                        day: "numeric",
-                                                                    }
-                                                                )}
-                                                            </p>
-                                                        </div>
-                                                        <button className="text-gray-400 hover:text-gray-600">
-                                                            <ExternalLink className="w-4 h-4" />
-                                                        </button>
-                                                    </div>
-                                                )
-                                            )
-                                        ) : (
-                                            <p className="text-sm text-gray-500">
-                                                No resources uploaded yet.
-                                            </p>
-                                        )}
-                                    </div>
-                                    <button className="mt-4 px-3 py-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-900 inline-flex items-center">
-                                        <Plus className="w-4 h-4 mr-1" />
-                                        Add Resource
-                                    </button>
-                                </div>
+                                <ProjectAttachments
+                                    attachments={project.attachments || []}
+                                    projectId={project.id}
+                                />
                             </div>
                         </div>
 

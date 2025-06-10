@@ -3,6 +3,7 @@ import { Head } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import TaskForm from "./TaskForm";
 import TaskTabs from "./TaskTabs";
+import { TaskAttachments } from "@/components/task/TaskAttachments";
 import { User, Project } from "@/types";
 
 interface TaskAttachment {
@@ -11,16 +12,19 @@ interface TaskAttachment {
     path: string;
     type: string;
     uploaded_at: string;
-    comments?: {
+    created_at?: string;
+    comments?: TaskComment[];
+}
+
+interface TaskComment {
+    id: number;
+    content: string;
+    user: {
         id: number;
-        content: string;
-        user: {
-            id: number;
-            name: string;
-            avatar?: string;
-        };
-        created_at: string;
-    }[];
+        name: string;
+        avatar?: string;
+    };
+    created_at: string;
 }
 
 interface Task {
@@ -122,14 +126,13 @@ const EditTask: React.FC<EditTaskProps> = ({ auth, task, projects, users }) => {
                                     Task History functionality coming soon...
                                 </p>
                             </div>
-                        )}
+                        )}{" "}
                         {activeTab === "attachments" && (
-                            <div className="text-center py-12">
-                                <p className="text-gray-500">
-                                    Attachment management functionality coming
-                                    soon...
-                                </p>
-                            </div>
+                            <TaskAttachments
+                                attachments={task.attachments || []}
+                                taskId={task.id}
+                                currentUser={auth.user}
+                            />
                         )}
                     </div>
                 </div>
