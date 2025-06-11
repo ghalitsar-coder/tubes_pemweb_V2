@@ -265,8 +265,7 @@ export default function Index({ auth, projects }: Props) {
                                                 >
                                                     <MoreVertical className="h-4 w-4" />
                                                 </Button>
-                                            </DropdownMenuTrigger>{" "}
-                                            <DropdownMenuContent align="end">
+                                            </DropdownMenuTrigger>                                            <DropdownMenuContent align="end">
                                                 {canUpdateSpecificProject(
                                                     auth.user,
                                                     project
@@ -343,28 +342,20 @@ export default function Index({ auth, projects }: Props) {
                                     <div className="flex justify-between items-center mb-3">
                                         <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
                                             Tasks
-                                        </h4>{" "}
-                                        {canAssignTasks(auth.user) &&
-                                            (canUpdateSpecificProject(
-                                                auth.user,
-                                                project
-                                            ) ||
-                                                auth.user.roles?.includes(
-                                                    "Admin"
-                                                )) && (
-                                                <Link
-                                                    href={`/tasks/create?project_id=${project.id}`}
+                                        </h4>                                        {(canAssignTasks(auth.user) && (canUpdateSpecificProject(auth.user, project) || auth.user.roles?.includes('Admin'))) && (
+                                            <Link
+                                                href={`/tasks/create?project_id=${project.id}`}
+                                            >
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-xs text-indigo-600 hover:text-indigo-900"
                                                 >
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        className="text-xs text-indigo-600 hover:text-indigo-900"
-                                                    >
-                                                        <Plus className="h-3 w-3 mr-1" />
-                                                        Add Task
-                                                    </Button>
-                                                </Link>
-                                            )}
+                                                    <Plus className="h-3 w-3 mr-1" />
+                                                    Add Task
+                                                </Button>
+                                            </Link>
+                                        )}
                                     </div>
                                     {/* Task List */}
                                     <div className="space-y-3">

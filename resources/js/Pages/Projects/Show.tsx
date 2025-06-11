@@ -141,8 +141,7 @@ export default function Show({ project, auth }: Props) {
                                 PRJ-{project.id} XXXXXXXXXXXXXX
                             </span>
                         </div>
-                    </div>{" "}
-                    <div className="flex items-center space-x-3">
+                    </div>{" "}                    <div className="flex items-center space-x-3">
                         {canUpdateSpecificProject(auth.user, project) && (
                             <Link
                                 href={`/projects/${project.id}/edit`}
@@ -158,17 +157,15 @@ export default function Show({ project, auth }: Props) {
                                 Delete
                             </button>
                         )}
-                        {canAssignTasks(auth.user) &&
-                            (canUpdateSpecificProject(auth.user, project) ||
-                                auth.user.roles?.includes("Admin")) && (
-                                <Link
-                                    href={`/tasks/create?project_id=${project.id}`}
-                                    className="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 inline-flex items-center"
-                                >
-                                    <Plus className="w-4 h-4 mr-1" />
-                                    New Task
-                                </Link>
-                            )}
+                        {(canAssignTasks(auth.user) && (canUpdateSpecificProject(auth.user, project) || auth.user.roles?.includes('Admin'))) && (
+                            <Link
+                                href={`/tasks/create?project_id=${project.id}`}
+                                className="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 inline-flex items-center"
+                            >
+                                <Plus className="w-4 h-4 mr-1" />
+                                New Task
+                            </Link>
+                        )}
                     </div>
                 </div>
             }
@@ -485,26 +482,18 @@ export default function Show({ project, auth }: Props) {
                                                 </div>
                                             </div>
                                         </div>
-                                    )) || (
-                                        <div className="p-8 text-center text-gray-500">
+                                    )) || (                                        <div className="p-8 text-center text-gray-500">
                                             <p>
                                                 No tasks found for this project.
                                             </p>
-                                            {canAssignTasks(auth.user) &&
-                                                (canUpdateSpecificProject(
-                                                    auth.user,
-                                                    project
-                                                ) ||
-                                                    auth.user.roles?.includes(
-                                                        "Admin"
-                                                    )) && (
-                                                    <Link
-                                                        href={`/tasks/create?project_id=${project.id}`}
-                                                        className="text-indigo-600 hover:text-indigo-900 font-medium"
-                                                    >
-                                                        Create your first task
-                                                    </Link>
-                                                )}
+                                            {(canAssignTasks(auth.user) && (canUpdateSpecificProject(auth.user, project) || auth.user.roles?.includes('Admin'))) && (
+                                                <Link
+                                                    href={`/tasks/create?project_id=${project.id}`}
+                                                    className="text-indigo-600 hover:text-indigo-900 font-medium"
+                                                >
+                                                    Create your first task
+                                                </Link>
+                                            )}
                                         </div>
                                     )}
 
