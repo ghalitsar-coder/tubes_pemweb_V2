@@ -45,6 +45,10 @@ interface DashboardProps extends PageProps {
     projectProgress: {
         name: string;
         progress: number;
+        completed_tasks: number;
+        remaining_tasks: number;
+        total_tasks: number;
+        month: string;
     }[];
     recentTasks: {
         id: number;
@@ -81,11 +85,11 @@ export default function Dashboard({
     upcomingDeadlines,
     teamMembers,
 }: DashboardProps) {
-    // Transform project progress data for the chart
+    // Transform project progress data for the chart - ubah ke completed vs remaining tasks
     const chartData = projectProgress.map((project) => ({
         month: project.name,
-        completed: project.progress,
-        remaining: 100 - project.progress,
+        completed: project.completed_tasks,
+        remaining: project.remaining_tasks,
     }));
 
     return (
@@ -256,7 +260,7 @@ export default function Dashboard({
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                 {/* Project Progress Chart */}
                 <Card className="lg:col-span-2">
-                    <ChartComp />
+                    <ChartComp data={chartData} />
                 </Card>
 
                 {/* Recent Tasks */}

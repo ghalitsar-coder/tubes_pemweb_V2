@@ -126,7 +126,68 @@ export function canUpdateTasks(user: UserWithPermissions): boolean {
  * Check if user can delete tasks
  */
 export function canDeleteTasks(user: UserWithPermissions): boolean {
-    return hasPermission(user, "update tasks"); // Using update tasks permission for delete as well
+    return hasPermission(user, "assign tasks") || hasRole(user, "Admin");
+}
+
+/**
+ * Check if user can update a specific project (considering ownership and membership)
+ */
+export function canUpdateSpecificProject(
+    user: UserWithPermissions,
+    project: any
+): boolean {
+    // Admin can update any project
+    if (hasRole(user, "Admin")) return true;
+
+    // Project owner can update
+    if (project.user_id === user.id) return true;
+
+    // Project members with lead role might be able to update (depends on business logic)
+    if (project.members && hasPermission(user, "update project")) {
+        const userMembership = project.members.find(
+            (member: any) => member.id === user.id
+        );
+        return userMembership && userMembership.pivot?.role === "lead";
+    }
+
+    return false;
+}
+
+/**
+ * Check if user can delete a specific project
+ */
+export function canDeleteSpecificProject(
+    user: UserWithPermissions,
+    project: any
+): boolean {
+    // Admin can delete any project
+    if (hasRole(user, "Admin")) return true;
+
+    // Only project owner can delete project
+    return project.user_id === user.id && hasPermission(user, "delete project");
+}
+
+/**
+ * Check if user can view project (read-only access)
+ */
+export function canViewProject(user: UserWithPermissions, project: any): boolean {
+    // Admin can view any project
+    if (hasRole(user, "Admin")) return true;
+
+    // Project owner can view
+    if (project.user_id === user.id) return true;
+
+    // Project members can view
+    if (project.members) {
+        return project.members.some((member: any) => member.id === user.id);
+    }
+
+    // Users assigned to tasks in the project can view
+    if (project.tasks) {
+        return project.tasks.some((task: any) => task.assigned_to === user.id);
+    }
+
+    return false;
 }
 
 /**
@@ -155,4 +216,22 @@ export function canManageUsers(user: UserWithPermissions): boolean {
  */
 export function canViewDashboard(user: UserWithPermissions): boolean {
     return hasPermission(user, "view dashboard");
+}
+
+/**
+ * Check if user can delete a specific task (considering project ownership)
+ */
+export function canDeleteSpecificTask(
+    user: UserWithPermissions,
+    task: any
+): boolean {
+    // Admin can delete any task
+    if (hasRole(user, "Admin")) return true;
+
+    // Project owner can delete task (must have assign tasks permission)
+    if (task.project && task.project.user_id === user.id && hasPermission(user, "assign tasks")) {
+        return true;
+    }
+
+    return false;
 }

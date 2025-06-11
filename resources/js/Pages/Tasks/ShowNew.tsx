@@ -47,6 +47,7 @@ import {
     canUpdateTasks,
     canDeleteTasks,
     canCommentTasks,
+    canDeleteSpecificTask,
     UserWithPermissions,
 } from "@/utils/permissions";
 import TaskComments from "@/components/task/TaskComments";
@@ -247,7 +248,38 @@ export default function ShowNew({ auth, task }: Props) {
                                                 Edit
                                             </Link>
                                         </Button>
-                                    )}{" "}
+                                    )}
+                                    {canDeleteSpecificTask(auth.user, task) && (
+                                        <Button
+                                            variant="destructive"
+                                            onClick={() => {
+                                                if (
+                                                    confirm(
+                                                        "Are you sure you want to delete this task? This action cannot be undone."
+                                                    )
+                                                ) {
+                                                    router.delete(
+                                                        `/tasks/${task.id}`,
+                                                        {
+                                                            onSuccess: () => {
+                                                                router.visit(
+                                                                    "/tasks"
+                                                                );
+                                                            },
+                                                            onError: () => {
+                                                                alert(
+                                                                    "An error occurred while deleting the task."
+                                                                );
+                                                            },
+                                                        }
+                                                    );
+                                                }
+                                            }}
+                                        >
+                                            <Trash2 className="h-4 w-4 mr-1" />
+                                            Delete
+                                        </Button>
+                                    )}
                                     {canUpdateTasks(auth.user) &&
                                         taskStatus !== "completed" && (
                                             <Button

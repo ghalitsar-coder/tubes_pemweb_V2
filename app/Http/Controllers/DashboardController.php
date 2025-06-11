@@ -27,16 +27,20 @@ class DashboardController extends Controller
             'teamMembers' => User::count(),
         ];
 
-        $projectProgress = Project::where('status', 'active')
+        $projectProgress = Project::with('tasks')
             ->get()
             ->map(function ($project) {
-                $totalTasks = $project->tasks()->count();
-                $completedTasks = $project->tasks()->where('status', 'completed')->count();
-                $progress = $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0;
-
+                $totalTasks = $project->tasks->count();
+                $completedTasks = $project->tasks->where('status', 'completed')->count();
+                $inProgressTasks = $project->tasks->whereIn('status', ['in_progress', 'todo', 'on_hold'])->count();
+                
                 return [
                     'name' => $project->name,
-                    'progress' => $progress,
+                    'progress' => $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0,
+                    'completed_tasks' => $completedTasks,
+                    'remaining_tasks' => $inProgressTasks,
+                    'total_tasks' => $totalTasks,
+                    'month' => $project->name, // untuk kompatibilitas dengan format chart
                 ];
             });
 

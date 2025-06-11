@@ -27,31 +27,38 @@ interface ChartCompProps {
 }
 
 const defaultData = [
-    { month: "Project A", completed: 75, remaining: 25 },
-    { month: "Project B", completed: 45, remaining: 55 },
-    { month: "Project C", completed: 90, remaining: 10 },
-    { month: "Project D", completed: 30, remaining: 70 },
-    { month: "Project E", completed: 60, remaining: 40 },
+    { month: "Project A", completed: 8, remaining: 2 },
+    { month: "Project B", completed: 5, remaining: 6 },
+    { month: "Project C", completed: 12, remaining: 1 },
+    { month: "Project D", completed: 3, remaining: 7 },
+    { month: "Project E", completed: 9, remaining: 6 },
 ];
 
 const chartConfig = {
     completed: {
-        label: "Completed",
+        label: "Completed Tasks",
         color: "hsl(var(--chart-1))",
     },
     remaining: {
-        label: "Remaining",
+        label: "Remaining Tasks",
         color: "hsl(var(--chart-2))",
     },
 } satisfies ChartConfig;
 
 export function ChartComp({ data = defaultData }: ChartCompProps) {
+    // Calculate overall task completion statistics
+    const totalCompleted = data.reduce((sum, project) => sum + project.completed, 0);
+    const totalRemaining = data.reduce((sum, project) => sum + project.remaining, 0);
+    const totalTasks = totalCompleted + totalRemaining;
+    const overallProgress = totalTasks > 0 
+        ? Math.round((totalCompleted / totalTasks) * 100)
+        : 0;
+
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Project Progress</CardTitle>
+        <Card>            <CardHeader>
+                <CardTitle>Project Task Progress</CardTitle>
                 <CardDescription>
-                    Showing completion status for all projects
+                    Task completion status across all projects
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -80,13 +87,12 @@ export function ChartComp({ data = defaultData }: ChartCompProps) {
                         />
                     </BarChart>
                 </ChartContainer>
-            </CardContent>
-            <CardFooter className="flex-col items-start gap-2 text-sm">
+            </CardContent>            <CardFooter className="flex-col items-start gap-2 text-sm">
                 <div className="flex gap-2 font-medium leading-none">
-                    Overall progress: 60% <TrendingUp className="h-4 w-4" />
+                    Overall task completion: {overallProgress}% <TrendingUp className="h-4 w-4" />
                 </div>
                 <div className="leading-none text-muted-foreground">
-                    Showing progress for all active projects
+                    {totalCompleted} completed of {totalTasks} total tasks across {data.length} projects
                 </div>
             </CardFooter>
         </Card>

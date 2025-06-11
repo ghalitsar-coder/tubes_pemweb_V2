@@ -25,7 +25,9 @@ class ProjectPolicy
     public function view(User $user, Project $project): bool
     {
         return $user->can('view dashboard') && 
-               ($user->id === $project->user_id || $user->hasRole('Admin'));
+               ($user->id === $project->user_id || 
+                $user->hasRole('Admin') || 
+                $project->hasMember($user));
     }
 
     /**
@@ -76,7 +78,9 @@ class ProjectPolicy
     public function comment(User $user, Project $project): bool
     {
         return $user->can('comment projects') && 
-               ($user->id === $project->user_id || $user->hasRole('Admin') || 
+               ($user->id === $project->user_id || 
+                $user->hasRole('Admin') || 
+                $project->hasMember($user) ||
                 $project->tasks()->where('assigned_to', $user->id)->exists());
     }
 }

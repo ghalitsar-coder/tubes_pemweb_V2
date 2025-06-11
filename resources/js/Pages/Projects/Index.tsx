@@ -44,6 +44,8 @@ import {
     canUpdateProject,
     canDeleteProject,
     canAssignTasks,
+    canUpdateSpecificProject,
+    canDeleteSpecificProject,
     UserWithPermissions,
 } from "@/utils/permissions";
 
@@ -263,10 +265,11 @@ export default function Index({ auth, projects }: Props) {
                                                 >
                                                     <MoreVertical className="h-4 w-4" />
                                                 </Button>
-                                            </DropdownMenuTrigger>
+                                            </DropdownMenuTrigger>{" "}
                                             <DropdownMenuContent align="end">
-                                                {canUpdateProject(
-                                                    auth.user
+                                                {canUpdateSpecificProject(
+                                                    auth.user,
+                                                    project
                                                 ) && (
                                                     <DropdownMenuItem asChild>
                                                         <Link
@@ -277,8 +280,9 @@ export default function Index({ auth, projects }: Props) {
                                                         </Link>
                                                     </DropdownMenuItem>
                                                 )}
-                                                {canDeleteProject(
-                                                    auth.user
+                                                {canDeleteSpecificProject(
+                                                    auth.user,
+                                                    project
                                                 ) && (
                                                     <DropdownMenuItem
                                                         className="text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -339,21 +343,28 @@ export default function Index({ auth, projects }: Props) {
                                     <div className="flex justify-between items-center mb-3">
                                         <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
                                             Tasks
-                                        </h4>
-                                        {canAssignTasks(auth.user) && (
-                                            <Link
-                                                href={`/tasks/create?project_id=${project.id}`}
-                                            >
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="text-xs text-indigo-600 hover:text-indigo-900"
+                                        </h4>{" "}
+                                        {canAssignTasks(auth.user) &&
+                                            (canUpdateSpecificProject(
+                                                auth.user,
+                                                project
+                                            ) ||
+                                                auth.user.roles?.includes(
+                                                    "Admin"
+                                                )) && (
+                                                <Link
+                                                    href={`/tasks/create?project_id=${project.id}`}
                                                 >
-                                                    <Plus className="h-3 w-3 mr-1" />
-                                                    Add Task
-                                                </Button>
-                                            </Link>
-                                        )}
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="text-xs text-indigo-600 hover:text-indigo-900"
+                                                    >
+                                                        <Plus className="h-3 w-3 mr-1" />
+                                                        Add Task
+                                                    </Button>
+                                                </Link>
+                                            )}
                                     </div>
                                     {/* Task List */}
                                     <div className="space-y-3">
