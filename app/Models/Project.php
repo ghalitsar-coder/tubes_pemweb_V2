@@ -50,6 +50,58 @@ class Project extends Model
         return $this->hasMany(Task::class);
     }
 
+    public function comments(): HasMany
+    {
+        return $this->hasMany(ProjectComment::class);
+    }
+
+    // Project Members Relationships
+    public function members()
+    {
+        return $this->belongsToMany(User::class, 'project_members')
+                    ->withPivot(['role', 'joined_at'])
+                    ->withTimestamps()
+                    ->orderBy('project_members.created_at');
+    }
+
+    public function projectMembers(): HasMany
+    {
+        return $this->hasMany(ProjectMember::class);
+    }
+
+    // Helper methods for member management
+    public function addMember(User $user, string $role = 'member'): void
+    {
+        if (!$this->hasMember($user)) {
+            $this->members()->attach($user->id, [
+                'role' => $role,
+                'joined_at' => now(),
+            ]);
+        }
+    }
+
+    public function removeMember(User $user): void
+    {
+        $this->members()->detach($user->id);
+    }
+
+    public function hasMember(User $user): bool
+    {
+        return $this->members()->where('user_id', $user->id)->exists();
+    }
+
+    public function getMemberRole(User $user): ?string
+    {
+        $member = $this->members()->where('user_id', $user->id)->first();
+        return $member ? $member->pivot->role : null;
+    }
+
+    public function getAvailableUsersForTasks()
+    {
+        // Return only project members for task assignment
+        return $this->members()->select('users.id', 'users.name', 'users.email')->get();
+    }
+
     public function getTasksCountAttribute(): int
     {
         return $this->tasks()->count();
@@ -62,10 +114,7 @@ class Project extends Model
 
     public function getMembersCountAttribute(): int
     {
-        return $this->tasks()
-            ->select('assigned_to')
-            ->distinct()
-            ->count();
+        return $this->members()->count();
     }
 
     public function calculateProgress(): void
@@ -169,4 +218,4 @@ class Project extends Model
 
         return $template;
     }
-} 
+}

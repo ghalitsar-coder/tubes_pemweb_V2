@@ -1,0 +1,44 @@
+graph TD
+    A[Notification Event] --> B{Event Type}
+    
+    B -->|New Project| C[Project Created]
+    B -->|Project Update| D[Project Modified]
+    B -->|Task Assigned| E[Task Assignment]
+    B -->|Task Update| F[Task Status Change]
+    B -->|New Comment| G[Comment Added]
+    B -->|Deadline Soon| H[Deadline Warning]
+    
+    C --> I[Identify Team Members]
+    D --> I
+    E --> J[Identify Assignee]
+    F --> K[Identify Stakeholders]
+    G --> L[Identify Comment Recipients]
+    H --> M[Identify Task Owner]
+    
+    I --> N[Create Notifications]
+    J --> N
+    K --> N
+    L --> N
+    M --> N
+    
+    N --> O[Store in Database]
+    O --> P[Send Email?]
+    
+    P -->|Yes| Q[Queue Email Job]
+    P -->|No| R[In-App Only]
+    
+    Q --> S[Send Email]
+    S --> T[Mark as Sent]
+    
+    R --> U[Mark as Read When Viewed]
+    T --> U
+    
+    U --> V[Display in UI]
+    V --> W[User Interaction]
+    
+    W --> X{Action Taken}
+    X -->|Mark Read| Y[Update Status]
+    X -->|Delete| Z[Remove Notification]
+    
+    Y --> AA[End]
+    Z --> AA

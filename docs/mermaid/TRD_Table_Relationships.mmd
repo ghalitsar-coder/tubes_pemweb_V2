@@ -1,0 +1,115 @@
+graph TD
+    %% TRD - Table Relationship Diagram
+    %% Project Management System Database
+    
+    %% Core Business Tables
+    subgraph "Core Business Entities"
+        USERS[Users<br/>- id PK<br/>- name<br/>- email UK<br/>- role<br/>- created_at<br/>- updated_at]
+        
+        PROJECTS[Projects<br/>- id PK<br/>- name<br/>- description<br/>- user_id FK<br/>- start_date<br/>- end_date<br/>- progress<br/>- status<br/>- budget<br/>- category<br/>- created_at<br/>- updated_at]
+        
+        TASKS[Tasks<br/>- id PK<br/>- title<br/>- description<br/>- task_type<br/>- project_id FK<br/>- assigned_to FK<br/>- status<br/>- due_date<br/>- priority<br/>- time_estimate<br/>- created_at<br/>- updated_at]
+    end
+    
+    %% Comment System Tables
+    subgraph "Comment System"
+        PROJECT_COMMENTS[Project Comments<br/>- id PK<br/>- content<br/>- project_id FK<br/>- user_id FK<br/>- parent_id FK<br/>- image_path<br/>- created_at<br/>- updated_at]
+        
+        TASK_COMMENTS[Task Comments<br/>- id PK<br/>- content<br/>- task_id FK<br/>- user_id FK<br/>- parent_id FK<br/>- image_path<br/>- created_at<br/>- updated_at]
+        
+        COMMENTS[Comments (Legacy)<br/>- id PK<br/>- content<br/>- task_id FK<br/>- user_id FK<br/>- project_id FK<br/>- parent_id FK<br/>- commentable_type<br/>- commentable_id<br/>- created_at<br/>- updated_at]
+    end
+    
+    %% Attachment System Tables
+    subgraph "Attachment System"
+        TASK_ATTACHMENTS[Task Attachments<br/>- id PK<br/>- task_id FK<br/>- filename<br/>- path<br/>- public_id<br/>- type<br/>- created_at<br/>- updated_at]
+        
+        TASK_ATTACHMENT_COMMENTS[Task Attachment Comments<br/>- id PK<br/>- task_attachment_id FK<br/>- user_id FK<br/>- content<br/>- created_at<br/>- updated_at]
+    end
+    
+    %% Calendar System Tables
+    subgraph "Calendar System"
+        CALENDAR_EVENTS[Calendar Events<br/>- id PK<br/>- title<br/>- description<br/>- event_date<br/>- event_type<br/>- status<br/>- user_id FK<br/>- project_id FK<br/>- task_id FK<br/>- created_at<br/>- updated_at]
+    end
+    
+    %% Permission System Tables
+    subgraph "Permission System"
+        ROLES[Roles<br/>- id PK<br/>- name<br/>- guard_name<br/>- created_at<br/>- updated_at]
+        
+        PERMISSIONS[Permissions<br/>- id PK<br/>- name<br/>- guard_name<br/>- created_at<br/>- updated_at]
+        
+        MODEL_HAS_ROLES[Model Has Roles<br/>- role_id PK,FK<br/>- model_type PK<br/>- model_id PK]
+        
+        MODEL_HAS_PERMISSIONS[Model Has Permissions<br/>- permission_id PK,FK<br/>- model_type PK<br/>- model_id PK]
+        
+        ROLE_HAS_PERMISSIONS[Role Has Permissions<br/>- permission_id PK,FK<br/>- role_id PK,FK]
+    end
+    
+    %% Laravel System Tables
+    subgraph "Laravel System"
+        SESSIONS[Sessions<br/>- id PK<br/>- user_id FK<br/>- ip_address<br/>- user_agent<br/>- payload<br/>- last_activity]
+        
+        PASSWORD_RESET[Password Reset Tokens<br/>- email PK<br/>- token<br/>- created_at]
+        
+        CACHE[Cache<br/>- key PK<br/>- value<br/>- expiration]
+        
+        FAILED_JOBS[Failed Jobs<br/>- id PK<br/>- uuid UK<br/>- connection<br/>- queue<br/>- payload<br/>- exception<br/>- failed_at]
+        
+        MIGRATIONS[Migrations<br/>- id PK<br/>- migration<br/>- batch]
+    end
+    
+    %% PRIMARY RELATIONSHIPS WITH CARDINALITY
+    
+    %% User Relationships (One-to-Many)
+    USERS ||--o{ PROJECTS : "1:N<br/>user_id"
+    USERS ||--o{ TASKS : "1:N<br/>assigned_to"
+    USERS ||--o{ PROJECT_COMMENTS : "1:N<br/>user_id"
+    USERS ||--o{ TASK_COMMENTS : "1:N<br/>user_id"
+    USERS ||--o{ COMMENTS : "1:N<br/>user_id"
+    USERS ||--o{ TASK_ATTACHMENT_COMMENTS : "1:N<br/>user_id"
+    USERS ||--o{ CALENDAR_EVENTS : "1:N<br/>user_id"
+    USERS ||--o{ SESSIONS : "1:N<br/>user_id"
+    
+    %% Project Relationships (One-to-Many)
+    PROJECTS ||--o{ TASKS : "1:N<br/>project_id"
+    PROJECTS ||--o{ PROJECT_COMMENTS : "1:N<br/>project_id"
+    PROJECTS ||--o{ CALENDAR_EVENTS : "1:N<br/>project_id"
+    PROJECTS ||--o{ COMMENTS : "1:N<br/>project_id"
+    
+    %% Task Relationships (One-to-Many)
+    TASKS ||--o{ TASK_COMMENTS : "1:N<br/>task_id"
+    TASKS ||--o{ COMMENTS : "1:N<br/>task_id"
+    TASKS ||--o{ TASK_ATTACHMENTS : "1:N<br/>task_id"
+    TASKS ||--o{ CALENDAR_EVENTS : "1:N<br/>task_id"
+    
+    %% Attachment Relationships (One-to-Many)
+    TASK_ATTACHMENTS ||--o{ TASK_ATTACHMENT_COMMENTS : "1:N<br/>task_attachment_id"
+    
+    %% Self-Referencing Relationships (One-to-Many)
+    PROJECT_COMMENTS ||--o{ PROJECT_COMMENTS : "1:N<br/>parent_id"
+    TASK_COMMENTS ||--o{ TASK_COMMENTS : "1:N<br/>parent_id"
+    COMMENTS ||--o{ COMMENTS : "1:N<br/>parent_id"
+    
+    %% Permission System Relationships (Many-to-Many via Junction Tables)
+    ROLES ||--o{ MODEL_HAS_ROLES : "1:N<br/>role_id"
+    PERMISSIONS ||--o{ MODEL_HAS_PERMISSIONS : "1:N<br/>permission_id"
+    ROLES ||--o{ ROLE_HAS_PERMISSIONS : "1:N<br/>role_id"
+    PERMISSIONS ||--o{ ROLE_HAS_PERMISSIONS : "1:N<br/>permission_id"
+    
+    %% Password Reset Relationship
+    USERS ||--o{ PASSWORD_RESET : "1:N<br/>email"
+    
+    %% Styling for different table groups
+    classDef coreEntity fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000
+    classDef commentSystem fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
+    classDef attachmentSystem fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px,color:#000
+    classDef calendarSystem fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    classDef permissionSystem fill:#fce4ec,stroke:#880e4f,stroke-width:2px,color:#000
+    classDef laravelSystem fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#000
+    
+    class USERS,PROJECTS,TASKS coreEntity
+    class PROJECT_COMMENTS,TASK_COMMENTS,COMMENTS commentSystem
+    class TASK_ATTACHMENTS,TASK_ATTACHMENT_COMMENTS attachmentSystem
+    class CALENDAR_EVENTS calendarSystem
+    class ROLES,PERMISSIONS,MODEL_HAS_ROLES,MODEL_HAS_PERMISSIONS,ROLE_HAS_PERMISSIONS permissionSystem
+    class SESSIONS,PASSWORD_RESET,CACHE,FAILED_JOBS,MIGRATIONS laravelSystem

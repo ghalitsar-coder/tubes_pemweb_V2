@@ -5,6 +5,7 @@ import { createRoot } from "react-dom/client";
 import { createInertiaApp } from "@inertiajs/react";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import "react-datepicker/dist/react-datepicker.css";
+import { jwtManager } from "./utils/jwt";
 
 // Add Cloudinary configuration
 declare global {
@@ -32,6 +33,12 @@ createInertiaApp({
             import.meta.glob("./Pages/**/*.tsx")
         ),
     setup({ el, App, props }) {
+        // Initialize JWT token if available
+        const jwtData = (props.initialPage.props as any).jwt;
+        if (jwtData?.token) {
+            jwtManager.setToken(jwtData.token);
+        }
+
         const root = createRoot(el);
         root.render(<App {...props} />);
     },

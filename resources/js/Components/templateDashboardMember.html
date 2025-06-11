@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Member Dashboard - FlowBoard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-item.active {
+            background-color: #e0e7ff;
+            color: #4f46e5;
+            border-right: 3px solid #4f46e5;
+        }
+        .sidebar-item.active:hover {
+            background-color: #e0e7ff;
+        }
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e5e7eb;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            background-color: #4f46e5;
+            transition: width 0.3s ease;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            font-size: 10px;
+            min-width: 18px;
+            height: 18px;
+        }
+        .avatar {
+            transition: all 0.3s ease;
+        }
+        .avatar:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Main Layout -->
+    <div class="flex h-screen overflow-hidden">
+      
+
+        <!-- Mobile Sidebar -->
+        <div class="md:hidden fixed inset-0 z-40" style="display: none;">
+            <div class="fixed inset-0 bg-gray-600 bg-opacity-75" aria-hidden="true"></div>
+            <div class="relative flex flex-col flex-1 w-64 max-w-xs bg-white">
+                <div class="absolute top-0 right-0 -mr-12 pt-2">
+                    <button class="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                        <i class="fas fa-times text-white"></i>
+                    </button>
+                </div>
+                <div class="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
+                    <div class="flex-shrink-0 flex items-center px-4">
+                        <i class="fas fa-tasks text-indigo-600 text-xl mr-2"></i>
+                        <span class="text-lg font-semibold">FlowBoard</span>
+                    </div>
+                    <nav class="mt-5 px-2 space-y-1">
+                        <a href="#" class="group flex items-center px-2 py-2 text-base font-medium rounded-md text-white bg-indigo-800">
+                            <i class="fas fa-home text-indigo-300 mr-4 flex-shrink-0"></i>
+                            Dashboard
+                        </a>
+                        <a href="#" class="group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50">
+                            <i class="fas fa-project-diagram text-gray-400 group-hover:text-gray-500 mr-4 flex-shrink-0"></i>
+                            My Projects
+                        </a>
+                        <a href="#" class="group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50">
+                            <i class="fas fa-tasks text-gray-400 group-hover:text-gray-500 mr-4 flex-shrink-0"></i>
+                            My Tasks
+                        </a>
+                        <a href="#" class="group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50">
+                            <i class="fas fa-users text-gray-400 group-hover:text-gray-500 mr-4 flex-shrink-0"></i>
+                            Team Dashboard
+                        </a>
+                        <a href="#" class="group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50">
+                            <i class="fas fa-comments text-gray-400 group-hover:text-gray-500 mr-4 flex-shrink-0"></i>
+                            Discussions
+                        </a>
+                        <a href="#" class="group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50">
+                            <i class="fas fa-calendar text-gray-400 group-hover:text-gray-500 mr-4 flex-shrink-0"></i>
+                            Calendar
+                        </a>
+                    </nav>
+                </div>
+                <div class="flex-shrink-0 flex border-t border-gray-200 p-4">
+                    <div class="flex items-center">
+                        <img src="https://randomuser.me/api/portraits/men/42.jpg" class="w-10 h-10 rounded-full" alt="User avatar">
+                        <div class="ml-3">
+                            <p class="text-base font-medium text-gray-700">Team Member</p>
+                            <p class="text-sm font-medium text-gray-500">View profile</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex flex-col flex-1 overflow-hidden">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow-sm z-10">
+                <div class="flex items-center justify-between px-4 py-3">
+                    <div class="flex items-center">
+                        <button class="md:hidden mr-2 p-2 rounded-md text-gray-500 hover:text-gray-600 hover:bg-gray-100 focus:outline-none">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h1 class="text-xl font-semibold text-gray-900">Dashboard</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <button class="p-2 text-gray-500 hover:text-gray-600">
+                                <i class="fas fa-bell text-xl"></i>
+                                <span class="notification-badge bg-red-500 text-white rounded-full flex items-center justify-center">3</span>
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <button class="p-2 text-gray-500 hover:text-gray-600">
+                                <i class="fas fa-envelope text-xl"></i>
+                                <span class="notification-badge bg-blue-500 text-white rounded-full flex items-center justify-center">5</span>
+                            </button>
+                        </div>
+                        <div class="hidden md:block">
+                            <div class="ml-4 flex items-center md:ml-6">
+                                <div class="relative">
+                                    <button class="flex items-center space-x-2 p-1 rounded-full hover:bg-gray-100">
+                                        <span class="text-sm font-medium text-gray-700">Team Member</span>
+                                        <img src="https://randomuser.me/api/portraits/men/42.jpg" class="h-8 w-8 rounded-full" alt="User avatar">
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 overflow-y-auto p-4 bg-gray-50">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="mb-6">
+                        <h2 class="text-lg font-medium text-gray-900">Welcome back, Team Member!</h2>
+                        <p class="mt-1 text-sm text-gray-500">Here's what's happening with your projects today.</p>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+                        <div class="bg-white overflow-hidden shadow rounded-lg">
+                            <div class="px-5 py-6">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 bg-indigo-500 rounded-md p-3">
+                                        <i class="fas fa-tasks text-white"></i>
+                                    </div>
+                                    <div class="ml-5 w-0 flex-1">
+                                        <dl>
+                                            <dt class="text-sm font-medium text-gray-500 truncate">Assigned Tasks</dt>
+                                            <dd class="flex items-baseline">
+                                                <div class="text-2xl font-semibold text-gray-900">8</div>
+                                                <div class="ml-2 flex items-baseline text-sm font-semibold text-green-600">
+                                                    <i class="fas fa-arrow-up text-green-500 text-xs"></i>
+                                                    <span class="sr-only">Increased by</span>
+                                                    2 from yesterday
+                                                </div>
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white overflow-hidden shadow rounded-lg">
+                            <div class="px-5 py-6">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
+                                        <i class="fas fa-check-circle text-white"></i>
+                                    </div>
+                                    <div class="ml-5 w-0 flex-1">
+                                        <dl>
+                                            <dt class="text-sm font-medium text-gray-500 truncate">Completed Tasks</dt>
+                                            <dd class="flex items-baseline">
+                                                <div class="text-2xl font-semibold text-gray-900">3</div>
+                                                <div class="ml-2 flex items-baseline text-sm font-semibold text-green-600">
+                                                    <i class="fas fa-arrow-up text-green-500 text-xs"></i>
+                                                    <span class="sr-only">Increased by</span>
+                                                    1 this week
+                                                </div>
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white overflow-hidden shadow rounded-lg">
+                            <div class="px-5 py-6">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 bg-yellow-400 rounded-md p-3">
+                                        <i class="fas fa-exclamation-triangle text-white"></i>
+                                    </div>
+                                    <div class="ml-5 w-0 flex-1">
+                                        <dl>
+                                            <dt class="text-sm font-medium text-gray-500 truncate">Pending Tasks</dt>
+                                            <dd class="flex items-baseline">
+                                                <div class="text-2xl font-semibold text-gray-900">2</div>
+                                                <div class="ml-2 flex items-baseline text-sm font-semibold text-red-600">
+                                                    <i class="fas fa-arrow-down text-red-500 text-xs"></i>
+                                                    <span class="sr-only">Decreased by</span>
+                                                    1 this week
+                                                </div>
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white overflow-hidden shadow rounded-lg">
+                            <div class="px-5 py-6">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
+                                        <i class="fas fa-project-diagram text-white"></i>
+                                    </div>
+                                    <div class="ml-5 w-0 flex-1">
+                                        <dl>
+                                            <dt class="text-sm font-medium text-gray-500 truncate">Active Projects</dt>
+                                            <dd class="flex items-baseline">
+                                                <div class="text-2xl font-semibold text-gray-900">4</div>
+                                                <div class="ml-2 flex items-baseline text-sm font-semibold text-green-600">
+                                                    <i class="fas fa-arrow-up text-green-500 text-xs"></i>
+                                                    <span class="sr-only">Increased by</span>
+                                                    1 new project
+                                                </div>
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Projects Section -->
+                    <div class="mb-8">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-lg font-medium text-gray-900">Recent Projects</h2>
+                            <a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">View all</a>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Project Card 1 -->
+                            <div class="bg-white overflow-hidden shadow rounded-lg task-card transition duration-150 ease-in-out">
+                                <div class="px-4 py-5 sm:p-6">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="text-base font-medium text-gray-900">Alfonso Whitley Project</h3>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">Active</span>
+                                    </div>
+                                    <p class="mt-1 text-sm text-gray-500 line-clamp-2">Voluptas similique nisi sint consectetur. Non dolores est esse quisquam eligendi exercitationem.</p>
+                                    <div class="mt-4">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="text-sm font-medium text-gray-500">Progress</span>
+                                            <span class="text-sm font-medium">65%</span>
+                                        </div>
+                                        <div class="progress-bar w-full">
+                                            <div class="progress-fill" style="width: 65%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 flex items-center justify-between">
+                                        <div class="flex -space-x-2">
+                                            <img src="https://randomuser.me/api/portraits/women/43.jpg" class="w-8 h-8 rounded-full border-2 border-white" alt="User">
+                                            <img src="https://randomuser.me/api/portraits/men/32.jpg" class="w-8 h-8 rounded-full border-2 border-white" alt="User">
+                                            <div class="w-8 h-8 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center">
+                                                <span class="text-xs font-medium text-gray-500">+4</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-sm text-gray-500 flex items-center">
+                                            <i class="far fa-calendar-alt mr-1"></i>
+                                            <span>Due May 30</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Project Card 2 -->
+                            <div class="bg-white overflow-hidden shadow rounded-lg task-card transition duration-150 ease-in-out">
+                                <div class="px-4 py-5 sm:p-6">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="text-base font-medium text-gray-900">Kaye Rodriguez</h3>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
+                                    </div>
+                                    <p class="mt-1 text-sm text-gray-500 line-clamp-2">Est sint omnis sint recusandae. Aperiam quos quae qui. Nulla rerum et repellat consequatur.</p>
+                                    <div class="mt-4">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="text-sm font-medium text-gray-500">Progress</span>
+                                            <span class="text-sm font-medium">100%</span>
+                                        </div>
+                                        <div class="progress-bar w-full">
+                                            <div class="progress-fill" style="width: 100%; background-color: #10b981;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 flex items-center justify-between">
+                                        <div class="flex -space-x-2">
+                                            <img src="https://randomuser.me/api/portraits/men/65.jpg" class="w-8 h-8 rounded-full border-2 border-white" alt="User">
+                                            <img src="https://randomuser.me/api/portraits/women/57.jpg" class="w-8 h-8 rounded-full border-2 border-white" alt="User">
+                                        </div>
+                                        <div class="text-sm text-gray-500 flex items-center">
+                                            <i class="far fa-calendar-check mr-1"></i>
+                                            <span>Completed May 22</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Project Card 3 -->
+                            <div class="bg-white overflow-hidden shadow rounded-lg task-card transition duration-150 ease-in-out">
+                                <div class="px-4 py-5 sm:p-6">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="text-base font-medium text-gray-900">Merrill Petty</h3>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Behind</span>
+                                    </div>
+                                    <p class="mt-1 text-sm text-gray-500 line-clamp-2">Voluptatum sint ea officiis. Tempore libero sunt eos quis explicabo rerum.</p>
+                                    <div class="mt-4">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="text-sm font-medium text-gray-500">Progress</span>
+                                            <span class="text-sm font-medium">35%</span>
+                                        </div>
+                                        <div class="progress-bar w-full">
+                                            <div class="progress-fill" style="width: 35%; background-color: #f59e0b;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 flex items-center justify-between">
+                                        <div class="flex -space-x-2">
+                                            <img src="https://randomuser.me/api/portraits/women/68.jpg" class="w-8 h-8 rounded-full border-2 border-white" alt="User">
+                                            <img src="https://randomuser.me/api/portraits/men/76.jpg" class="w-8 h-8 rounded-full border-2 border-white" alt="User">
+                                            <img src="https://randomuser.me/api/portraits/women/32.jpg" class="w-8 h-8 rounded-full border-2 border-white" alt="User">
+                                        </div>
+                                        <div class="text-sm text-yellow-600 flex items-center">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>
+                                            <span>Overdue by 3 days</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tasks Section -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- To Do Tasks -->
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-lg font-medium text-gray-900 flex items-center">
+                                    <span class="status-dot bg-gray-400"></span>
+                                    To Do
+                                    <span class="ml-2 bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">2</span>
+                                </h2>
+                                <button class="text-sm text-indigo-600 hover:text-indigo-500 font-medium">
+                                    <i class="fas fa-plus mr-1"></i> Add
+                                </button>
+                            </div>
+                            <div class="space-y-4">
+                                <!-- Task 1 -->
+                                <div class="bg-white shadow rounded-lg overflow-hidden task-card">
+                                    <div class="p-4">
+                                        <div class="flex items-start justify-between">
+                                            <div>
+                                                <h3 class="font-medium text-gray-900">SSSSSSSSSS</h3>
+                                                <p class="mt-1 text-sm text-gray-500 line-clamp-2">Consectetur similique eligendi consectetur voluptatem quasi. Est ut rerum. Rerum eum mollitia non suscipit quam.</p>
+                                            </div>
+                                            <div class="flex">
+                                                <button class="ml-1 text-gray-400 hover:text-gray-500">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 flex items-center justify-between">
+                                            <div class="flex items-center">
+                                                <i class="far fa-calendar-alt text-gray-400 text-sm mr-1"></i>
+                                                <span class="text-xs text-gray-500">Due Apr 28</span>
+                                            </div>
+                                            <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">Medium</span>
+                                        </div>
+                                        <div class="mt-3 flex items-center">
+                                            <img src="https://randomuser.me/api/portraits/men/42.jpg" class="w-6 h-6 rounded-full border border-white" alt="Assignee">
+                                            <div class="ml-2">
+                                                <span class="text-xs text-gray-500">Assigned to me</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- In Progress Tasks -->
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-lg font-medium text-gray-900 flex items-center">
+                                    <span class="status-dot bg-blue-500"></span>
+                                    In Progress
+                                    <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">4</span>
+                                </h2>
+                                <button class="text-sm text-indigo-600 hover:text-indigo-500 font-medium">
+                                    <i class="fas fa-plus mr-1"></i> Add
+                                </button>
+                            </div>
+                            <div class="space-y-4">
+                                <!-- Task 1 -->
+                                <div class="bg-white shadow rounded-lg overflow-hidden task-card">
+                                    <div class="p-4">
+                                        <div class="flex items-start justify-between">
+                                            <div>
+                                                <h3 class="font-medium text-gray-900">Dashboard redesign</h3>
+                                                <p class="mt-1 text-sm text-gray-500 line-clamp-2">Revamp the main dashboard UI with modern design principles and better user experience.</p>
+                                            </div>
+                                            <div class="flex">
+                                                <button class="ml-1 text-gray-400 hover:text-gray-500">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 flex items-center justify-between">
+                                            <div class="flex items-center">
+                                                <i class="far fa-calendar-alt text-gray-400 text-sm mr-1"></i>
+                                                <span class="text-xs text-gray-500">Due May 25</span>
+                                            </div>
+                                            <span class="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">High</span>
+                                        </div>
+                                        <div class="mt-3 flex items-center">
+                                            <img src="https://randomuser.me/api/portraits/men/42.jpg" class="w-6 h-6 rounded-full border border-white" alt="Assignee">
+                                            <div class="ml-2">
+                                                <span class="text-xs text-gray-500">Assigned to me</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Task 2 -->
+                                <div class="bg-white shadow rounded-lg overflow-hidden task-card">
+                                    <div class="p-4">
+                                        <div class="flex items-start justify-between">
+                                            <div>
+                                                <h3 class="font-medium text-gray-900">ZZZZZZZZZZ</h3>
+                                                <p class="mt-1 text-sm text-gray-500 line-clamp-2">In illum debitis placeat. Ducimus nisi aspernatur nihil dignissimos debitis.</p>
+                                            </div>
+                                            <div class="flex">
+                                                <button class="ml-1 text-gray-400 hover:text-gray-500">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 flex items-center justify-between">
+                                            <div class="flex items-center">
+                                                <i class="far fa-calendar-alt text-gray-400 text-sm mr-1"></i>
+                                                <span class="text-xs text-gray-500">Due May 27</span>
+                                            </div>
+                                            <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">Medium</span>
+                                        </div>
+                                        <div class="mt-3 flex items-center">
+                                            <img src="https://randomuser.me/api/portraits/men/42.jpg" class="w-6 h-6 rounded-full border border-white" alt="Assignee">
+                                            <div class="ml-2">
+                                                <span class="text-xs text-gray-500">Assigned to me</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Completed Tasks -->
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-lg font-medium text-gray-900 flex items-center">
+                                    <span class="status-dot bg-green-500"></span>
+                                    Completed
+                                    <span class="ml-2 bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">3</span>
+                                </h2>
+                                <button class="text-sm text-indigo-600 hover:text-indigo-500 font-medium">
+                                    <i class="fas fa-plus mr-1"></i> Add
+                                </button>
+                            </div>
+                            <div class="space-y-4">
+                                <!-- Task 1 -->
+                                <div class="bg-white shadow rounded-lg overflow-hidden task-card">
+                                    <div class="p-4">
+                                        <div class="flex items-start justify-between">
+                                            <div>
+                                                <h3 class="font-medium text-gray-900">POCOLOCO</h3>
+                                                <p class="mt-1 text-sm text-gray-500 line-clamp-2">Animi nulla a quo odit. Consectetur dolorum qui magni. Quaerat omnis quia.</p>
+                                            </div>
+                                            <div class="flex">
+                                                <button class="ml-1 text-gray-400 hover:text-gray-500">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 flex items-center justify-between">
+                                            <div class="flex items-center">
+                                                <i class="far fa-calendar-check text-gray-400 text-sm mr-1"></i>
+                                                <span class="text-xs text-gray-500">Completed May 22</span>
+                                            </div>
+                                            <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">Low</span>
+                                        </div>
+                                        <div class="mt-3 flex items-center">
+                                            <img src="https://randomuser.me/api/portraits/men/42.jpg" class="w-6 h-6 rounded-full border border-white" alt="Assignee">
+                                            <div class="ml-2">
+                                                <span class="text-xs text-gray-500">Assigned to me</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Task 2 -->
+                                <div class="bg-white shadow rounded-lg overflow-hidden task-card">
+                                    <div class="p-4">
+                                        <div class="flex items-start justify-between">
+                                            <div>
+                                                <h3 class="font-medium text-gray-900">DDDDDDDDD</h3>
+                                                <p class="mt-1 text-sm text-gray-500 line-clamp-2">Voluptas veniam voluptatem. Nobis facilis debitis vitae voluptatem animi.</p>
+                                            </div>
+                                            <div class="flex">
+                                                <button class="ml-1 text-gray-400 hover:text-gray-500">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 flex items-center justify-between">
+                                            <div class="flex items-center">
+                                                <i class="far fa-calendar-check text-gray-400 text-sm mr-1"></i>
+                                                <span class="text-xs text-gray-500">Completed Apr 30</span>
+                                            </div>
+                                            <span class="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800">Done</span>
+                                        </div>
+                                        <div class="mt-3 flex items-center">
+                                            <img src="https://randomuser.me/api/portraits/men/42.jpg" class="w-6 h-6 rounded-full border border-white" alt="Assignee">
+                                            <div class="ml-2">
+                                                <span class="text-xs text-gray-500">Assigned to me</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Mobile sidebar toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.querySelector('button.md\\:hidden');
+            const mobileMenu = document.querySelector('.md\\:hidden.fixed.inset-0.z-40');
+            
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.style.display = mobileMenu.style.display === 'block' ? 'none' : 'block';
+            });
+            
+            // Close button in mobile menu
+            const closeButton = mobileMenu.querySelector('button');
+            closeButton.addEventListener('click', function() {
+                mobileMenu.style.display = 'none';
+            });
+            
+            // Set active sidebar item on page load
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                if (item.href === window.location.href) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Task card click handler
+            document.querySelectorAll('.task-card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    // Don't navigate if clicking on buttons or links inside the card
+                    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A' || e.target.closest('button') || e.target.closest('a')) {
+                        return;
+                    }
+                    // In a real app, this would navigate to the task detail page
+                    console.log('Opening task detail view');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

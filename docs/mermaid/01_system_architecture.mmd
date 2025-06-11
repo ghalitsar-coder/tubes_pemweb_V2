@@ -1,0 +1,40 @@
+graph TD
+    A[User Access] --> B{Authentication}
+    B -->|Login Success| C[Dashboard]
+    B -->|Login Failed| D[Login Page]
+    D --> B
+    
+    C --> E{User Role}
+    E -->|Admin| F[Admin Dashboard]
+    E -->|Project Manager| G[PM Dashboard] 
+    E -->|Team Member| H[Member Dashboard]
+    
+    F --> I[User Management]
+    F --> J[All Projects]
+    F --> K[System Settings]
+    
+    G --> L[Create Projects]
+    G --> M[Manage Projects]
+    G --> N[Assign Tasks]
+    
+    H --> O[View Assigned Tasks]
+    H --> P[Update Task Status]
+    H --> Q[View Projects]
+    
+    I --> R[CRUD Users]
+    J --> S[CRUD Projects]
+    L --> T[Project Creation Form]
+    M --> U[Project Management]
+    N --> V[Task Assignment]
+    O --> W[Task List]
+    P --> X[Task Updates]
+    Q --> Y[Project View]
+    
+    S --> Z[Database Operations]
+    T --> Z
+    U --> Z
+    V --> Z
+    W --> Z
+    X --> Z
+    Y --> Z
+    R --> Z

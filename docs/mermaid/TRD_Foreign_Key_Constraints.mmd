@@ -1,0 +1,85 @@
+graph TD
+    %% TRD - Foreign Key Constraints & Referential Integrity
+    %% Detailed Database Relationship Diagram
+    
+    subgraph "User Management"
+        USERS["<b>users</b><br/>├─ id (PK, BIGINT, AUTO_INCREMENT)<br/>├─ name (VARCHAR, NOT NULL)<br/>├─ email (VARCHAR, UNIQUE, NOT NULL)<br/>├─ role (VARCHAR, DEFAULT: 'team_member')<br/>├─ password (VARCHAR, NOT NULL)<br/>└─ timestamps"]
+    end
+    
+    subgraph "Core Business Logic"
+        PROJECTS["<b>projects</b><br/>├─ id (PK, BIGINT, AUTO_INCREMENT)<br/>├─ user_id (FK → users.id)<br/>├─ name (VARCHAR, NOT NULL)<br/>├─ description (TEXT, NOT NULL)<br/>├─ status (ENUM: not_started|in_progress|on_hold|completed)<br/>├─ budget (DECIMAL 15,2, NULLABLE)<br/>├─ progress (INT, DEFAULT: 0)<br/>└─ timestamps"]
+        
+        TASKS["<b>tasks</b><br/>├─ id (PK, BIGINT, AUTO_INCREMENT)<br/>├─ project_id (FK → projects.id)<br/>├─ assigned_to (FK → users.id, NULLABLE)<br/>├─ title (VARCHAR, NOT NULL)<br/>├─ description (TEXT, NOT NULL)<br/>├─ task_type (ENUM: feature|bug|improvement)<br/>├─ status (ENUM: todo|in_progress|on_hold|completed)<br/>├─ priority (VARCHAR, DEFAULT: 'medium')<br/>├─ due_date (DATE, NOT NULL)<br/>└─ timestamps"]
+    end
+    
+    subgraph "Comment System"
+        PROJECT_COMMENTS["<b>project_comments</b><br/>├─ id (PK, BIGINT, AUTO_INCREMENT)<br/>├─ project_id (FK → projects.id)<br/>├─ user_id (FK → users.id)<br/>├─ parent_id (FK → project_comments.id, NULLABLE)<br/>├─ content (TEXT, NOT NULL)<br/>├─ image_path (VARCHAR, NULLABLE)<br/>└─ timestamps + soft_deletes"]
+        
+        TASK_COMMENTS["<b>task_comments</b><br/>├─ id (PK, BIGINT, AUTO_INCREMENT)<br/>├─ task_id (FK → tasks.id)<br/>├─ user_id (FK → users.id)<br/>├─ parent_id (FK → task_comments.id, NULLABLE)<br/>├─ content (TEXT, NOT NULL)<br/>├─ image_path (VARCHAR, NULLABLE)<br/>└─ timestamps + soft_deletes"]
+        
+        COMMENTS_LEGACY["<b>comments (legacy)</b><br/>├─ id (PK, BIGINT, AUTO_INCREMENT)<br/>├─ task_id (FK → tasks.id)<br/>├─ user_id (FK → users.id)<br/>├─ project_id (FK → projects.id, NULLABLE)<br/>├─ parent_id (FK → comments.id, NULLABLE)<br/>├─ content (TEXT, NOT NULL)<br/>├─ commentable_type (VARCHAR, NULLABLE)<br/>├─ commentable_id (BIGINT, NULLABLE)<br/>└─ timestamps + soft_deletes"]
+    end
+    
+    subgraph "File Management"
+        TASK_ATTACHMENTS["<b>task_attachments</b><br/>├─ id (PK, BIGINT, AUTO_INCREMENT)<br/>├─ task_id (FK → tasks.id)<br/>├─ filename (VARCHAR, NOT NULL)<br/>├─ path (VARCHAR, NOT NULL)<br/>├─ public_id (VARCHAR, NULLABLE)<br/>├─ type (VARCHAR, NOT NULL)<br/>└─ timestamps"]
+        
+        TASK_ATTACHMENT_COMMENTS["<b>task_attachment_comments</b><br/>├─ id (PK, BIGINT, AUTO_INCREMENT)<br/>├─ task_attachment_id (FK → task_attachments.id)<br/>├─ user_id (FK → users.id)<br/>├─ content (TEXT, NOT NULL)<br/>└─ timestamps"]
+    end
+    
+    subgraph "Calendar Integration"
+        CALENDAR_EVENTS["<b>calendar_events</b><br/>├─ id (PK, BIGINT, AUTO_INCREMENT)<br/>├─ user_id (FK → users.id)<br/>├─ project_id (FK → projects.id, NULLABLE)<br/>├─ task_id (FK → tasks.id, NULLABLE)<br/>├─ title (VARCHAR, NOT NULL)<br/>├─ event_date (DATE, NOT NULL)<br/>├─ event_type (ENUM: meeting|task_deadline|review|etc)<br/>├─ status (ENUM: scheduled|completed|cancelled)<br/>├─ priority (ENUM: low|medium|high)<br/>└─ timestamps + soft_deletes"]
+    end
+    
+    %% Foreign Key Constraints with Actions
+    
+    %% User Constraints (CASCADE DELETE)
+    USERS ===|"ON DELETE CASCADE<br/>user_id"| PROJECTS
+    USERS ===|"ON DELETE SET NULL<br/>assigned_to"| TASKS
+    USERS ===|"ON DELETE CASCADE<br/>user_id"| PROJECT_COMMENTS
+    USERS ===|"ON DELETE CASCADE<br/>user_id"| TASK_COMMENTS
+    USERS ===|"ON DELETE CASCADE<br/>user_id"| COMMENTS_LEGACY
+    USERS ===|"ON DELETE CASCADE<br/>user_id"| TASK_ATTACHMENT_COMMENTS
+    USERS ===|"ON DELETE CASCADE<br/>user_id"| CALENDAR_EVENTS
+    
+    %% Project Constraints (CASCADE DELETE)
+    PROJECTS ===|"ON DELETE CASCADE<br/>project_id"| TASKS
+    PROJECTS ===|"ON DELETE CASCADE<br/>project_id"| PROJECT_COMMENTS
+    PROJECTS ===|"ON DELETE CASCADE<br/>project_id"| COMMENTS_LEGACY
+    PROJECTS ===|"ON DELETE CASCADE<br/>project_id"| CALENDAR_EVENTS
+    
+    %% Task Constraints (CASCADE DELETE)
+    TASKS ===|"ON DELETE CASCADE<br/>task_id"| TASK_COMMENTS
+    TASKS ===|"ON DELETE CASCADE<br/>task_id"| COMMENTS_LEGACY
+    TASKS ===|"ON DELETE CASCADE<br/>task_id"| TASK_ATTACHMENTS
+    TASKS ===|"ON DELETE CASCADE<br/>task_id"| CALENDAR_EVENTS
+    
+    %% Attachment Constraints (CASCADE DELETE)
+    TASK_ATTACHMENTS ===|"ON DELETE CASCADE<br/>task_attachment_id"| TASK_ATTACHMENT_COMMENTS
+    
+    %% Self-Referencing Constraints (CASCADE DELETE)
+    PROJECT_COMMENTS ===|"ON DELETE CASCADE<br/>parent_id"| PROJECT_COMMENTS
+    TASK_COMMENTS ===|"ON DELETE CASCADE<br/>parent_id"| TASK_COMMENTS
+    COMMENTS_LEGACY ===|"ON DELETE CASCADE<br/>parent_id"| COMMENTS_LEGACY
+    
+    %% Constraint Legend
+    subgraph "Constraint Legend"
+        LEGEND["<b>Foreign Key Actions:</b><br/>🗑️ CASCADE DELETE - Child records deleted when parent is deleted<br/>❌ SET NULL - Foreign key set to NULL when parent is deleted<br/>🔒 RESTRICT - Prevents deletion if child records exist<br/>🔄 SELF-REF - Table references itself for hierarchical data"]
+    end
+    
+    %% Database Indexes (Performance Optimization)
+    subgraph "Key Indexes"
+        INDEXES["<b>Database Indexes:</b><br/>📊 projects(user_id) - User's projects lookup<br/>📊 tasks(project_id) - Project's tasks lookup<br/>📊 tasks(assigned_to) - User's assigned tasks<br/>📊 comments(*_id, created_at) - Comments timeline<br/>📊 calendar_events(event_date, user_id) - Calendar queries<br/>📊 calendar_events(project_id, event_date) - Project events"]
+    end
+    
+    %% Color Coding for Constraint Types
+    classDef primaryEntity fill:#e3f2fd,stroke:#1976d2,stroke-width:3px,color:#000
+    classDef dependentEntity fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+    classDef junctionEntity fill:#e8f5e8,stroke:#388e3c,stroke-width:2px,color:#000
+    classDef systemEntity fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000
+    classDef legendEntity fill:#fafafa,stroke:#616161,stroke-width:1px,color:#000
+    
+    class USERS primaryEntity
+    class PROJECTS,TASKS dependentEntity
+    class PROJECT_COMMENTS,TASK_COMMENTS,COMMENTS_LEGACY,TASK_ATTACHMENTS,TASK_ATTACHMENT_COMMENTS junctionEntity
+    class CALENDAR_EVENTS systemEntity
+    class LEGEND,INDEXES legendEntity

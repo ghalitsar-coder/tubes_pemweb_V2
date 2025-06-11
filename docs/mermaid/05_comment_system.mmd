@@ -1,0 +1,35 @@
+graph TD
+    A[User Wants to Comment] --> B{On What?}
+    B -->|Project| C[Project Comment Form]
+    B -->|Task| D[Task Comment Form]
+    B -->|Attachment| E[Attachment Comment Form]
+    
+    C --> F[Write Project Comment]
+    D --> G[Write Task Comment]
+    E --> H[Write Attachment Comment]
+    
+    F --> I[Add Image?]
+    G --> I
+    H --> I
+    
+    I -->|Yes| J[Upload Image]
+    I -->|No| K[Submit Comment]
+    
+    J --> L[Image Uploaded]
+    L --> K
+    
+    K --> M{Validation}
+    M -->|Failed| N[Show Error]
+    N --> F
+    
+    M -->|Success| O[Save Comment]
+    O --> P[Display Comment]
+    
+    P --> Q[Reply Option]
+    Q --> R{User Replies?}
+    
+    R -->|Yes| S[Create Reply]
+    R -->|No| T[End]
+    
+    S --> U[Nested Comment]
+    U --> P

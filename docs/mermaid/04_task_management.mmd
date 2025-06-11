@@ -1,0 +1,48 @@
+graph TD
+    A[Task Creation Request] --> B{Permission Check}
+    B -->|Has Permission| C[Task Form]
+    B -->|No Permission| D[Access Denied]
+    
+    C --> E[Fill Task Details]
+    E --> F[Select Project]
+    F --> G[Assign User]
+    G --> H[Set Priority]
+    H --> I[Set Deadline]
+    I --> J[Add Attachments]
+    J --> K[Submit Task]
+    
+    K --> L{Validation}
+    L -->|Failed| M[Show Errors]
+    M --> E
+    
+    L -->|Success| N[Create Task in DB]
+    N --> O[Task Created]
+    
+    O --> P[Task Dashboard]
+    P --> Q[Task Status]
+    Q --> R{Current Status}
+    
+    R -->|Todo| S[Start Task]
+    R -->|In Progress| T[Continue Work]
+    R -->|On Hold| U[Resume Task]
+    R -->|Completed| V[Task Finished]
+    
+    S --> W[Update to In Progress]
+    T --> X[Add Comments]
+    T --> Y[Upload Files]
+    T --> Z[Update Progress]
+    
+    U --> AA[Change Status]
+    AA --> T
+    
+    W --> T
+    X --> BB[Comment Saved]
+    Y --> CC[File Uploaded]
+    Z --> DD[Progress Updated]
+    
+    BB --> EE[Notification Sent]
+    CC --> EE
+    DD --> EE
+    
+    V --> FF[Mark Complete]
+    FF --> GG[Update Project Progress]

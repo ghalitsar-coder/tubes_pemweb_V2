@@ -1,0 +1,38 @@
+graph TD
+    A[Start Upload Process] --> B[Choose Files]
+    B --> C{File Validation}
+    
+    C -->|Invalid| D[Show Error Message]
+    D --> E[Select Different File]
+    E --> B
+    
+    C -->|Valid| F[Upload to Server]
+    F --> G{Upload Success?}
+    
+    G -->|Failed| H[Network Error]
+    H --> I[Retry Upload]
+    I --> F
+    
+    G -->|Success| J[Generate Thumbnail]
+    J --> K[Store File Path]
+    K --> L[Link to Entity]
+    
+    L --> M{Entity Type}
+    M -->|Project| N[Project Attachments]
+    M -->|Task| O[Task Attachments]
+    M -->|Comment| P[Comment Attachments]
+    
+    N --> Q[Display in Project View]
+    O --> R[Display in Task View]
+    P --> S[Display in Comment]
+    
+    Q --> T[Download Option]
+    R --> T
+    S --> T
+    
+    T --> U[Delete Option]
+    U --> V{Confirm Delete?}
+    
+    V -->|No| W[Cancel]
+    V -->|Yes| X[Remove File]
+    X --> Y[Update UI]

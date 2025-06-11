@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects | Task Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-item.active {
+            background-color: #e0e7ff;
+            color: #4f46e5;
+            border-right: 3px solid #4f46e5;
+        }
+        .priority-high {
+            border-left: 4px solid #ef4444;
+        }
+        .priority-medium {
+            border-left: 4px solid #f59e0b;
+        }
+        .priority-low {
+            border-left: 4px solid #10b981;
+        }
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .progress-bar {
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Main Layout -->
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="hidden md:flex md:flex-shrink-0">
+            <div class="flex flex-col w-64 border-r border-gray-200 bg-white">
+                <div class="flex items-center h-16 px-4 border-b border-gray-200">
+                    <div class="flex items-center">
+                        <i class="fas fa-tasks text-indigo-600 text-xl mr-2"></i>
+                        <span class="text-lg font-semibold">TaskFlow Admin</span>
+                    </div>
+                </div>
+                <div class="flex flex-col flex-grow px-4 py-4 overflow-y-auto">
+                    <nav class="flex-1 space-y-1">
+                        <div>
+                            <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Management</h3>
+                            <a href="#" class="sidebar-item mt-1 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100">
+                                <i class="fas fa-home text-gray-500 group-hover:text-indigo-600 mr-3 flex-shrink-0"></i>
+                                Dashboard
+                            </a>
+                            <a href="#" class="sidebar-item mt-1 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100">
+                                <i class="fas fa-tasks text-gray-500 group-hover:text-indigo-600 mr-3 flex-shrink-0"></i>
+                                Task Management
+                            </a>
+                            <a href="#" class="sidebar-item mt-1 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100">
+                                <i class="fas fa-users text-gray-500 group-hover:text-indigo-600 mr-3 flex-shrink-0"></i>
+                                User Management
+                            </a>
+                        </div>
+                        <div>
+                            <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-4">Projects</h3>
+                            <a href="#" class="sidebar-item active mt-1 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100">
+                                <i class="fas fa-project-diagram text-gray-500 group-hover:text-indigo-600 mr-3 flex-shrink-0"></i>
+                                Project Overview
+                            </a>
+                            <a href="#" class="sidebar-item mt-1 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100">
+                                <i class="fas fa-chart-line text-gray-500 group-hover:text-indigo-600 mr-3 flex-shrink-0"></i>
+                                Reports & Analytics
+                            </a>
+                        </div>
+                    </nav>
+                </div>
+                <div class="p-4 border-t border-gray-200">
+                    <div class="flex items-center">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" class="w-10 h-10 rounded-full mr-3" alt="Admin avatar">
+                        <div>
+                            <p class="text-sm font-medium">Admin User</p>
+                            <p class="text-xs text-gray-500">admin@example.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex flex-col flex-1 overflow-hidden">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow-sm z-10">
+                <div class="flex items-center justify-between px-4 py-3">
+                    <div class="flex items-center">
+                        <button class="md:hidden mr-2 p-2 rounded-md text-gray-500 hover:text-gray-600 hover:bg-gray-100 focus:outline-none">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h1 class="text-xl font-semibold text-gray-900">Projects</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <button class="text-gray-500 hover:text-gray-600">
+                                <i class="fas fa-search text-xl"></i>
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <button class="text-gray-500 hover:text-gray-600">
+                                <i class="fas fa-filter text-xl"></i>
+                            </button>
+                        </div>
+                        <button class="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">
+                            <i class="fas fa-plus mr-1"></i> New Project
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
+                <div class="max-w-7xl mx-auto">
+                    <!-- Projects Header -->
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">All Projects (4)</h2>
+                            <p class="text-sm text-gray-500">Showing all active projects in your team</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                                <i class="fas fa-upload mr-1"></i> Export
+                            </button>
+                            <div class="relative">
+                                <select class="appearance-none pl-3 pr-8 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option>Sort by: Recently Updated</option>
+                                    <option>Sort by: Project Name</option>
+                                    <option>Sort by: Due Date</option>
+                                    <option>Sort by: Progress</option>
+                                </select>
+                                <i class="fas fa-chevron-down absolute right-2 top-2 text-gray-400 pointer-events-none"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Projects Grid -->
+                    <div class="grid gap-6 sm:grid-cols-1 lg:grid-cols-2">
+                        <!-- Project 1 - Website Redesign -->
+                        <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
+                            <div class="px-5 py-4 border-b border-gray-200 flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <div class="h-9 w-9 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                                        <i class="fas fa-globe text-purple-600"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-900">Website Redesign</h3>
+                                        <div class="flex items-center text-sm text-gray-500 mt-1">
+                                            <span>3 members</span>
+                                            <span class="mx-2">•</span>
+                                            <span>5/8 tasks completed</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="text-indigo-600 hover:text-indigo-900">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                            <div class="px-5 py-3 bg-gray-50">
+                                <div class="mb-1 flex justify-between text-sm font-medium text-gray-700">
+                                    <span>Progress</span>
+                                    <span>63%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-purple-600 h-2 rounded-full progress-bar" style="width: 63%"></div>
+                                </div>
+                            </div>
+                            <div class="p-5">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Tasks</h4>
+                                    <button class="text-xs text-indigo-600 hover:text-indigo-900 font-medium">
+                                        <i class="fas fa-plus mr-1"></i> Add Task
+                                    </button>
+                                </div>
+                                
+                                <!-- Task 1 -->
+                                <a href="#" class="task-card block bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-3 transition duration-150 ease-in-out">
+                                    <div class="flex items-start">
+                                        <div class="flex items-center h-5 mr-2 mt-1">
+                                            <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500">
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-gray-900 truncate">Implement user authentication flow with OAuth2</p>
+                                            <div class="flex flex-wrap items-center mt-1 text-xs text-gray-500 space-x-3">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-exclamation-circle text-red-500 mr-1"></i>
+                                                    High Priority
+                                                </span>
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-calendar-alt text-gray-400 mr-1"></i>
+                                                    Due in 3 days
+                                                </span>
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-user-circle text-gray-400 mr-1"></i>
+                                                    John Smith
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="ml-3 flex-shrink-0 flex">
+                                            <img src="https://randomuser.me/api/portraits/men/32.jpg" class="h-8 w-8 rounded-full" alt="Assignee">
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                                <!-- Task 2 -->
+                                <a href="#" class="task-card block bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-3 transition duration-150 ease-in-out">
+                                    <div class="flex items-start">
+                                        <div class="flex items-center h-5 mr-2 mt-1">
+                                            <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500" checked>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-gray-900 truncate">Design new homepage layout</p>
+                                            <div class="flex flex-wrap items-center mt-1 text-xs text-gray-500 space-x-3">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-exclamation-circle text-yellow-500 mr-1"></i>
+                                                    Medium Priority
+                                                </span>
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                                                    Completed
+                                                </span>
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-user-circle text-gray-400 mr-1"></i>
+                                                    Sarah Johnson
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="ml-3 flex-shrink-0 flex">
+                                            <img src="https://randomuser.me/api/portraits/women/68.jpg" class="h-8 w-8 rounded-full" alt="Assignee">
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                                <!-- Task 3 (if there's more space) -->
+                                <a href="#" class="task-card block bg-white border border-gray-200 rounded-lg p-4 shadow-sm transition duration-150 ease-in-out">
+                                    <div class="flex items-start">
+                                        <div class="flex items-center h-5 mr-2 mt-1">
+                                            <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500">
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-gray-900 truncate">Optimize website performance</p>
+                                            <div class="flex flex-wrap items-center mt-1 text-xs text-gray-500 space-x-3">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-exclamation-circle text-green-500 mr-1"></i>
+                                                    Low Priority
+                                                </span>
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-calendar-alt text-gray-400 mr-1"></i>
+                                                    Due in 2 weeks
+                                                </span>
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-user-circle text-gray-400 mr-1"></i>
+                                                    Michael Lee
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="ml-3 flex-shrink-0 flex">
+                                            <img src="https://randomuser.me/api/portraits/men/75.jpg" class="h-8 w-8 rounded-full" alt="Assignee">
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                                <div class="mt-3 text-center">
+                                    <button class="text-xs font-medium text-indigo-600 hover:text-indigo-900">
+                                        View all 8 tasks <i class="fas fa-chevron-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Project 2 - Mobile App Development -->
+                        <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
+                            <div class="px-5 py-4 border-b border-gray-200 flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <div class="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                        <i class="fas fa-mobile-alt text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-900">Mobile App Development</h3>
+                                        <div class="flex items-center text-sm text-gray-500 mt-1">
+                                            <span>4 members</span>
+                                            <span class="mx-2">•</span>
+                                            <span>12/15 tasks completed</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="text-indigo-600 hover:text-indigo-900">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                            <div class="px-5 py-3 bg-gray-50">
+                                <div class="mb-1 flex justify-between text-sm font-medium text-gray-700">
+                                    <span>Progress</span>
+                                    <span>80%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-600 h-2 rounded-full progress-bar" style="width: 80%"></div>
+                                </div>
+                            </div>
+                            <div class="p-5">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Tasks</h4>
+                                    <button class="text-xs text-indigo-600 hover:text-indigo-900 font-medium">
+                                        <i class="fas fa-plus mr-1"></i> Add Task
+                                    </button>
+                                </div>
+                                
+                                <!-- Task 1 -->
+                                <a href="#" class="task-card block bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-3 transition duration-150 ease-in-out">
+                                    <div class="flex items-start">
+                                        <div class="flex items-center h-5 mr-2 mt-1">
+                                            <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500">
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-gray-900 truncate">Implement push notification system</p>
+                                            <div class="flex flex-wrap items-center mt-1 text-xs text-gray-500 space-x-3">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-exclamation-circle text-red-500 mr-1"></i>
+                                                    High Priority
+                                                </span>
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-calendar-alt text-gray-400 mr-1"></i>
+                                                    Due tomorrow
+                                                </span>
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-user-circle text-gray-400 mr-1"></i>
+                                                    Emma Wilson
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="ml-3 flex-shrink-0 flex">
+                                            <img src="https://randomuser.me/api/portraits/women/42.jpg" class="h-8 w-8 rounded-full" alt="Assignee">
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                                <!-- Task 2 -->
+                                <a href="#" class="task-card block bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-3 transition duration-150 ease-in-out">
+                                    <div class="flex items-start">
+                                        <div class="flex items-center h-5 mr-2 mt-1">
+                                            <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500" checked>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-gray-900 truncate">Design app onboarding flow</p>
+                                            <div class="flex flex-wrap items-center mt-1 text-xs text-gray-500 space-x-3">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-exclamation-circle text-yellow-500 mr-1"></i>
+                                                    Medium Priority
+                                                </span>
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                                                    Completed
+                                                </span>
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-user-circle text-gray-400 mr-1"></i>
+                                                    David Chen
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="ml-3 flex-shrink-0 flex">
+                                            <img src="https://randomuser.me/api/portraits/men/22.jpg" class="h-8 w-8 rounded-full" alt="Assignee">
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                                <div class="mt-3 text-center">
+                                    <button class="text-xs font-medium text-indigo-600 hover:text-indigo-900">
+                                        View all 15 tasks <i class="fas fa-chevron-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Project 3 - Marketing Campaign -->
+                        <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
+                            <div class="px-5 py-4 border-b border-gray-200 flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <div class="h-9 w-9 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                        <i class="fas fa-bullhorn text-green-600"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-900">Q3 Marketing Campaign</h3>
+                                        <div class="flex items-center text-sm text-gray-500 mt-1">
+                                            <span>5 members</span>
+                                            <span class="mx-2">•</span>
+                                            <span>7/12 tasks completed</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="text-indigo-600 hover:text-indigo-900">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                            <div class="px-5 py-3 bg-gray-50">
+                                <div class="mb-1 flex justify-between text-sm font-medium text-gray-700">
+                                    <span>Progress</span>
+                                    <span>58%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-600 h-2 rounded-full progress-bar" style="width: 58%"></div>
+                                </div>
+                            </div>
+                            <div class="p-5">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Tasks</h4>
+                                    <button class="text-xs text-indigo-600 hover:text-indigo-900 font-medium">
+                                        <i class="fas fa-plus mr-1"></i> Add Task
+                                    </button>
+                                </div>
+                                
+                                <!-- Task 1 -->
+                                <a href="#" class="task-card block bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-3 transition duration-150 ease-in-out">
+                                    <div class="flex items-start">
+                                        <div class="flex items-center h-5 mr-2 mt-1">
+                                            <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500">
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-gray-900 truncate">Create campaign landing page</p>
+                                            <div class="flex flex-wrap items-center mt-1 text-xs text-gray-500 space-x-3">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-exclamation-circle text-yellow-500 mr-1"></i>
+                                                    Medium Priority
+                                                </span>
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-calendar-alt text-gray-400 mr-1"></i>
+                                                    Due in 5 days
+                                                </span>
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-user-circle text-gray-400 mr-1"></i>
+                                                    Lisa Wang
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="ml-3 flex-shrink-0 flex">
+                                            <img src="https://randomuser.me/api/portraits/women/65.jpg" class="h-8 w-8 rounded-full" alt="Assignee">
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                                <!-- Task 2 -->
+                                <a href="#" class="task-card block bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-3 transition duration-150 ease-in-out">
+                                    <div class="flex items-start">
+                                        <div class="flex items-center h-5 mr-2 mt-1">
+                                            <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500" checked>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-gray-900 truncate">Design social media assets</p>
+                                            <div class="flex flex-wrap items-center mt-1 text-xs text-gray-500 space-x-3">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                                                    Completed
+                                                </span>
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-user-circle text-gray-400 mr-1"></i>
+                                                    Robert Taylor
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="ml-3 flex-shrink-0 flex">
+                                            <img src="https://randomuser.me/api/portraits/men/53.jpg" class="h-8 w-8 rounded-full" alt="Assignee">
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                                <div class="mt-3 text-center">
+                                    <button class="text-xs font-medium text-indigo-600 hover:text-indigo-900">
+                                        View all 12 tasks <i class="fas fa-chevron-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Project 4 - Backend API Improvement -->
+                        <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
+                            <div class="px-5 py-4 border-b border-gray-200 flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <div class="h-9 w-9 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                                        <i class="fas fa-server text-red-600"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-900">Backend API Improvement</h3>
+                                        <div class="flex items-center text-sm text-gray-500 mt-1">
+                                            <span>2 members</span>
+                                            <span class="mx-2">•</span>
+                                            <span>3/6 tasks completed</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="text-indigo-600 hover:text-indigo-900">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                            <div class="px-5 py-3 bg-gray-50">
+                                <div class="mb-1 flex justify-between text-sm font-medium text-gray-700">
+                                    <span>Progress</span>
+                                    <span>50%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-red-600 h-2 rounded-full progress-bar" style="width: 50%"></div>
+                                </div>
+                            </div>
+                            <div class="p-5">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Tasks</h4>
+                                    <button class="text-xs text-indigo-600 hover:text-indigo-900 font-medium">
+                                        <i class="fas fa-plus mr-1"></i> Add Task
+                                    </button>
+                                </div>
+                                
+                                <!-- Task 1 -->
+                                <a href="#" class="task-card block bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-3 transition duration-150 ease-in-out">
+                                    <div class="flex items-start">
+                                        <div class="flex items-center h-5 mr-2 mt-1">
+                                            <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500">
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-gray-900 truncate">Optimize database queries</p>
+                                            <div class="flex flex-wrap items-center mt-1 text-xs text-gray-500 space-x-3">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-exclamation-circle text-red-500 mr-1"></i>
+                                                    High Priority
+                                                </span>
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-calendar-alt text-gray-400 mr-1"></i>
+                                                    Due in 1 week
+                                                </span>
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-user-circle text-gray-400 mr-1"></i>
+                                                    Michael Lee
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="ml-3 flex-shrink-0 flex">
+                                            <img src="https://randomuser.me/api/portraits/men/75.jpg" class="h-8 w-8 rounded-full" alt="Assignee">
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                                <!-- Task 2 -->
+                                <a href="#" class="task-card block bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-3 transition duration-150 ease-in-out">
+                                    <div class="flex items-start">
+                                        <div class="flex items-center h-5 mr-2 mt-1">
+                                            <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500" checked>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-gray-900 truncate">Implement caching layer</p>
+                                            <div class="flex flex-wrap items-center mt-1 text-xs text-gray-500 space-x-3">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                                                    Completed
+                                                </span>
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-user-circle text-gray-400 mr-1"></i>
+                                                    John Smith
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="ml-3 flex-shrink-0 flex">
+                                            <img src="https://randomuser.me/api/portraits/men/32.jpg" class="h-8 w-8 rounded-full" alt="Assignee">
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                                <div class="mt-3 text-center">
+                                    <button class="text-xs font-medium text-indigo-600 hover:text-indigo-900">
+                                        View all 6 tasks <i class="fas fa-chevron-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="mt-8 flex items-center justify-between">
+                        <div class="flex-1 flex justify-between sm:hidden">
+                            <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                Previous
+                            </a>
+                            <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                Next
+                            </a>
+                        </div>
+                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-sm text-gray-700">
+                                    Showing <span class="font-medium">1</span> to <span class="font-medium">4</span> of <span class="font-medium">4</span> projects
+                                </p>
+                            </div>
+                            <div>
+                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                    <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <span class="sr-only">Previous</span>
+                                        <i class="fas fa-chevron-left h-5 w-5"></i>
+                                    </a>
+                                    <a href="#" aria-current="page" class="z-10 bg-indigo-50 border-indigo-500 text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                        1
+                                    </a>
+                                    <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                        2
+                                    </a>
+                                    <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                        3
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <span class="sr-only">Next</span>
+                                        <i class="fas fa-chevron-right h-5 w-5"></i>
+                                    </a>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Task card click handler (would navigate to task detail in a real app)
+            document.querySelectorAll('.task-card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    if (e.target.tagName !== 'INPUT' && !e.target.closest('input')) {
+                        // In a real app, this would navigate to the task detail page
+                        // window.location.href = '/task-detail';
+                        console.log('Navigating to task detail');
+                    }
+                });
+            });
+
+            // Project dropdown handlers
+            document.querySelectorAll('button:has(.fa-ellipsis-v)').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    // In a real app, this would show a dropdown menu for project actions
+                    console.log('Project actions menu clicked');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

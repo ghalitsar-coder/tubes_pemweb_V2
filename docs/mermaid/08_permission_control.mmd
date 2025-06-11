@@ -1,0 +1,44 @@
+graph TD
+    A[Access Control Check] --> B{User Authenticated?}
+    
+    B -->|No| C[Redirect to Login]
+    B -->|Yes| D[Check Permission]
+    
+    D --> E{Has Permission?}
+    E -->|No| F[Show 403 Error]
+    E -->|Yes| G[Allow Access]
+    
+    G --> H{Resource Type}
+    
+    H -->|Project| I[Project Permission Check]
+    H -->|Task| J[Task Permission Check]
+    H -->|User Management| K[Admin Permission Check]
+    
+    I --> L{Project Role}
+    L -->|Owner| M[Full Access]
+    L -->|Member| N[Limited Access]
+    L -->|Viewer| O[Read Only]
+    
+    J --> P{Task Assignment}
+    P -->|Assigned| Q[Task Access]
+    P -->|Not Assigned| R[Project Role Check]
+    
+    K --> S{Is Admin?}
+    S -->|Yes| T[Admin Access]
+    S -->|No| U[Deny Access]
+    
+    M --> V[Execute Action]
+    N --> W{Action Type}
+    O --> X[View Only]
+    Q --> V
+    T --> V
+    
+    W -->|Read| V
+    W -->|Write| Y{Can Modify?}
+    Y -->|Yes| V
+    Y -->|No| Z[Deny Action]
+    
+    V --> AA[Return Result]
+    X --> AA
+    Z --> AA
+    U --> AA

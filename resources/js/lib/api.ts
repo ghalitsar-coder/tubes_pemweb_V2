@@ -8,12 +8,8 @@ const api = axios.create({
     },
 });
 
-api.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
+// Note: The JWT Manager already handles request/response interceptors globally,
+// so we don't need to duplicate that logic here. The JWT Manager will automatically
+// add the correct headers (Authorization: Bearer for /api/* routes).
 
 export default api;

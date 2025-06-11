@@ -1,11 +1,12 @@
 import { PropsWithChildren } from "react";
-import { User } from "@/types";
+import { UserWithPermissions } from "@/utils/permissions";
 import { Link } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Toaster } from "sonner";
 import { Head } from "@inertiajs/react";
 import { AppSidebar } from "@/components/app-sidebar";
+import FlashMessages from "@/components/FlashMessages";
 import {
     SidebarInset,
     SidebarProvider,
@@ -22,14 +23,22 @@ import {
 } from "@/components/ui/breadcrumb";
 
 interface Props {
-    user: User;
+    user: UserWithPermissions;
     header?: React.ReactNode;
 }
 
-export default function AuthenticatedLayout({ children }: PropsWithChildren) {
+export default function AuthenticatedLayout({
+    children,
+    user,
+    header,
+}: PropsWithChildren<Props>) {
+    // console.log(`THIS IS user in AuthenticatedLayout:`, user);
+    // console.log("User permissions in AuthenticatedLayout:", user?.permissions);
+    // console.log("User can object in AuthenticatedLayout:", user?.can);
+
     return (
         <SidebarProvider>
-            <AppSidebar />
+            <AppSidebar user={user} />
             <SidebarInset>
                 <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
                     <div className="flex items-center gap-2 px-4">
@@ -59,6 +68,8 @@ export default function AuthenticatedLayout({ children }: PropsWithChildren) {
                     {children}
                 </div>
             </SidebarInset>
+            <FlashMessages />
+            <Toaster />
         </SidebarProvider>
     );
 }

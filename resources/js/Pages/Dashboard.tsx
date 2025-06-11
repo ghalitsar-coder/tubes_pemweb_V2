@@ -1,6 +1,7 @@
 import { PageProps } from "@/types";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { JWTTestComponent } from "@/components/JWTTestComponent";
 import {
     FolderKanban,
     CheckSquare,
@@ -28,6 +29,11 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import {
+    canCreateProject,
+    canManageUsers,
+    UserWithPermissions,
+} from "@/utils/permissions";
 
 interface DashboardProps extends PageProps {
     stats: {
@@ -39,6 +45,10 @@ interface DashboardProps extends PageProps {
     projectProgress: {
         name: string;
         progress: number;
+        completed_tasks: number;
+        remaining_tasks: number;
+        total_tasks: number;
+        month: string;
     }[];
     recentTasks: {
         id: number;
@@ -62,24 +72,28 @@ interface DashboardProps extends PageProps {
         avatar: string;
         status: "online" | "offline" | "away";
     }[];
+    auth: {
+        user: UserWithPermissions;
+    };
 }
 
 export default function Dashboard({
+    auth,
     stats,
     projectProgress,
     recentTasks,
     upcomingDeadlines,
     teamMembers,
 }: DashboardProps) {
-    // Transform project progress data for the chart
+    // Transform project progress data for the chart - ubah ke completed vs remaining tasks
     const chartData = projectProgress.map((project) => ({
         month: project.name,
-        completed: project.progress,
-        remaining: 100 - project.progress,
+        completed: project.completed_tasks,
+        remaining: project.remaining_tasks,
     }));
 
     return (
-        <AuthenticatedLayout>
+        <AuthenticatedLayout user={auth.user}>
             <div className="flex justify-between items-center mb-8">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">
@@ -90,12 +104,14 @@ export default function Dashboard({
                         projects.
                     </p>
                 </div>
-                <Button asChild>
-                    <Link href={route("projects.create")}>
-                        <FolderKanban className="mr-2 h-4 w-4" />
-                        New Project
-                    </Link>
-                </Button>
+                {canCreateProject(auth.user) && (
+                    <Button asChild>
+                        <Link href={route("projects.create")}>
+                            <FolderKanban className="mr-2 h-4 w-4" />
+                            New Project
+                        </Link>
+                    </Button>
+                )}
             </div>
 
             {/* Quick Actions */}
@@ -244,7 +260,7 @@ export default function Dashboard({
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                 {/* Project Progress Chart */}
                 <Card className="lg:col-span-2">
-                    <ChartComp />
+                    <ChartComp data={chartData} />
                 </Card>
 
                 {/* Recent Tasks */}
@@ -281,10 +297,12 @@ export default function Dashboard({
             <Card className="mb-8">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Team Members</CardTitle>
-                    <Button variant="outline" size="sm">
-                        <UserPlus className="h-4 w-4 mr-2" />
-                        Add Member
-                    </Button>
+                    {canManageUsers(auth.user) && (
+                        <Button variant="outline" size="sm">
+                            <UserPlus className="h-4 w-4 mr-2" />
+                            Add Member
+                        </Button>
+                    )}
                 </CardHeader>
                 <CardContent>
                     <Table>
@@ -445,6 +463,14 @@ export default function Dashboard({
                         </CardContent>
                     </Card>
                 ))}
+            </div>
+
+            {/* JWT Test Component for Development */}
+            <div className="mt-8">
+                <h2 className="text-lg font-semibold mb-4">
+                    JWT Integration Test
+                </h2>
+                <JWTTestComponent />
             </div>
         </AuthenticatedLayout>
     );
